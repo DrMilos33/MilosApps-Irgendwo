@@ -1,0 +1,6 @@
+{
+  "status": "ok",
+  "appKey": "somewhere-now",
+  "environment": "DEV",
+  "readiness": true
+}

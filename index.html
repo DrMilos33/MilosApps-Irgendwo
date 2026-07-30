@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Ein stilles Fenster zu einem realen Moment irgendwo auf der Erde – aus Zeit, Tageslicht und Wetter."
+    />
+    <meta name="theme-color" content="#e8aa68" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <title>Irgendwo ist gerade …</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#moment-title">Direkt zum Moment</a>
+    <main class="app-shell" id="app">
+      <header class="app-header">
+        <a class="brand" href="/" aria-label="Irgendwo ist gerade … – neuer Start">
+          <span class="brand-mark" aria-hidden="true">
+            <span></span>
+            <span></span>
+          </span>
+          <span>Irgendwo ist gerade …</span>
+        </a>
+        <nav class="header-actions" aria-label="App-Einstellungen">
+          <button
+            class="icon-button"
+            id="sound-toggle"
+            type="button"
+            aria-pressed="false"
+            aria-label="Klang einschalten"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 9v6h4l5 4V5L9 9H5Z"></path>
+              <path class="sound-wave" d="M17 9.5c.8.7 1.2 1.5 1.2 2.5s-.4 1.8-1.2 2.5"></path>
+            </svg>
+          </button>
+          <button class="text-button" id="about-open" type="button">Über diese Reise</button>
+        </nav>
+      </header>
+
+      <section class="moment-layout" aria-labelledby="moment-title">
+        <div class="moment-copy">
+          <p class="eyebrow" id="place-label">Ein Punkt auf der Erde</p>
+          <h1 id="moment-title">
+            <span>Hier öffnet sich gleich</span>
+            <span>ein anderer Augenblick.</span>
+          </h1>
+          <p class="moment-detail" id="moment-detail">
+            Zeit und Tageslicht sind sofort da. Das Wetter darf einen Moment brauchen.
+          </p>
+          <div class="primary-actions">
+            <button class="travel-button" id="travel-button" type="button">
+              <span>Noch einmal</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m8 5 7 7-7 7"></path>
+              </svg>
+            </button>
+            <button class="share-button" id="share-button" type="button" disabled>
+              Moment teilen
+            </button>
+          </div>
+          <p class="status-line" id="status-line" role="status" aria-live="polite">
+            Die Reise beginnt …
+          </p>
+        </div>
+
+        <div class="scene-column">
+          <figure
+            class="scene"
+            id="scene"
+            role="img"
+            aria-label="Eine abstrakte Landschaft entsteht."
+            data-phase="day"
+            data-weather="clear"
+          >
+            <div class="scene-sky" aria-hidden="true">
+              <span class="scene-orbit">
+                <span class="scene-sun"></span>
+                <span class="scene-moon"></span>
+              </span>
+              <span class="star-field star-field-a"></span>
+              <span class="star-field star-field-b"></span>
+              <span class="cloud cloud-a"></span>
+              <span class="cloud cloud-b"></span>
+              <span class="weather-particles" id="weather-particles"></span>
+              <span class="haze"></span>
+              <span class="hill hill-back"></span>
+              <span class="hill hill-mid"></span>
+              <span class="hill hill-front"></span>
+              <span class="water-line"></span>
+            </div>
+            <figcaption class="scene-caption">
+              <span id="scene-place">Unterwegs</span>
+              <span aria-hidden="true">·</span>
+              <time id="scene-time">–:–</time>
+            </figcaption>
+          </figure>
+
+          <section class="fact-card" aria-label="Details zu diesem Moment">
+            <div class="fact-card-heading">
+              <div>
+                <p class="fact-kicker">Gerade vor Ort</p>
+                <h2 id="fact-place">Noch unterwegs</h2>
+              </div>
+              <span class="data-state" id="data-state" data-state="loading">lädt</span>
+            </div>
+            <dl class="facts">
+              <div>
+                <dt>Ortszeit</dt>
+                <dd id="fact-time">–</dd>
+              </div>
+              <div>
+                <dt>Wetter</dt>
+                <dd id="fact-weather">wird angefragt</dd>
+              </div>
+              <div>
+                <dt>Tageslicht</dt>
+                <dd id="fact-daylight">wird berechnet</dd>
+              </div>
+            </dl>
+            <p class="source-note" id="source-note">
+              Ortszeit und Sonnenstand werden lokal berechnet.
+            </p>
+            <button class="retry-button" id="weather-retry" type="button" hidden>
+              Wetter erneut laden
+            </button>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <dialog class="about-dialog" id="about-dialog" aria-labelledby="about-title">
+      <div class="dialog-header">
+        <p class="fact-kicker">Ein Blick, keine Beobachtung</p>
+        <button class="icon-button close-button" id="about-close" type="button" aria-label="Schließen">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m6 6 12 12M18 6 6 18"></path>
+          </svg>
+        </button>
+      </div>
+      <h2 id="about-title">So entsteht der Moment</h2>
+      <p>
+        Die App wählt einen kuratierten Ort und verbindet dortige Uhrzeit,
+        Sonnenstand und – wenn erreichbar – aktuelle Modell-Wetterdaten. Die
+        Landschaft und der optionale Klang entstehen vollständig im Browser.
+      </p>
+      <ul>
+        <li>Kein Konto, kein Nutzerstandort und keine Analyse-Cookies.</li>
+        <li>Exakte Koordinaten werden weder angezeigt noch geteilt.</li>
+        <li>Gefährliche Wetterlagen werden bewusst nicht inszeniert.</li>
+        <li>Klang startet nur nach deiner ausdrücklichen Aktion.</li>
+      </ul>
+      <div class="source-links">
+        <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">
+          Wetter: Open-Meteo · CC BY 4.0
+        </a>
+        <a href="https://www.geonames.org/" target="_blank" rel="noreferrer">
+          Ortsdaten: GeoNames · CC BY 4.0
+        </a>
+        <a href="https://github.com/mourner/suncalc" target="_blank" rel="noreferrer">
+          Sonnenstand: SunCalc · BSD-2-Clause
+        </a>
+      </div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
