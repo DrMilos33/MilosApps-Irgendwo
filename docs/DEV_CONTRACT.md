@@ -59,3 +59,18 @@ ungeprüft weiter.
 - kein Production-Deployment;
 - keine kommerzielle Nutzung des freien Open-Meteo-Endpunkts;
 - keine Eintragung einer erfundenen DEV-URL.
+
+## Externer DEV-Blocker
+
+Der lokale, vollständig getestete DEV-Stand ist bereit. Eine unabhängige
+HTTPS-DEV-URL kann derzeit nicht wahrheitsgemäß übergeben werden:
+
+- für dieses Repository ist kein Git-Remote oder GitHub-Repository
+  eingetragen;
+- es ist kein unabhängiges DEV-Hostingprojekt samt Ziel und Berechtigung
+  verbunden;
+- ein Production-Deployment ist ausdrücklich nicht freigegeben.
+
+Bis ein DEV-Hostingziel bereitgestellt ist, bleibt `devUrl` in den Metadaten
+`null`. `http://127.0.0.1:4316/` ist ausschließlich die lokale Prüfadresse und
+darf nicht als Portalziel verwendet werden.

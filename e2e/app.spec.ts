@@ -69,8 +69,17 @@ test("lädt ohne Login und zeigt einen vollständigen Moment", async ({ page }) 
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByText("Reykjavík · Island")).toBeVisible();
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Noch einmal" })).toBeEnabled();
+  const travel = page.getByRole("button", { name: "Noch einmal" });
+  await expect(travel).toBeEnabled();
+  const travelIsInInitialViewport = await travel.evaluate(
+    (element) => element.getBoundingClientRect().top < window.innerHeight,
+  );
+  expect(travelIsInInitialViewport).toBe(true);
   await expect(page.getByRole("button", { name: "Moment teilen" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Klang einschalten" })).toHaveAttribute(
+    "aria-pressed",
+    "false",
+  );
   await expect(page.locator("body")).not.toContainText(/anmelden|login|konto erforderlich/i);
   expect(consoleErrors).toEqual([]);
 });
@@ -86,17 +95,29 @@ test("hat in der Hauptansicht keine automatisch erkannten Accessibility-Verstö�
   expect(results.violations).toEqual([]);
 });
 
+test("bleibt auch im dunklen Systemdesign kontrastreich", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "dark" });
+  await mockWeather(page);
+  await page.goto("/?place=kathmandu");
+  await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
+
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toEqual([]);
+});
+
 test("Dialog und Hauptaktion funktionieren vollständig per Tastatur", async ({ page }) => {
   await mockWeather(page);
   await page.goto("/?place=waitangi");
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
-  await page.getByRole("button", { name: "Über diese Reise" }).focus();
+  const about = page.getByRole("button", { name: "Über diese Reise" });
+  await about.focus();
   await page.keyboard.press("Enter");
   await expect(page.getByRole("dialog")).toBeVisible();
   await expect(page.getByRole("heading", { name: "So entsteht der Moment" })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toBeHidden();
+  await expect(about).toBeFocused();
 
   await page.getByRole("button", { name: "Noch einmal" }).focus();
   await page.keyboard.press("Enter");
@@ -133,6 +154,31 @@ test("bleibt bei fehlendem Wetter nutzbar und kann erneut versuchen", async ({ p
   await expect(page.getByText(/Zeit und Tageslicht bleiben aktuell/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Wetter erneut laden" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Noch einmal" })).toBeEnabled();
+});
+
+test("erholt sich nach einem Wetterfehler über den sichtbaren Retry", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "Zustandsübergang reicht einmal.");
+  let shouldFail = true;
+  await page.route("https://api.open-meteo.com/**", async (route) => {
+    if (shouldFail) {
+      await route.abort("failed");
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(weatherBody()),
+    });
+  });
+  await page.goto("/?place=quito");
+  await expect(page.getByText("ohne Wetter", { exact: true })).toBeVisible();
+
+  shouldFail = false;
+  await page.getByRole("button", { name: "Wetter erneut laden" }).click();
+  await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
+  await expect(page.getByText("Wetterdaten sind wieder da.")).toBeVisible();
 });
 
 test("markiert langsame Daten nach Timeout als Fallback", async ({ page }, testInfo) => {
@@ -182,6 +228,29 @@ test("bleibt bei blockiertem Audio still und erklärt den Zustand", async ({ pag
     "aria-pressed",
     "false",
   );
+});
+
+test("Klang bleibt nach App-Resume kontrollierbar", async ({ page, context }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "App-Resume reicht einmal.");
+  await mockWeather(page);
+  await page.goto("/?place=dakar");
+  const sound = page.getByRole("button", { name: "Klang einschalten" });
+  await sound.click();
+  await expect(page.getByRole("button", { name: "Klang ausschalten" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+
+  const otherPage = await context.newPage();
+  await otherPage.goto("about:blank");
+  await otherPage.bringToFront();
+  await page.bringToFront();
+  await page.getByRole("button", { name: "Klang ausschalten" }).click();
+  await expect(page.getByRole("button", { name: "Klang einschalten" })).toHaveAttribute(
+    "aria-pressed",
+    "false",
+  );
+  await otherPage.close();
 });
 
 test("respektiert reduzierte Bewegung und bleibt bei 200 Prozent Zoom reflow-fähig", async ({
@@ -244,4 +313,45 @@ test("funktioniert nach erstem Laden auch ohne Netz als App-Hülle", async ({
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByText("ohne Wetter", { exact: true })).toBeVisible();
   await expect(page.getByText(/nicht erreichbar|Offline/)).toBeVisible();
+});
+
+test("hält Interaktions- und Ressourcenbudget ein", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "Performancebudget reicht einmal.");
+  let requestCount = 0;
+  await page.route("https://api.open-meteo.com/**", async (route) => {
+    requestCount += 1;
+    if (requestCount > 1) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(weatherBody()),
+    });
+  });
+  await page.goto("/?place=reykjavik");
+  await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
+
+  const resourceCount = await page.evaluate(() => performance.getEntriesByType("resource").length);
+  expect(resourceCount).toBeLessThanOrEqual(10);
+
+  const interactionLatency = await page.evaluate(
+    () =>
+      new Promise<number>((resolve) => {
+        const app = document.querySelector("#app");
+        const travel = document.querySelector<HTMLButtonElement>("#travel-button");
+        if (!app || !travel) throw new Error("Interaktionsziel fehlt.");
+        const started = performance.now();
+        const observer = new MutationObserver(() => {
+          if (app.getAttribute("aria-busy") === "true") {
+            observer.disconnect();
+            resolve(performance.now() - started);
+          }
+        });
+        observer.observe(app, { attributes: true, attributeFilter: ["aria-busy"] });
+        travel.click();
+      }),
+  );
+  await expect(page.locator("#app")).toHaveAttribute("aria-busy", "true");
+  expect(interactionLatency).toBeLessThan(100);
 });

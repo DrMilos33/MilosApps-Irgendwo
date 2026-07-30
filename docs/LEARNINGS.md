@@ -1,11 +1,78 @@
 # Irgendwo-ist-gerade-Erkenntnisse
 
-Pro Eintrag dokumentieren:
+## 2026-07-30 – Readiness ist eine Identitätsprüfung
 
-- Datum und Stand;
-- Beobachtung und reproduzierbare Evidenz;
-- vorgenommene Änderung und Regressionstest;
-- mögliche Bedeutung für andere MilosApps.
+**Beobachtung und Evidenz:** Ein früher Playwright-Lauf akzeptierte auf dem
+damaligen Standardport `4173` einen erreichbaren Gravity-Loop-Dienst und prüfte
+dadurch eine fremde App. Ein generischer HTTP-200 belegte nur Erreichbarkeit,
+nicht App-Identität.
 
-Allgemeine Erkenntnisse an Struktur- und Ideen-Task melden. Keine Zugangsdaten
-oder Nutzerdaten eintragen.
+**Änderung und Regression:** Der reservierte Port ist `4316` mit `strictPort`.
+Playwright verwendet `reuseExistingServer: false`; der Global-Setup prüft
+`status`, `appKey`, `environment` und `readiness` aus
+`/health/somewhere-now.json`. Der Abschlusslauf bestand mit 36 ausgeführten
+Browserfällen.
+
+**Übertragbarkeit:** Jeder lokale DEV-/E2E-Dienst sollte einen reservierten
+Port bei Kollision ablehnen und seine erwartete Identität inhaltlich prüfen.
+Die Aussage gilt für parallele MilosApps-Dienste, nicht als Ersatz für
+Authentifizierung geschützter Produktionssysteme.
+
+## 2026-07-30 – Kernnutzen und Netzzusatz getrennt modellieren
+
+**Beobachtung und Evidenz:** Ortszeit, Datum und Sonnenstand lassen sich lokal
+aus gepflegten Koordinaten und IANA-Zeitzonen bestimmen. Wetter ist dagegen ein
+verzögerbarer oder ausfallender Netzzusatz.
+
+**Änderung und Regression:** Die Szene entsteht sofort aus lokalen Daten;
+Wetter ergänzt sie mit eigenem Lade-, Alt-, Fehler-, Timeout- und
+Gefahrfilterzustand. Der Service Worker cached nur eigene statische Assets,
+keine Wetterantworten. Logiktests prüfen Datumsgrenzen und Polartag/-nacht;
+Browsertests prüfen Offline-Neuladen, alte Daten, Timeout und Recovery.
+
+**Übertragbarkeit:** Öffentliche Apps werden belastbarer, wenn ihr
+unverzichtbarer Nutzen nicht von optionalen APIs abhängt. Die Aussage gilt nur,
+wenn lokale Daten fachlich ausreichen; aktuelle Fremddaten dürfen nicht als
+lokal aktuell ausgegeben werden.
+
+## 2026-07-30 – Dunkles Design braucht eine eigene Prüfachse
+
+**Beobachtung und Evidenz:** Die helle axe-Prüfung war grün, obwohl eine feste
+geerbte Textfarbe im dunklen Systemdesign Titel und Werte nahezu unsichtbar
+machte. Die visuelle Desktopprüfung reproduzierte den Fehler.
+
+**Änderung und Regression:** Geerbte Farben folgen Theme-Tokens, und
+Faktenüberschriften besitzen ein separates Kontrast-Token. Helles und dunkles
+Systemdesign werden nun in allen drei Browserprojekten mit axe geprüft.
+
+**Übertragbarkeit:** Ein einziges Farbschema deckt Kontrastregressionen anderer
+Themes nicht ab. Diese Erkenntnis betrifft Apps mit system- oder
+nutzergesteuertem Farbschema.
+
+## 2026-07-30 – Mobile Reihenfolge ist Teil der Bedienbarkeit
+
+**Beobachtung und Evidenz:** Auf dem Smartphone lag „Noch einmal“ zunächst
+hinter der großen Szene und der Faktenkarte. Die Aktion funktionierte, war aber
+im ersten Viewport nicht sichtbar.
+
+**Änderung und Regression:** Im schmalen Layout stehen Einordnung, Aktion und
+Status vor der Szene. Ein Browsertest sichert die vollständige Sichtbarkeit der
+Primäraktion im initialen Smartphone-, Tablet- und Desktop-Viewport.
+
+**Übertragbarkeit:** Responsive QA sollte nicht nur Überlauf prüfen, sondern
+auch, ob die häufigste Aktion ohne Suche erreichbar ist. Die konkrete
+Reihenfolge bleibt produktspezifisch.
+
+## 2026-07-30 – Gefahrfilter muss fachlich bescheiden bleiben
+
+**Beobachtung und Evidenz:** Aktuelle Wettercodes können gefährliche Lagen
+andeuten, ersetzen aber keine amtliche Warnung.
+
+**Änderung und Regression:** Bei ausgewählten schweren Codes oder sehr starkem
+Wind zeigt die App nur Zeit und Tageslicht und erklärt den Verzicht auf
+Wetterinszenierung. Tests sichern Code- und Windgrenzen. Die Oberfläche nennt
+den Zustand ausdrücklich nicht „Unwetterwarnung“.
+
+**Übertragbarkeit:** Unterhaltungsprodukte sollten sensible Zustände ausblenden
+und die Grenze ihrer Quelle transparent machen. Die Schwellen sind eine
+Produktmoderation, keine sicherheitskritische Klassifikation.

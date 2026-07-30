@@ -1,7 +1,7 @@
 :root {
   color-scheme: light;
   font-family: "Aptos", "Segoe UI", system-ui, sans-serif;
-  color: #17283a;
+  color: var(--ink);
   background: #f4efe7;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -12,6 +12,7 @@
   --line: rgba(23, 40, 58, 0.14);
   --accent: #a94736;
   --accent-dark: #883526;
+  --accent-text: #883526;
   --focus: #196f79;
 }
 
@@ -208,7 +209,7 @@ a {
 .eyebrow,
 .fact-kicker {
   margin: 0;
-  color: var(--accent-dark);
+  color: var(--accent-text);
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.13em;
@@ -956,21 +957,21 @@ h1 {
   }
 
   .moment-detail {
-    order: 4;
+    order: 3;
   }
 
   .primary-actions {
-    order: 5;
+    order: 4;
     margin-top: 0.5rem;
   }
 
   .status-line {
-    order: 6;
+    order: 5;
     margin-top: 0;
   }
 
   .scene-column {
-    order: 3;
+    order: 6;
   }
 
   .scene-sky {
@@ -1050,6 +1051,7 @@ h1 {
     --line: rgba(234, 239, 233, 0.17);
     --accent: #a94736;
     --accent-dark: #8d3829;
+    --accent-text: #ef9b79;
     --focus: #73d2d3;
   }
 

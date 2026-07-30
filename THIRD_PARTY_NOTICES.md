@@ -2,7 +2,7 @@
 
 ## SunCalc 2.0.1
 
-Copyright (c) 2026, Volodymyr Agafonkin  
+Copyright (c) 2026, Volodymyr Agafonkin
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
