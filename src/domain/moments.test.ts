@@ -49,6 +49,23 @@ describe("Momentauswahl", () => {
     expect(sceneWeather({ ...weather, severe: true })).toBe("clear");
   });
 
+  it("behält den Gefahrfilter auch in der englischen UI bei", () => {
+    const moment = selectMoment(
+      place,
+      daylight,
+      { ...weather, severe: true, weatherCode: 95 },
+      new Date("2026-07-30T12:10:00Z"),
+      () => 0,
+      "en",
+    );
+    expect(moment).toMatchObject({
+      kind: "weather-withheld",
+      title: "Only time and light today.",
+    });
+    expect(moment.detail).toContain("Tromsø");
+    expect(moment.detail).not.toMatch(/storm|thunder/i);
+  });
+
   it("verwendet veraltetes Wetter nicht für die Inszenierung", () => {
     const moment = selectMoment(
       place,

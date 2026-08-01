@@ -1,6 +1,6 @@
 # Quellen und Lizenzen
 
-Stand der Prüfung: 2026-07-30.
+Stand der Prüfung: 2026-08-01.
 
 ## Wetter: Open-Meteo
 
@@ -61,7 +61,23 @@ Stand der Prüfung: 2026-07-30.
   und Polarnacht.
 - Attribution in der App: `Sonnenstand: SunCalc · BSD-2-Clause`.
 - Der vollständige Lizenzhinweis steht in
-  [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
+[THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
+
+## MilosApps Public App Shell
+
+- Kanonische Quelle:
+  [DrMilos33/MilosApps-Shared](https://github.com/DrMilos33/MilosApps-Shared)
+- Vertrag/Tag: `public-app-shell/v2.0.3`.
+- Exakter Shared-Commit:
+  `ed898412306e22c6ae1b10ee8953df29f8acd627`.
+- Übernahme: feste lokale Kopie mit fünf SHA-256-gelockten Artefakten; kein
+  CDN und kein Runtimeimport aus einem anderen Repository.
+- Release-Hash `milos-app-shell.js`:
+  `bff9c09ae64e453d186508a4372a1cacc17b4dcd30b770046c7f4efee53731b3`.
+- Release-Hash `milos-app-shell.css`:
+  `662093d5dce4147b7e962a882b570b478a437a78c77d92242eb3c96191a019a9`.
+- Das App-Icon, Theme-Tokens und sämtliche sichtbaren DE/EN-Fachtexte gehören
+  weiterhin dieser App; die Shell liefert nur den gemeinsamen Rahmen.
 
 ## Eigene Inhalte
 

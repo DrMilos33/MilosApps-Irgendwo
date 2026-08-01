@@ -1,4 +1,5 @@
 import type { Place, Weather, WeatherFailure, WeatherFailureReason } from "./types";
+import { t, type Language, type MessageKey } from "../i18n";
 
 const OPEN_METEO_ENDPOINT = "https://api.open-meteo.com/v1/forecast";
 const CURRENT_FIELDS = [
@@ -166,15 +167,15 @@ export async function fetchWeather(
   }
 }
 
-export function weatherFailureMessage(reason: WeatherFailureReason): string {
-  switch (reason) {
-    case "offline":
-      return "Offline – der Moment funktioniert mit Ortszeit und Sonnenstand weiter.";
-    case "timeout":
-      return "Das Wetter braucht heute zu lange. Zeit und Tageslicht bleiben aktuell.";
-    case "invalid":
-      return "Die Wetterdaten waren unvollständig. Zeit und Tageslicht bleiben aktuell.";
-    case "network":
-      return "Wetterdaten sind gerade nicht erreichbar. Zeit und Tageslicht bleiben aktuell.";
-  }
+export function weatherFailureMessage(
+  reason: WeatherFailureReason,
+  language: Language = "de",
+): string {
+  const keys: Record<WeatherFailureReason, MessageKey> = {
+    offline: "failureOffline",
+    timeout: "failureTimeout",
+    invalid: "failureInvalid",
+    network: "failureNetwork",
+  };
+  return t(language, keys[reason]);
 }

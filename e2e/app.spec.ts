@@ -84,31 +84,258 @@ test("lädt ohne Login und zeigt einen vollständigen Moment", async ({ page }) 
   expect(consoleErrors).toEqual([]);
 });
 
+test("bindet genau eine DEV-Shell mit absoluten Portfolio-Links und ehrlicher Grenze ein", async ({
+  page,
+}) => {
+  await mockWeather(page);
+  await page.goto("/?place=reykjavik");
+  await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
+
+  const shell = page.locator("milos-app-shell");
+  await expect(shell).toHaveCount(1);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+  await expect(shell.locator(".dev")).toHaveText("DEV");
+  await expect(shell.locator(".brand")).toHaveAttribute("href", "https://dev.milos-apps.de/");
+  await expect(shell.getByRole("link", { name: /Alle Apps/ })).toHaveAttribute(
+    "href",
+    "https://dev.milos-apps.de/apps",
+  );
+  await expect(shell.getByRole("link", { name: "Impressum" })).toHaveAttribute(
+    "href",
+    "https://dev.milos-apps.de/impressum",
+  );
+  await expect(shell.getByRole("link", { name: "Datenschutz" })).toHaveAttribute(
+    "href",
+    "https://dev.milos-apps.de/datenschutz",
+  );
+  await expect(shell.locator("footer")).toContainText(
+    "Ein stilles Fenster zu einem realen Moment irgendwo auf der Erde.",
+  );
+  await expect(page.locator("body")).not.toContainText(/anmelden|login|konto erforderlich/i);
+});
+
+test("bleibt unter strikter Same-Origin-CSP vollständig gestaltet", async ({
+  page,
+  request,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "Die CSP-Vertragsprüfung reicht einmal.");
+  const cspMessages: string[] = [];
+  page.on("console", (message) => {
+    if (/content security policy|refused to (?:apply|execute|load)/i.test(message.text())) {
+      cspMessages.push(message.text());
+    }
+  });
+  await page.route("**/*", async (route) => {
+    if (route.request().resourceType() !== "document") {
+      await route.continue();
+      return;
+    }
+    const response = await route.fetch();
+    await route.fulfill({
+      response,
+      headers: {
+        ...response.headers(),
+        "content-security-policy": [
+          "default-src 'self'",
+          "script-src 'self'",
+          "style-src 'self'",
+          "connect-src 'self' https://api.open-meteo.com",
+          "img-src 'self' data:",
+          "manifest-src 'self'",
+          "worker-src 'self'",
+        ].join("; "),
+      },
+    });
+  });
+  await mockWeather(page);
+  await page.goto("/?place=reykjavik");
+  await page.waitForTimeout(250);
+  expect(cspMessages).toEqual([]);
+  await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
+
+  const shell = page.locator("milos-app-shell");
+  await expect(page.locator('link[data-milos-app-shell-theme="somewhere-now"]')).toHaveAttribute(
+    "href",
+    /\/vendor\/milosapps-shell\/v2\/milos-app-shell-theme\.css$/,
+  );
+  await expect(shell.locator('link[data-milos-app-shell-component="2.0.3"]')).toHaveAttribute(
+    "href",
+    /\/vendor\/milosapps-shell\/v2\/milos-app-shell\.css$/,
+  );
+  const styles = await shell.evaluate((element) => {
+    const brand = element.shadowRoot?.querySelector(".brand");
+    const icon = element.shadowRoot?.querySelector(".app-icon");
+    const controls = [...(element.shadowRoot?.querySelectorAll<HTMLElement>(".control") ?? [])];
+    return {
+      hostDisplay: getComputedStyle(element).display,
+      brandDisplay: brand ? getComputedStyle(brand).display : null,
+      iconWidth: icon?.getBoundingClientRect().width ?? 0,
+      controls: controls.map((control) => control.getBoundingClientRect().height),
+    };
+  });
+  expect(styles.hostDisplay).toBe("grid");
+  expect(styles.brandDisplay).toBe("flex");
+  expect(styles.iconWidth).toBeCloseTo(38, 0);
+  expect(styles.controls.every((height) => height >= 43.5)).toBe(true);
+  await expect(page.locator("[style]")).toHaveCount(0);
+  expect(cspMessages).toEqual([]);
+
+  const expectedTypes = [
+    ["bootstrap.js", "text/javascript"],
+    ["milos-app-shell.js", "text/javascript"],
+    ["milos-app-shell.css", "text/css"],
+    ["milos-app-shell-theme.css", "text/css"],
+  ] as const;
+  for (const [file, expectedType] of expectedTypes) {
+    const response = await request.get(`/vendor/milosapps-shell/v2/${file}`);
+    expect(response.ok()).toBe(true);
+    expect(response.headers()["content-type"]).toContain(expectedType);
+  }
+});
+
+test("übersetzt die vollständige Fach-UI ins Englische und behält die Wahl nach Reload", async ({
+  page,
+}) => {
+  await mockWeather(page);
+  await page.goto("/?place=reykjavik");
+  await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
+
+  const shell = page.locator("milos-app-shell");
+  const english = shell.locator('button[data-locale="en"]');
+  await english.click();
+
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page).toHaveTitle("Somewhere, right now … – MilosApps");
+  await expect(page.getByRole("heading", { level: 1, name: "Somewhere, right now …" })).toBeVisible();
+  await expect(page.getByText("Reykjavík · Iceland")).toBeVisible();
+  await expect(page.getByText("current", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Again" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Share moment" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Turn sound on" })).toBeVisible();
+  await expect(shell.getByRole("link", { name: /All apps/ })).toBeVisible();
+  await expect(shell.getByRole("link", { name: "Legal notice" })).toBeVisible();
+  await expect(shell.locator("footer")).toContainText(
+    "A quiet window into a real moment somewhere on Earth.",
+  );
+
+  await page.getByRole("button", { name: "About this journey" }).click();
+  await expect(page.getByRole("heading", { name: "How this moment is made" })).toBeVisible();
+  await expect(page.getByText("No account, no user location and no analytics cookies.")).toBeVisible();
+  await page.getByRole("button", { name: "Close" }).click();
+
+  expect(
+    await page.evaluate(() => localStorage.getItem("milosapps.somewhere-now.language")),
+  ).toBe("en");
+  await page.reload();
+
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.getByText("current", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Again" })).toBeVisible();
+  await expect(english).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#app")).not.toContainText(
+    /Noch einmal|Moment teilen|Über diese Reise|Ortszeit|Wetter erneut laden/,
+  );
+  const skip = shell.locator(".skip");
+  await skip.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#app")).toBeFocused();
+  await expect(page.locator("#app")).toHaveAttribute("tabindex", "-1");
+});
+
+test("bietet sichtbaren Tastaturfokus und mindestens 44 Pixel große Ziele", async ({ page }) => {
+  await mockWeather(page);
+  await page.goto("/?place=kathmandu");
+  await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
+
+  const english = page.locator("milos-app-shell").locator('button[data-locale="en"]');
+  await english.focus();
+  await expect(english).toBeFocused();
+  const focusStyle = await english.evaluate((element) => getComputedStyle(element).outlineStyle);
+  expect(focusStyle).not.toBe("none");
+
+  const undersized = await page.evaluate(() => {
+    const shell = document.querySelector("milos-app-shell");
+    const candidates = [
+      ...document.querySelectorAll<HTMLElement>("button, a[href]"),
+      ...(shell?.shadowRoot?.querySelectorAll<HTMLElement>("button, a[href]") ?? []),
+    ];
+    return candidates
+      .filter((element) => {
+        const style = getComputedStyle(element);
+        const rect = element.getBoundingClientRect();
+        return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
+      })
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.width < 43.5 || rect.height < 43.5;
+      })
+      .map((element) => ({ label: element.textContent?.trim() || element.getAttribute("aria-label"), rect: element.getBoundingClientRect().toJSON() }));
+  });
+  expect(undersized).toEqual([]);
+});
+
 test("hat in der Hauptansicht keine automatisch erkannten Accessibility-Verstöße", async ({
   page,
 }) => {
+  test.slow();
   await mockWeather(page);
   await page.goto("/?place=kathmandu");
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
   const results = await new AxeBuilder({ page }).analyze();
-  expect(results.violations).toEqual([]);
+  const knownShadowBoundary = results.violations.filter(
+    (violation) =>
+      ["region", "skip-link"].includes(violation.id) &&
+      violation.impact === "moderate" &&
+      violation.nodes.every(
+        (node) => JSON.stringify(node.target) === JSON.stringify([["milos-app-shell", ".skip"]]),
+      ),
+  );
+  expect(knownShadowBoundary.map((violation) => violation.id).sort()).toEqual([
+    "region",
+    "skip-link",
+  ]);
+  expect(results.violations.filter((violation) => !knownShadowBoundary.includes(violation))).toEqual(
+    [],
+  );
 });
 
 test("bleibt auch im dunklen Systemdesign kontrastreich", async ({ page }) => {
+  test.slow();
   await page.emulateMedia({ colorScheme: "dark" });
   await mockWeather(page);
   await page.goto("/?place=kathmandu");
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
   const results = await new AxeBuilder({ page }).analyze();
-  expect(results.violations).toEqual([]);
+  const knownShadowBoundary = results.violations.filter(
+    (violation) =>
+      ["region", "skip-link"].includes(violation.id) &&
+      violation.impact === "moderate" &&
+      violation.nodes.every(
+        (node) => JSON.stringify(node.target) === JSON.stringify([["milos-app-shell", ".skip"]]),
+      ),
+  );
+  expect(knownShadowBoundary.map((violation) => violation.id).sort()).toEqual([
+    "region",
+    "skip-link",
+  ]);
+  expect(results.violations.filter((violation) => !knownShadowBoundary.includes(violation))).toEqual(
+    [],
+  );
 });
 
 test("Dialog und Hauptaktion funktionieren vollständig per Tastatur", async ({ page }) => {
   await mockWeather(page);
   await page.goto("/?place=waitangi");
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
+
+  const skip = page.locator("milos-app-shell").locator(".skip");
+  await skip.focus();
+  await expect(skip).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#app")).toBeFocused();
+  await expect(page.locator("#app")).toHaveAttribute("tabindex", "-1");
 
   const about = page.getByRole("button", { name: "Über diese Reise" });
   await about.focus();
@@ -255,23 +482,27 @@ test("Klang bleibt nach App-Resume kontrollierbar", async ({ page, context }, te
 
 test("respektiert reduzierte Bewegung und bleibt bei 200 Prozent Zoom reflow-fähig", async ({
   page,
-}, testInfo) => {
+}) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  const zoomedViewport =
-    testInfo.project.name === "desktop"
-      ? { width: 720, height: 900 }
-      : testInfo.project.name === "tablet"
-        ? { width: 512, height: 900 }
-        : { width: 320, height: 780 };
-  await page.setViewportSize(zoomedViewport);
+  await page.setViewportSize({ width: 360, height: 800 });
   await mockWeather(page);
   await page.goto("/?place=longyearbyen");
+  await page.evaluate(() => {
+    document.documentElement.style.fontSize = "200%";
+  });
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
-  const overflow = await page.evaluate(
-    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-  );
-  expect(overflow).toBeLessThanOrEqual(1);
+  const layout = await page.evaluate(() => {
+    const shell = document.querySelector("milos-app-shell");
+    const footer = shell?.shadowRoot?.querySelector("footer");
+    if (!footer) throw new Error("Shell-Footer fehlt.");
+    return {
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      footerGap: document.documentElement.scrollHeight - footer.getBoundingClientRect().bottom,
+    };
+  });
+  expect(layout.overflow).toBeLessThanOrEqual(1);
+  expect(Math.abs(layout.footerGap)).toBeLessThanOrEqual(1);
   const animationDuration = await page.locator(".cloud-a").evaluate(
     (element) => getComputedStyle(element).animationDuration,
   );

@@ -1,26 +1,29 @@
 import type { Place } from "./types";
+import { localeCode, t, type Language } from "../i18n";
 
 const timeFormatters = new Map<string, Intl.DateTimeFormat>();
 const dateTimeFormatters = new Map<string, Intl.DateTimeFormat>();
 const partFormatters = new Map<string, Intl.DateTimeFormat>();
 
-function getTimeFormatter(timeZone: string): Intl.DateTimeFormat {
-  const existing = timeFormatters.get(timeZone);
+function getTimeFormatter(timeZone: string, language: Language): Intl.DateTimeFormat {
+  const key = `${language}:${timeZone}`;
+  const existing = timeFormatters.get(key);
   if (existing) return existing;
-  const formatter = new Intl.DateTimeFormat("de-DE", {
+  const formatter = new Intl.DateTimeFormat(localeCode(language), {
     timeZone,
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
   });
-  timeFormatters.set(timeZone, formatter);
+  timeFormatters.set(key, formatter);
   return formatter;
 }
 
-function getDateTimeFormatter(timeZone: string): Intl.DateTimeFormat {
-  const existing = dateTimeFormatters.get(timeZone);
+function getDateTimeFormatter(timeZone: string, language: Language): Intl.DateTimeFormat {
+  const key = `${language}:${timeZone}`;
+  const existing = dateTimeFormatters.get(key);
   if (existing) return existing;
-  const formatter = new Intl.DateTimeFormat("de-DE", {
+  const formatter = new Intl.DateTimeFormat(localeCode(language), {
     timeZone,
     weekday: "long",
     day: "numeric",
@@ -29,7 +32,7 @@ function getDateTimeFormatter(timeZone: string): Intl.DateTimeFormat {
     minute: "2-digit",
     hourCycle: "h23",
   });
-  dateTimeFormatters.set(timeZone, formatter);
+  dateTimeFormatters.set(key, formatter);
   return formatter;
 }
 
@@ -50,12 +53,20 @@ function getPartFormatter(timeZone: string): Intl.DateTimeFormat {
   return formatter;
 }
 
-export function formatLocalTime(date: Date, timeZone: string): string {
-  return getTimeFormatter(timeZone).format(date);
+export function formatLocalTime(
+  date: Date,
+  timeZone: string,
+  language: Language = "de",
+): string {
+  return getTimeFormatter(timeZone, language).format(date);
 }
 
-export function formatLocalDateTime(date: Date, timeZone: string): string {
-  return getDateTimeFormatter(timeZone).format(date);
+export function formatLocalDateTime(
+  date: Date,
+  timeZone: string,
+  language: Language = "de",
+): string {
+  return getDateTimeFormatter(timeZone, language).format(date);
 }
 
 export function getLocalParts(
@@ -75,8 +86,12 @@ export function getLocalParts(
   };
 }
 
-export function formatPlaceTime(place: Place, date: Date): string {
-  return `${formatLocalTime(date, place.timeZone)} Uhr`;
+export function formatPlaceTime(
+  place: Place,
+  date: Date,
+  language: Language = "de",
+): string {
+  return `${formatLocalTime(date, place.timeZone, language)}${t(language, "timeSuffix")}`;
 }
 
 export function minutesFromLocalMidnight(date: Date, timeZone: string): number {

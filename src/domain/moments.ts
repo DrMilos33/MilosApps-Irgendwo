@@ -1,5 +1,6 @@
 import { formatLocalTime, minutesBetween, minutesFromLocalMidnight } from "./time";
 import type { Daylight, Moment, Place, Weather } from "./types";
+import { t, type Language } from "../i18n";
 
 interface Candidate extends Moment {
   weight: number;
@@ -24,48 +25,48 @@ function chooseWeighted(candidates: Candidate[], random: () => number): Moment {
   return fallback;
 }
 
-function daylightFallback(place: Place, daylight: Daylight): Candidate {
+function daylightFallback(place: Place, daylight: Daylight, language: Language): Candidate {
   switch (daylight.phase) {
     case "polar-day":
       return {
         kind: "polar-day",
-        title: "Die Sonne bleibt heute.",
-        detail: `Über ${place.name} sinkt sie an diesem Tag nicht unter den Horizont.`,
+        title: t(language, "momentPolarDayTitle"),
+        detail: t(language, "momentPolarDayDetail", { place: place.name }),
         weight: 10,
       };
     case "polar-night":
       return {
         kind: "polar-night",
-        title: "Der Tag bleibt heute dunkel.",
-        detail: `Über ${place.name} steigt die Sonne an diesem Tag nicht über den Horizont.`,
+        title: t(language, "momentPolarNightTitle"),
+        detail: t(language, "momentPolarNightDetail", { place: place.name }),
         weight: 10,
       };
     case "golden":
       return {
         kind: daylight.altitude >= 0 ? "sunset" : "sunrise",
-        title: "Das Licht steht tief.",
-        detail: `In ${place.name} liegt der Horizont gerade im weichen Übergang.`,
+        title: t(language, "momentGoldenTitle"),
+        detail: t(language, "momentGoldenDetail", { place: place.name }),
         weight: 5,
       };
     case "twilight":
       return {
         kind: "blue-hour",
-        title: "Zwischen Tag und Nacht.",
-        detail: `Über ${place.name} ist gerade Dämmerung.`,
+        title: t(language, "momentTwilightTitle"),
+        detail: t(language, "momentTwilightDetail", { place: place.name }),
         weight: 5,
       };
     case "night":
       return {
         kind: "night",
-        title: "Die Stadtseite der Erde schläft.",
-        detail: `In ${place.name} ist es jetzt Nacht.`,
+        title: t(language, "momentNightTitle"),
+        detail: t(language, "momentNightDetail", { place: place.name }),
         weight: 4,
       };
     case "day":
       return {
         kind: "day",
-        title: "Der Tag ist längst unterwegs.",
-        detail: `In ${place.name} steht die Sonne über dem Horizont.`,
+        title: t(language, "momentDayTitle"),
+        detail: t(language, "momentDayDetail", { place: place.name }),
         weight: 4,
       };
   }
@@ -77,16 +78,17 @@ export function selectMoment(
   weather: Weather | null,
   now: Date,
   random: () => number = Math.random,
+  language: Language = "de",
 ): Moment {
   if (weather?.severe) {
     return {
       kind: "weather-withheld",
-      title: "Heute nur Zeit und Licht.",
-      detail: `Das Wetter in ${place.name} wird bewusst nicht als Unterhaltung inszeniert.`,
+      title: t(language, "momentWithheldTitle"),
+      detail: t(language, "momentWithheldDetail", { place: place.name }),
     };
   }
 
-  const candidates: Candidate[] = [daylightFallback(place, daylight)];
+  const candidates: Candidate[] = [daylightFallback(place, daylight, language)];
   const localMinute = minutesFromLocalMidnight(now, place.timeZone);
   const toSunrise = daylight.nextEvent === "sunrise" ? minutesUntil(daylight.nextEventAt, now) : null;
   const toSunset = daylight.nextEvent === "sunset" ? minutesUntil(daylight.nextEventAt, now) : null;
@@ -94,24 +96,30 @@ export function selectMoment(
   if (toSunrise !== null && toSunrise >= 0 && toSunrise <= 45) {
     candidates.push({
       kind: "sunrise",
-      title: "Gleich beginnt der Tag.",
-      detail: `In ${place.name} geht die Sonne um ${formatLocalTime(daylight.nextEventAt!, place.timeZone)} Uhr auf.`,
+      title: t(language, "momentSunriseTitle"),
+      detail: t(language, "momentSunriseDetail", {
+        place: place.name,
+        time: formatLocalTime(daylight.nextEventAt!, place.timeZone, language),
+      }),
       weight: 12,
     });
   }
   if (toSunset !== null && toSunset >= 0 && toSunset <= 45) {
     candidates.push({
       kind: "sunset",
-      title: "Der Tag wird gleich leiser.",
-      detail: `In ${place.name} geht die Sonne um ${formatLocalTime(daylight.nextEventAt!, place.timeZone)} Uhr unter.`,
+      title: t(language, "momentSunsetTitle"),
+      detail: t(language, "momentSunsetDetail", {
+        place: place.name,
+        time: formatLocalTime(daylight.nextEventAt!, place.timeZone, language),
+      }),
       weight: 12,
     });
   }
   if (localMinute <= 30 || localMinute >= 1410) {
     candidates.push({
       kind: "night",
-      title: "Gerade ist dort Mitternacht.",
-      detail: `${place.name} ist eben in einen neuen Kalendertag gerutscht.`,
+      title: t(language, "momentMidnightTitle"),
+      detail: t(language, "momentMidnightDetail", { place: place.name }),
       weight: 9,
     });
   }
@@ -120,56 +128,65 @@ export function selectMoment(
     if ([45, 48].includes(weather.weatherCode)) {
       candidates.push({
         kind: "fog",
-        title: "Nebel macht den Horizont weich.",
-        detail: `In ${place.name} liegt die Ferne gerade hinter einem hellen Schleier.`,
+        title: t(language, "momentFogTitle"),
+        detail: t(language, "momentFogDetail", { place: place.name }),
         weight: 14,
       });
     }
     if (weather.snowfall > 0 && weather.weatherCode < 75) {
       candidates.push({
         kind: "snow",
-        title: "Schnee zieht durch die Luft.",
-        detail: `In ${place.name} fällt im aktuellen Wettermodell Schnee.`,
+        title: t(language, "momentSnowTitle"),
+        detail: t(language, "momentSnowDetail", { place: place.name }),
         weight: 14,
       });
     }
     if (weather.rain + weather.showers > 0 && weather.weatherCode < 65) {
       candidates.push({
         kind: "rain",
-        title: "Regen zeichnet kleine Linien.",
-        detail: `In ${place.name} fällt im aktuellen Wettermodell leichter Regen.`,
+        title: t(language, "momentRainTitle"),
+        detail: t(language, "momentRainDetail", { place: place.name }),
         weight: 11,
       });
     }
     if (daylight.phase === "night" && weather.cloudCover <= 18) {
       candidates.push({
         kind: "clear-night",
-        title: "Die Wolken halten sich zurück.",
-        detail: `Über ${place.name} ist der Himmel im aktuellen Wettermodell fast klar.`,
+        title: t(language, "momentClearNightTitle"),
+        detail: t(language, "momentClearNightDetail", { place: place.name }),
         weight: 11,
       });
     }
     if (weather.temperature >= 32) {
       candidates.push({
         kind: "warm",
-        title: "Die Luft ist sehr warm.",
-        detail: `In ${place.name} zeigt das Wettermodell gerade ${Math.round(weather.temperature)} Grad.`,
+        title: t(language, "momentWarmTitle"),
+        detail: t(language, "momentWarmDetail", {
+          place: place.name,
+          temperature: Math.round(weather.temperature),
+        }),
         weight: 7,
       });
     }
     if (weather.temperature <= -15) {
       candidates.push({
         kind: "cold",
-        title: "Die Luft ist sehr kalt.",
-        detail: `In ${place.name} zeigt das Wettermodell gerade ${Math.round(weather.temperature)} Grad.`,
+        title: t(language, "momentColdTitle"),
+        detail: t(language, "momentColdDetail", {
+          place: place.name,
+          temperature: Math.round(weather.temperature),
+        }),
         weight: 7,
       });
     }
     if (weather.windSpeed >= 25 && weather.windSpeed < 50) {
       candidates.push({
         kind: "wind",
-        title: "Der Wind ist deutlich zu spüren.",
-        detail: `In ${place.name} bewegt sich die Luft mit rund ${Math.round(weather.windSpeed)} km/h.`,
+        title: t(language, "momentWindTitle"),
+        detail: t(language, "momentWindDetail", {
+          place: place.name,
+          speed: Math.round(weather.windSpeed),
+        }),
         weight: 6,
       });
     }
@@ -178,16 +195,16 @@ export function selectMoment(
   return chooseWeighted(candidates, random);
 }
 
-export function weatherDescription(weather: Weather): string {
-  if (weather.severe) return "Wetter nicht inszeniert";
-  const temperature = `${Math.round(weather.temperature)} °C`;
-  if (weather.stale) return `${temperature}, ältere Wetterdaten`;
-  if ([45, 48].includes(weather.weatherCode)) return `${temperature}, neblig`;
-  if (weather.snowfall > 0) return `${temperature}, Schnee`;
-  if (weather.rain + weather.showers > 0) return `${temperature}, Regen`;
-  if (weather.cloudCover <= 18) return `${temperature}, klar`;
-  if (weather.cloudCover >= 80) return `${temperature}, bedeckt`;
-  return `${temperature}, leicht bewölkt`;
+export function weatherDescription(weather: Weather, language: Language = "de"): string {
+  if (weather.severe) return t(language, "weatherWithheld");
+  const values = { temperature: Math.round(weather.temperature) };
+  if (weather.stale) return t(language, "weatherStale", values);
+  if ([45, 48].includes(weather.weatherCode)) return t(language, "weatherFog", values);
+  if (weather.snowfall > 0) return t(language, "weatherSnow", values);
+  if (weather.rain + weather.showers > 0) return t(language, "weatherRain", values);
+  if (weather.cloudCover <= 18) return t(language, "weatherClear", values);
+  if (weather.cloudCover >= 80) return t(language, "weatherOvercast", values);
+  return t(language, "weatherPartlyCloudy", values);
 }
 
 export function sceneWeather(weather: Weather | null): "clear" | "cloud" | "fog" | "rain" | "snow" {

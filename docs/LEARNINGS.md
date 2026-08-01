@@ -76,3 +76,67 @@ den Zustand ausdrücklich nicht „Unwetterwarnung“.
 **Übertragbarkeit:** Unterhaltungsprodukte sollten sensible Zustände ausblenden
 und die Grenze ihrer Quelle transparent machen. Die Schwellen sind eine
 Produktmoderation, keine sicherheitskritische Klassifikation.
+
+## 2026-08-01 – Vendor-Lock muss auch den ausgelieferten Build schützen
+
+**Beobachtung und Evidenz:** Die v2.0.3-Shell war im Repository korrekt
+gelockt, doch Vite 8 wandelte ihre externe Theme-CSS im Produktionsbuild in
+eine `data:`-URL um. Eine echte Response mit `style-src 'self'` blockierte
+diese URL; Quelltext- und Lockprüfung allein hätten den Fehler übersehen.
+
+**Änderung und Regression:** Das Bootstrap-Script ist für die HTML-Transformation
+mit `vite-ignore` markiert. Ein enger Build-Hook kopiert ausschließlich den
+gelockten Vendorordner nach `dist/vendor/…`. Validator, Hashvergleich,
+MIME-Prüfung und eine echte CSP-E2E sichern den ausgelieferten Zustand.
+
+**Übertragbarkeit:** Bei vendorten Browserverträgen muss die Prüfung nach dem
+Bundler stattfinden. Die Aussage gilt für Artefakte, deren relative URLs oder
+Hashes Teil des Vertrags sind; normale App-Module dürfen weiterhin gebündelt
+werden.
+
+## 2026-08-01 – CSP-Sicherheit endet nicht an der Shared-Komponente
+
+**Beobachtung und Evidenz:** Nach dem zentralen CSP-Patch setzte die App selbst
+Sonnenposition, Szenen-Seed und Partikelwerte noch mit `style.setProperty`.
+Auch fachlich legitime Inline-Styles verstoßen gegen eine strikte
+`style-src 'self'`-Grenze.
+
+**Änderung und Regression:** Die Szene quantisiert ihre prozeduralen Werte in
+endliche `data-*`-Zustände; Positionen, Varianten und Partikelstaffelung liegen
+in statischem CSS. Der CSP-Test prüft zusätzlich, dass kein gerendertes
+`[style]`-Attribut verbleibt.
+
+**Übertragbarkeit:** Eine CSP-sichere Shell macht nicht automatisch die ganze
+App CSP-sicher. Jeder Verbraucher muss eigene Inline-Style-Mutationen separat
+auditieren. Die Quantisierung eignet sich für dekorative Visualisierungen,
+nicht für fachlich notwendige kontinuierliche Präzision.
+
+## 2026-08-01 – Shadow-DOM-Analyse braucht einen funktionalen Gegenbeweis
+
+**Beobachtung und Evidenz:** Axe 4.12.1 meldet `region` und `skip-link` moderat
+am Shadow-Skiplink, weil es den programmatischen Fokuspfad zum slotted
+Light-DOM-Main statisch nicht auflösen kann. Der tatsächliche Tastaturpfad ist
+funktionsfähig.
+
+**Änderung und Regression:** Die App ignoriert die Regeln nicht global. Der
+Test akzeptiert nur exakt diese zwei zentral bewerteten Meldungen am bekannten
+Knoten und lässt jede andere Verletzung scheitern. Separat werden Aktivierung,
+`tabindex=-1`, Fokus und Sprach-/Reloadzustände geprüft.
+
+**Übertragbarkeit:** Eine begrenzte Toolgrenze darf nicht pauschal alle Regeln
+abschalten. Erwartete Meldung, Knoten, Impact, Toolversion und funktionaler
+Gegenbeweis müssen gemeinsam dokumentiert sein.
+
+## 2026-08-01 – Blockierte DEV-Felder sind ein atomarer Zustand
+
+**Beobachtung und Evidenz:** Ohne Railway-Service und Domain gibt es weder eine
+echte HTTPS-App-URL noch einen externen Healthcheck. Eine lokale oder erfundene
+URL würde den Portalvertrag fälschlich als veröffentlichbar erscheinen lassen.
+
+**Änderung und Regression:** `dev.url` und `dev.healthUrl` sowie die externen
+Metadatenfelder bleiben gemeinsam `null`; lokale Readiness läuft getrennt auf
+Port 4316 mit App-Key-, Umgebungs-, Shell- und Productionprüfung.
+
+**Übertragbarkeit:** URL und Health-URL sollten bei blockierten Apps atomar
+fehlen und bei veröffentlichten Apps atomar vorhanden sein. Das gilt nicht für
+rein lokale Testpfade, die ausdrücklich außerhalb des Portalvertrags stehen.

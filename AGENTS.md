@@ -11,7 +11,8 @@ App-Key `somewhere-now`. Fachlogik anderer MilosApps gehört nicht hierher.
 - Plattformen: `Web, mobil und Desktop`
 - Datenhaltung: `optionale Einstellungen lokal; keine App-Datenbank`
 - Deployment: `eigener DEV-Dienst; Production nicht freigegeben`
-- Gemeinsame Abhängigkeiten: `keine`
+- Gemeinsame Laufzeitabhängigkeiten: `keine`; veröffentlichte Verträge werden
+  ausschließlich fest gepinnt, vendort und lokal gelockt
 
 Wenn der lokale MilosApps Workspace verfügbar ist, vor appübergreifenden
 Änderungen die Register-, Portfolio-, Identity- und

@@ -11,7 +11,8 @@ eigene abstrakte Szene mit optionalem prozeduralem Klang.
 - kein Konto und keine App-Datenbank;
 - keine fremden Webcams oder Medien;
 - eigener DEV-Lifecycle, Production nicht freigegeben;
-- keine Shared-Abhängigkeit ohne veröffentlichten Release;
+- keine Shared-Laufzeitabhängigkeit; die öffentliche Shell ist als feste,
+  gelockte Kopie aus `public-app-shell/v2.0.3` im Repository enthalten;
 - Portal-DEV bindet nur über dokumentierte Metadaten und URL an.
 
 Siehe [Produktbrief](docs/PRODUCT_BRIEF.md), [QA-Plan](docs/QA_PLAN.md) und
@@ -45,13 +46,29 @@ Readiness-Nachweis.
 
 ```powershell
 pnpm test
+pnpm test:shell
 pnpm build
 pnpm exec playwright install chromium
 pnpm test:e2e
 ```
 
-`pnpm test:all` führt Logiktests, Build und Browsermatrix nacheinander aus.
+`pnpm test:all` prüft zuerst Manifest, Vendor-Lock und SHA-256-Hashes und führt
+danach Logiktests, Build und Browsermatrix aus.
 Details stehen im [QA-Bericht](docs/QA_REPORT.md).
+
+## Öffentliche App-Shell
+
+Die Shell ist aus `DrMilos33/MilosApps-Shared`, Tag
+`public-app-shell-v2.0.3`, Commit
+`ed898412306e22c6ae1b10ee8953df29f8acd627` vendort. Maßgeblich sind
+[`milos-app.json`](milos-app.json) und
+[`vendor/milosapps-shell/v2/shell-lock.json`](vendor/milosapps-shell/v2/shell-lock.json).
+Es gibt weder CDN- noch Runtime-Importe aus einem anderen Repository.
+
+Der Build lässt den gelockten Vendorpfad von Vite unverändert und kopiert ihn
+bytegleich nach `dist/vendor/…`. Dadurch funktionieren die externen
+Same-Origin-Styles auch unter `style-src 'self'` ohne Nonce, Hash oder
+`unsafe-inline`.
 
 ## Daten und Datenschutz
 

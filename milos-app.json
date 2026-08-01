@@ -1,0 +1,37 @@
+{
+  "$schema": "https://raw.githubusercontent.com/DrMilos33/MilosApps-Shared/ed898412306e22c6ae1b10ee8953df29f8acd627/contracts/public-app-shell/v2/app-manifest.schema.json",
+  "appKey": "somewhere-now",
+  "ownerTask": "MilosApps – Irgendwo ist gerade …",
+  "public": true,
+  "loginRequired": false,
+  "shellContract": {
+    "id": "public-app-shell/v2",
+    "version": "2.0.3",
+    "sharedCommit": "ed898412306e22c6ae1b10ee8953df29f8acd627",
+    "vendorDirectory": "vendor/milosapps-shell/v2",
+    "entryHtml": "index.html",
+    "localeModule": "src/i18n.ts"
+  },
+  "environment": "dev",
+  "description": {
+    "de": "Ein stilles Fenster zu einem realen Moment irgendwo auf der Erde.",
+    "en": "A quiet window into a real moment somewhere on Earth."
+  },
+  "theme": {
+    "accent": "var(--accent-text)",
+    "accentContrast": "#ffffff",
+    "surface": "var(--paper)",
+    "text": "var(--ink)",
+    "muted": "var(--ink-muted)",
+    "border": "var(--line)",
+    "focus": "var(--focus)"
+  },
+  "integration": {
+    "portalRoute": "/apps/somewhere-now"
+  },
+  "dev": {
+    "url": null,
+    "healthUrl": null
+  },
+  "productionApproved": false
+}

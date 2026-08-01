@@ -5,6 +5,8 @@ interface Readiness {
   appKey?: unknown;
   environment?: unknown;
   readiness?: unknown;
+  shellContract?: unknown;
+  productionApproved?: unknown;
 }
 
 export default async function verifySomewhereNowReadiness(): Promise<void> {
@@ -20,7 +22,9 @@ export default async function verifySomewhereNowReadiness(): Promise<void> {
     data.appKey !== "somewhere-now" ||
     data.status !== "ok" ||
     data.environment !== "DEV" ||
-    data.readiness !== true
+    data.readiness !== true ||
+    data.shellContract !== "public-app-shell/v2.0.3" ||
+    data.productionApproved !== false
   ) {
     throw new Error(
       `Falscher Dienst auf DEV-Port 4316: ${JSON.stringify({
@@ -28,6 +32,8 @@ export default async function verifySomewhereNowReadiness(): Promise<void> {
         status: data.status,
         environment: data.environment,
         readiness: data.readiness,
+        shellContract: data.shellContract,
+        productionApproved: data.productionApproved,
       })}`,
     );
   }

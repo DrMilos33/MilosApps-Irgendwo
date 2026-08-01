@@ -3,10 +3,13 @@
   "title": "Irgendwo ist gerade …",
   "shortDescription": "Ein stilles Fenster zu einem realen Moment irgendwo auf der Erde.",
   "language": "de",
+  "languages": ["de", "en"],
   "status": "DEV",
   "route": "/apps/somewhere-now",
   "devUrl": null,
-  "healthcheck": "/health/somewhere-now.json",
+  "healthcheck": null,
+  "shellContract": "public-app-shell/v2.0.3",
+  "productionApproved": false,
   "previewImage": {
     "path": "/preview.png",
     "rights": "Eigenes App-Screenshot; alle sichtbaren Szenenelemente sind prozedural erzeugt."

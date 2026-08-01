@@ -8,6 +8,8 @@
 - Ausschluss ungeeigneter oder riskanter Ereigniskategorien;
 - fehlende, veraltete und teilweise Wetterdaten;
 - Teilkarte ohne versteckte genaue Koordinaten.
+- vollständige DE/EN-Fachtexte, Ortsnamen und Datumsformate;
+- Shell-Manifest, Vendor-Lock und SHA-256-Artefakte.
 
 ## Simulierte Nutzung
 
@@ -16,6 +18,8 @@
 - Smartphone, Tablet, Desktop, Touch, Maus und Tastatur;
 - Audio blockiert, stumm, unterbrochen und nach App-Rückkehr;
 - reduzierte Bewegung, hoher Zoom, lange Ortsnamen und lokalisierte Datumswerte.
+- strikte Same-Origin-CSP ohne Inline-Styles sowie externe Shell-CSS-MIME-Typen;
+- Sprachpersistenz und funktionaler Shadow-DOM-Skiplink nach Reload.
 
 ## Verbesserungsrunden
 

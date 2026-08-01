@@ -15,9 +15,16 @@ import {
   WeatherRequestError,
   weatherFailureMessage,
 } from "../domain/weather";
+import {
+  localizePlace,
+  t,
+  type Language,
+  type MessageKey,
+} from "../i18n";
 import { shareMoment } from "../share";
 
 type DataState = "loading" | "live" | "stale" | "fallback" | "withheld";
+type StatusFactory = (language: Language) => string;
 
 interface Elements {
   aboutClose: HTMLButtonElement;
@@ -50,36 +57,36 @@ function required<T extends Element>(selector: string): T {
   return element;
 }
 
-function weatherSourceLine(weather: Weather, place: Place): string {
-  const observed = formatLocalTime(weather.observedAt, place.timeZone);
-  if (weather.severe) {
-    return `Open-Meteo · Stand ${observed} Uhr. Wetterdetail aus Fürsorge ausgeblendet.`;
-  }
-  if (weather.stale) {
-    return `Open-Meteo · letzter verfügbarer Stand ${observed} Uhr; als älter markiert.`;
-  }
-  return `Open-Meteo · Modellstand ${observed} Uhr; Ortszeit und Sonnenstand lokal berechnet.`;
+function weatherSourceLine(weather: Weather, place: Place, language: Language): string {
+  const observed = formatLocalTime(weather.observedAt, place.timeZone, language);
+  if (weather.severe) return t(language, "sourceSevere", { time: observed });
+  if (weather.stale) return t(language, "sourceStale", { time: observed });
+  return t(language, "sourceLive", { time: observed });
 }
 
-function daylightDescription(daylight: Daylight, place: Place): string {
-  if (daylight.phase === "polar-day") return "Polartag";
-  if (daylight.phase === "polar-night") return "Polarnacht";
+function daylightDescription(
+  daylight: Daylight,
+  place: Place,
+  language: Language,
+): string {
+  if (daylight.phase === "polar-day") return t(language, "daylightPolarDay");
+  if (daylight.phase === "polar-night") return t(language, "daylightPolarNight");
   if (daylight.nextEvent && daylight.nextEventAt) {
-    const label = daylight.nextEvent === "sunrise" ? "Sonnenaufgang" : "Sonnenuntergang";
-    return `${label} ${formatLocalTime(daylight.nextEventAt, place.timeZone)} Uhr`;
+    const key: MessageKey =
+      daylight.nextEvent === "sunrise" ? "daylightSunrise" : "daylightSunset";
+    return t(language, key, {
+      time: formatLocalTime(daylight.nextEventAt, place.timeZone, language),
+    });
   }
-  switch (daylight.phase) {
-    case "golden":
-      return "tiefes Sonnenlicht";
-    case "twilight":
-      return "Dämmerung";
-    case "night":
-      return "Nacht";
-    case "day":
-      return "Tag";
-    default:
-      return "lokal berechnet";
-  }
+  const keys: Record<Daylight["phase"], MessageKey> = {
+    golden: "daylightGolden",
+    twilight: "daylightTwilight",
+    night: "daylightNight",
+    day: "daylightDay",
+    "polar-day": "daylightPolarDay",
+    "polar-night": "daylightPolarNight",
+  };
+  return t(language, keys[daylight.phase] ?? "daylightLocal");
 }
 
 function particleCount(kind: ReturnType<typeof sceneWeather>): number {
@@ -95,13 +102,20 @@ export class SomewhereNowApp {
   private currentDaylight: Daylight | null = null;
   private currentWeather: Weather | null = null;
   private currentMoment: Moment | null = null;
+  private currentDataState: DataState = "loading";
+  private currentMomentAt = new Date();
+  private currentMomentRandom = 0;
+  private statusFactory: StatusFactory = (language) => t(language, "initialStatus");
   private requestController: AbortController | null = null;
   private requestNumber = 0;
   private clockTimer: number | null = null;
   private toastTimer: number | null = null;
   private requestedPlaceUsed = false;
 
-  constructor(private readonly root: HTMLElement) {
+  constructor(
+    private readonly root: HTMLElement,
+    private language: Language = "de",
+  ) {
     this.elements = {
       aboutClose: required("#about-close"),
       aboutDialog: required("#about-dialog"),
@@ -141,17 +155,45 @@ export class SomewhereNowApp {
     document.addEventListener("visibilitychange", () => void this.audio.onVisibilityChange());
     window.addEventListener("online", () => {
       if (!this.currentWeather) {
-        this.elements.statusLine.textContent = "Wieder online – das Wetter kann neu geladen werden.";
+        this.setStatus((language) => t(language, "statusOnline"));
         this.elements.weatherRetry.hidden = false;
       }
     });
     window.addEventListener("offline", () => {
-      this.elements.statusLine.textContent =
-        "Offline – Ortszeit und Sonnenstand funktionieren weiter.";
+      this.setStatus((language) => t(language, "statusOffline"));
     });
 
+    this.updateSoundLabel();
     this.clockTimer = window.setInterval(() => this.refreshClock(), 30_000);
     void this.travel();
+  }
+
+  setLanguage(language: Language): void {
+    this.language = language;
+    this.updateSoundLabel();
+
+    const place = this.currentPlace;
+    const daylight = this.currentDaylight;
+    if (place && daylight) {
+      const displayPlace = localizePlace(place, language);
+      this.currentMoment = selectMoment(
+        displayPlace,
+        daylight,
+        this.currentWeather,
+        this.currentMomentAt,
+        () => this.currentMomentRandom,
+        language,
+      );
+      this.render(
+        displayPlace,
+        daylight,
+        this.currentWeather,
+        this.currentMoment,
+        new Date(),
+        this.currentDataState,
+      );
+    }
+    this.elements.statusLine.textContent = this.statusFactory(language);
   }
 
   destroy(): void {
@@ -171,40 +213,73 @@ export class SomewhereNowApp {
       : getPlaceById(new URLSearchParams(window.location.search).get("place"));
     this.requestedPlaceUsed = true;
     const place = requestedPlace ?? chooseNextPlace(this.currentPlace?.id ?? null);
+    const displayPlace = localizePlace(place, this.language);
     const now = new Date();
     const daylight = getDaylight(place, now);
     this.currentPlace = place;
     this.currentDaylight = daylight;
     this.currentWeather = null;
-    this.currentMoment = selectMoment(place, daylight, null, now);
+    this.currentMomentAt = now;
+    this.currentMomentRandom = Math.random();
+    this.currentMoment = selectMoment(
+      displayPlace,
+      daylight,
+      null,
+      now,
+      () => this.currentMomentRandom,
+      this.language,
+    );
 
     this.setBusy(true);
-    this.render(place, daylight, null, this.currentMoment, now, "loading");
-    this.elements.statusLine.textContent = `Wetter für ${place.name} wird geladen …`;
+    this.render(displayPlace, daylight, null, this.currentMoment, now, "loading");
+    this.setStatus((language) =>
+      t(language, "statusWeatherLoading", {
+        place: localizePlace(place, language).name,
+      }),
+    );
 
     try {
       const weather = await fetchWeather(place, { signal: controller.signal, now });
       if (request !== this.requestNumber) return;
       this.currentWeather = weather;
-      this.currentMoment = selectMoment(place, daylight, weather, now);
+      const localized = localizePlace(place, this.language);
+      this.currentMoment = selectMoment(
+        localized,
+        daylight,
+        weather,
+        now,
+        () => this.currentMomentRandom,
+        this.language,
+      );
       const dataState: DataState = weather.severe
         ? "withheld"
         : weather.stale
           ? "stale"
           : "live";
-      this.render(place, daylight, weather, this.currentMoment, now, dataState);
-      this.elements.statusLine.textContent = weather.severe
-        ? `${place.name} ist da. Das Wetter wird heute bewusst nicht inszeniert.`
+      this.render(localized, daylight, weather, this.currentMoment, now, dataState);
+      const statusKey: MessageKey = weather.severe
+        ? "statusPlaceWithheld"
         : weather.stale
-          ? `${place.name} ist da. Die verfügbaren Wetterdaten sind älter.`
-          : `${place.name} ist da.`;
+          ? "statusPlaceStale"
+          : "statusPlaceReady";
+      this.setStatus((language) =>
+        t(language, statusKey, { place: localizePlace(place, language).name }),
+      );
     } catch (error) {
       if (request !== this.requestNumber) return;
       const reason: WeatherFailureReason =
         error instanceof WeatherRequestError ? error.reason : "network";
-      this.currentMoment = selectMoment(place, daylight, null, now);
-      this.render(place, daylight, null, this.currentMoment, now, "fallback");
-      this.elements.statusLine.textContent = weatherFailureMessage(reason);
+      const localized = localizePlace(place, this.language);
+      this.currentMoment = selectMoment(
+        localized,
+        daylight,
+        null,
+        now,
+        () => this.currentMomentRandom,
+        this.language,
+      );
+      this.render(localized, daylight, null, this.currentMoment, now, "fallback");
+      this.setStatus((language) => weatherFailureMessage(reason, language));
       this.elements.weatherRetry.hidden = false;
     } finally {
       if (request === this.requestNumber) this.setBusy(false);
@@ -222,7 +297,11 @@ export class SomewhereNowApp {
     this.requestController = controller;
     this.setBusy(true);
     this.elements.weatherRetry.hidden = true;
-    this.elements.statusLine.textContent = `Wetter für ${place.name} wird erneut geladen …`;
+    this.setStatus((language) =>
+      t(language, "statusWeatherRetry", {
+        place: localizePlace(place, language).name,
+      }),
+    );
     this.setDataState("loading");
 
     try {
@@ -230,21 +309,34 @@ export class SomewhereNowApp {
       const weather = await fetchWeather(place, { signal: controller.signal, now });
       if (request !== this.requestNumber) return;
       this.currentWeather = weather;
-      this.currentMoment = selectMoment(place, daylight, weather, now);
+      this.currentMomentAt = now;
+      this.currentMomentRandom = Math.random();
+      const localized = localizePlace(place, this.language);
+      this.currentMoment = selectMoment(
+        localized,
+        daylight,
+        weather,
+        now,
+        () => this.currentMomentRandom,
+        this.language,
+      );
       const state: DataState = weather.severe
         ? "withheld"
         : weather.stale
           ? "stale"
           : "live";
-      this.render(place, daylight, weather, this.currentMoment, now, state);
-      this.elements.statusLine.textContent = weather.severe
-        ? "Wetterdaten sind da und werden heute bewusst nicht inszeniert."
-        : "Wetterdaten sind wieder da.";
+      this.render(localized, daylight, weather, this.currentMoment, now, state);
+      this.setStatus((language) =>
+        t(
+          language,
+          weather.severe ? "statusWeatherRestoredWithheld" : "statusWeatherRestored",
+        ),
+      );
     } catch (error) {
       if (request !== this.requestNumber) return;
       const reason: WeatherFailureReason =
         error instanceof WeatherRequestError ? error.reason : "network";
-      this.elements.statusLine.textContent = weatherFailureMessage(reason);
+      this.setStatus((language) => weatherFailureMessage(reason, language));
       this.setDataState("fallback");
       this.elements.weatherRetry.hidden = false;
     } finally {
@@ -260,26 +352,25 @@ export class SomewhereNowApp {
     now: Date,
     state: DataState,
   ): void {
-    const localTime = formatPlaceTime(place, now);
+    const localTime = formatPlaceTime(place, now, this.language);
+    this.currentDataState = state;
     this.elements.placeLabel.textContent = `${place.name} · ${place.country}`;
-    this.elements.momentTitle.replaceChildren(
-      Object.assign(document.createElement("span"), { textContent: moment.title }),
-    );
+    this.elements.momentTitle.textContent = moment.title;
     this.elements.momentDetail.textContent = moment.detail;
     this.elements.factPlace.textContent = `${place.name}, ${place.country}`;
-    this.elements.factTime.textContent = formatLocalDateTime(now, place.timeZone);
+    this.elements.factTime.textContent = formatLocalDateTime(now, place.timeZone, this.language);
     this.elements.factWeather.textContent = weather
-      ? weatherDescription(weather)
-      : "zurzeit nicht verfügbar";
-    this.elements.factDaylight.textContent = daylightDescription(daylight, place);
+      ? weatherDescription(weather, this.language)
+      : t(this.language, "weatherUnavailable");
+    this.elements.factDaylight.textContent = daylightDescription(daylight, place, this.language);
     this.elements.scenePlace.textContent = place.name;
     this.elements.sceneTime.textContent = localTime;
     this.elements.sceneTime.dateTime = now.toISOString();
     this.elements.shareButton.disabled = false;
     this.elements.weatherRetry.hidden = state !== "fallback" && state !== "stale";
     this.elements.sourceNote.textContent = weather
-      ? weatherSourceLine(weather, place)
-      : "Ohne Wetterdaten · Ortszeit und Sonnenstand werden lokal berechnet.";
+      ? weatherSourceLine(weather, place, this.language)
+      : t(this.language, "sourceNoWeather");
     this.setDataState(state);
     this.renderScene(place, daylight, weather, moment);
     this.audio.setPhase(daylight.phase);
@@ -296,25 +387,22 @@ export class SomewhereNowApp {
     scene.dataset.phase = daylight.phase;
     scene.dataset.weather = weatherKind;
     scene.dataset.landscape = place.landscape;
-    scene.style.setProperty("--sun-x", `${Math.max(10, Math.min(90, daylight.azimuth / 3.6))}%`);
-    scene.style.setProperty(
-      "--sun-y",
-      `${Math.max(11, Math.min(82, 68 - daylight.altitude * 0.7))}%`,
-    );
-    scene.style.setProperty("--scene-seed", String(place.sceneSeed % 17));
+    const sunX = Math.round(Math.max(10, Math.min(90, daylight.azimuth / 3.6)) / 10) * 10;
+    const sunY = Math.round(Math.max(10, Math.min(80, 68 - daylight.altitude * 0.7)) / 10) * 10;
+    scene.dataset.sunX = String(sunX);
+    scene.dataset.sunY = String(sunY);
+    scene.dataset.sceneSeed = String(place.sceneSeed % 5);
     scene.setAttribute(
       "aria-label",
-      `Prozedurale abstrakte Szene für ${place.name}: ${moment.title} ${moment.detail}`,
+      t(this.language, "sceneLabel", {
+        place: place.name,
+        title: moment.title,
+        detail: moment.detail,
+      }),
     );
 
     const count = particleCount(weatherKind);
-    const particles = Array.from({ length: count }, (_value, index) => {
-      const particle = document.createElement("span");
-      particle.style.setProperty("--particle-x", `${(index * 37 + place.sceneSeed) % 100}%`);
-      particle.style.setProperty("--particle-delay", `${-((index * 19) % 23) / 10}s`);
-      particle.style.setProperty("--particle-speed", `${1.5 + ((index * 7) % 10) / 10}s`);
-      return particle;
-    });
+    const particles = Array.from({ length: count }, () => document.createElement("span"));
     this.elements.weatherParticles.replaceChildren(...particles);
 
     const themeColor =
@@ -328,15 +416,20 @@ export class SomewhereNowApp {
   private refreshClock(): void {
     const place = this.currentPlace;
     if (!place) return;
+    const displayPlace = localizePlace(place, this.language);
     const now = new Date();
     const daylight = getDaylight(place, now);
     this.currentDaylight = daylight;
-    this.elements.factTime.textContent = formatLocalDateTime(now, place.timeZone);
-    this.elements.sceneTime.textContent = formatPlaceTime(place, now);
+    this.elements.factTime.textContent = formatLocalDateTime(now, place.timeZone, this.language);
+    this.elements.sceneTime.textContent = formatPlaceTime(place, now, this.language);
     this.elements.sceneTime.dateTime = now.toISOString();
-    this.elements.factDaylight.textContent = daylightDescription(daylight, place);
+    this.elements.factDaylight.textContent = daylightDescription(
+      daylight,
+      displayPlace,
+      this.language,
+    );
     if (this.currentMoment) {
-      this.renderScene(place, daylight, this.currentWeather, this.currentMoment);
+      this.renderScene(displayPlace, daylight, this.currentWeather, this.currentMoment);
     }
   }
 
@@ -346,15 +439,28 @@ export class SomewhereNowApp {
   }
 
   private setDataState(state: DataState): void {
-    const labels: Record<DataState, string> = {
-      loading: "lädt",
-      live: "aktuell",
-      stale: "älter",
-      fallback: "ohne Wetter",
-      withheld: "bewusst ruhig",
+    const keys: Record<DataState, MessageKey> = {
+      loading: "stateLoading",
+      live: "stateLive",
+      stale: "stateStale",
+      fallback: "stateFallback",
+      withheld: "stateWithheld",
     };
+    this.currentDataState = state;
     this.elements.dataState.dataset.state = state;
-    this.elements.dataState.textContent = labels[state];
+    this.elements.dataState.textContent = t(this.language, keys[state]);
+  }
+
+  private setStatus(factory: StatusFactory): void {
+    this.statusFactory = factory;
+    this.elements.statusLine.textContent = factory(this.language);
+  }
+
+  private updateSoundLabel(): void {
+    this.elements.soundToggle.setAttribute(
+      "aria-label",
+      t(this.language, this.audio.isEnabled ? "soundOff" : "soundOn"),
+    );
   }
 
   private async toggleSound(): Promise<void> {
@@ -362,33 +468,35 @@ export class SomewhereNowApp {
       if (this.audio.isEnabled) {
         await this.audio.disable();
         this.elements.soundToggle.setAttribute("aria-pressed", "false");
-        this.elements.soundToggle.setAttribute("aria-label", "Klang einschalten");
-        this.showToast("Klang ist aus.");
+        this.updateSoundLabel();
+        this.showToast(t(this.language, "toastSoundOff"));
       } else {
         await this.audio.enable();
         this.elements.soundToggle.setAttribute("aria-pressed", "true");
-        this.elements.soundToggle.setAttribute("aria-label", "Klang ausschalten");
-        this.showToast("Leiser, prozeduraler Klang ist an.");
+        this.updateSoundLabel();
+        this.showToast(t(this.language, "toastSoundOn"));
       }
     } catch {
       this.elements.soundToggle.setAttribute("aria-pressed", "false");
-      this.elements.soundToggle.setAttribute("aria-label", "Klang einschalten");
-      this.showToast("Der Browser hat den Klang nicht freigegeben.");
+      this.updateSoundLabel();
+      this.showToast(t(this.language, "toastSoundBlocked"));
     }
   }
 
   private async share(): Promise<void> {
     if (!this.currentPlace || !this.currentMoment) return;
+    const place = localizePlace(this.currentPlace, this.language);
     try {
       const result = await shareMoment(
-        this.currentPlace,
+        place,
         this.currentMoment,
-        formatPlaceTime(this.currentPlace, new Date()),
+        formatPlaceTime(place, new Date(), this.language),
+        this.language,
       );
-      if (result.method === "clipboard") this.showToast("Moment wurde kopiert.");
+      if (result.method === "clipboard") this.showToast(t(this.language, "toastShareCopied"));
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
-      this.showToast("Der Moment konnte nicht geteilt werden.");
+      this.showToast(t(this.language, "toastShareFailed"));
     }
   }
 

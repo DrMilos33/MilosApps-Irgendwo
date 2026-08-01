@@ -1,21 +1,33 @@
 import type { Moment, Place } from "./domain/types";
+import { t, type Language } from "./i18n";
 
 export interface ShareResult {
   method: "native" | "clipboard";
 }
 
-export function buildShareText(place: Place, moment: Moment, localTime: string): string {
-  return `Irgendwo ist gerade …\n${place.name}, ${place.country} · ${localTime}\n${moment.title} ${moment.detail}`;
+export function buildShareText(
+  place: Place,
+  moment: Moment,
+  localTime: string,
+  language: Language = "de",
+): string {
+  return t(language, "shareText", {
+    place: `${place.name}, ${place.country}`,
+    time: localTime,
+    title: moment.title,
+    detail: moment.detail,
+  });
 }
 
 export async function shareMoment(
   place: Place,
   moment: Moment,
   localTime: string,
+  language: Language = "de",
 ): Promise<ShareResult> {
-  const text = buildShareText(place, moment, localTime);
+  const text = buildShareText(place, moment, localTime, language);
   const data = {
-    title: "Irgendwo ist gerade …",
+    title: t(language, "shareTitle"),
     text,
     url: window.location.origin,
   };

@@ -2,5 +2,7 @@
   "status": "ok",
   "appKey": "somewhere-now",
   "environment": "DEV",
-  "readiness": true
+  "readiness": true,
+  "shellContract": "public-app-shell/v2.0.3",
+  "productionApproved": false
 }
