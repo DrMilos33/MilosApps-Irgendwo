@@ -140,3 +140,36 @@ Port 4316 mit App-Key-, Umgebungs-, Shell- und Productionprüfung.
 **Übertragbarkeit:** URL und Health-URL sollten bei blockierten Apps atomar
 fehlen und bei veröffentlichten Apps atomar vorhanden sein. Das gilt nicht für
 rein lokale Testpfade, die ausdrücklich außerhalb des Portalvertrags stehen.
+
+## 2026-08-02 – Vendor-Locks müssen bis ins gebaute HTML reichen
+
+**Beobachtung und Evidenz:** Vite erhielt die gelockten Essentials-Dateien im
+Repository, bündelte beim ersten Build aber beide extern vorgesehenen
+CSS-Verweise. Ein gültiger Quell-Lock belegte damit noch nicht den vereinbarten
+Browser-Runtimevertrag.
+
+**Änderung und Regression:** Die HTML-Links bleiben explizit von der
+Transformation ausgenommen. Die Build-Prüfung liest das erzeugte `index.html`,
+verlangt beide externen Vendor-URLs, verwirft `data:`-Inlining und vergleicht
+jedes ausgelieferte Artefakt bytegleich mit Lock und Quellkopie.
+
+**Übertragbarkeit:** Wenn URL-Form, CSP oder MIME-Typ Teil eines vendorten
+Vertrags sind, muss das Release-Gate das gebaute Artefakt statt nur den
+Quellbaum prüfen. Das gilt nicht für gewöhnliche, bewusst gebündelte App-CSS.
+
+## 2026-08-02 – Erstinstallation braucht explizites transitives Precache
+
+**Beobachtung und Evidenz:** Beim ersten Onlineaufruf wurden neue Vendor-Module
+vor aktiver Service-Worker-Kontrolle transitiv importiert. Sie erschienen
+dadurch nicht zuverlässig im Cache; ein direkt folgendes Offline-Neuladen
+blieb im Ladebildschirm stehen.
+
+**Änderung und Regression:** Alle browserseitig benötigten Shell- und
+Essentials-Bootstrap-, Runtime- und CSS-Artefakte stehen explizit im
+Install-Precache. Der Paarfall „erster Onlineaufruf → offline → Reload“ läuft
+nach der Korrektur grün.
+
+**Übertragbarkeit:** Ein Runtime-Cache allein garantiert bei der
+Service-Worker-Erstinstallation keine Offlinefähigkeit transitiver Module.
+Explizites Precache ist für eine kleine, gelockte statische Abhängigkeitsmenge
+geeignet; große oder dynamische Datenbestände benötigen eine andere Strategie.

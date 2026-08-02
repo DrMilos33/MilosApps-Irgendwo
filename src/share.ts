@@ -1,8 +1,10 @@
 import type { Moment, Place } from "./domain/types";
 import { t, type Language } from "./i18n";
 
-export interface ShareResult {
-  method: "native" | "clipboard";
+export interface SharePayload {
+  title: string;
+  text: string;
+  url: string;
 }
 
 export function buildShareText(
@@ -19,24 +21,17 @@ export function buildShareText(
   });
 }
 
-export async function shareMoment(
+export function buildSharePayload(
   place: Place,
   moment: Moment,
   localTime: string,
-  language: Language = "de",
-): Promise<ShareResult> {
+  language: Language,
+  url: string,
+): SharePayload {
   const text = buildShareText(place, moment, localTime, language);
-  const data = {
+  return {
     title: t(language, "shareTitle"),
     text,
-    url: window.location.origin,
+    url,
   };
-
-  if (navigator.share) {
-    await navigator.share(data);
-    return { method: "native" };
-  }
-
-  await navigator.clipboard.writeText(`${text}\n${window.location.origin}`);
-  return { method: "clipboard" };
 }

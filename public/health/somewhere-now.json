@@ -4,5 +4,6 @@
   "environment": "DEV",
   "readiness": true,
   "shellContract": "public-app-shell/v2.0.3",
+  "essentialsContract": "public-app-essentials/v1.0.0",
   "productionApproved": false
 }

@@ -6,6 +6,7 @@ interface Readiness {
   environment?: unknown;
   readiness?: unknown;
   shellContract?: unknown;
+  essentialsContract?: unknown;
   productionApproved?: unknown;
 }
 
@@ -24,6 +25,7 @@ export default async function verifySomewhereNowReadiness(): Promise<void> {
     data.environment !== "DEV" ||
     data.readiness !== true ||
     data.shellContract !== "public-app-shell/v2.0.3" ||
+    data.essentialsContract !== "public-app-essentials/v1.0.0" ||
     data.productionApproved !== false
   ) {
     throw new Error(
@@ -33,6 +35,7 @@ export default async function verifySomewhereNowReadiness(): Promise<void> {
         environment: data.environment,
         readiness: data.readiness,
         shellContract: data.shellContract,
+        essentialsContract: data.essentialsContract,
         productionApproved: data.productionApproved,
       })}`,
     );

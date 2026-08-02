@@ -1,6 +1,6 @@
 # Quellen und Lizenzen
 
-Stand der Prüfung: 2026-08-01.
+Stand der Prüfung: 2026-08-02.
 
 ## Wetter: Open-Meteo
 
@@ -78,6 +78,21 @@ Stand der Prüfung: 2026-08-01.
   `662093d5dce4147b7e962a882b570b478a437a78c77d92242eb3c96191a019a9`.
 - Das App-Icon, Theme-Tokens und sämtliche sichtbaren DE/EN-Fachtexte gehören
   weiterhin dieser App; die Shell liefert nur den gemeinsamen Rahmen.
+
+## MilosApps Public App Essentials
+
+- Kanonische Quelle:
+  [DrMilos33/MilosApps-Shared](https://github.com/DrMilos33/MilosApps-Shared)
+- Vertrag/Tag: `public-app-essentials/v1.0.0`.
+- Exakter Shared-Commit:
+  `b09e09008ff05fe87f05bc647a7c4964ff13e6f6`.
+- Übernahme: feste lokale Kopie mit fünf SHA-256-gelockten Artefakten; kein
+  CDN und kein Runtimeimport aus einem anderen Repository.
+- App-spezifische Module: Ladebildschirm, `no-cookies`-Datenschutzhinweis mit
+  lokaler Speicherung und Teilen; Datum und Ortssuche sind deaktiviert.
+- Der Build erhält beide CSS-Verweise als externe Same-Origin-Ressourcen und
+  liefert alle fünf Vendorartefakte bytegleich zum Lock aus.
+- Texte, Theme-Tokens und das Inline-SVG-App-Icon bleiben Eigentum dieser App.
 
 ## Eigene Inhalte
 

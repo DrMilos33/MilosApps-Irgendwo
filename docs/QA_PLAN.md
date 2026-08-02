@@ -9,7 +9,8 @@
 - fehlende, veraltete und teilweise Wetterdaten;
 - Teilkarte ohne versteckte genaue Koordinaten.
 - vollständige DE/EN-Fachtexte, Ortsnamen und Datumsformate;
-- Shell-Manifest, Vendor-Lock und SHA-256-Artefakte.
+- Shell- und Essentials-Manifeste, Vendor-Locks und SHA-256-Artefakte;
+- Teilpayload ohne Query oder genaue Koordinaten.
 
 ## Simulierte Nutzung
 
@@ -20,6 +21,10 @@
 - reduzierte Bewegung, hoher Zoom, lange Ortsnamen und lokalisierte Datumswerte.
 - strikte Same-Origin-CSP ohne Inline-Styles sowie externe Shell-CSS-MIME-Typen;
 - Sprachpersistenz und funktionaler Shadow-DOM-Skiplink nach Reload.
+- CSS-first Start bei langsamem/frischem Laden, genau eine Dokument-H1;
+- wahrheitsgemäßer Datenschutzstatus, 44-px-Aktion und Persistenz;
+- Teilen über native API, Clipboard-Fallback und erwartbaren Abbruch;
+- beide externen Essentials-CSS-Dateien im tatsächlich gebauten HTML.
 
 ## Verbesserungsrunden
 

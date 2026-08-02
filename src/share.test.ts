@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getPlaceById } from "./domain/locations";
-import { buildShareText } from "./share";
+import { buildSharePayload, buildShareText } from "./share";
 import { localizePlace } from "./i18n";
 
 describe("Teilkarte", () => {
@@ -38,5 +38,26 @@ describe("Teilkarte", () => {
     expect(text).toContain("Waitangi, Chatham Islands, New Zealand · 00:15");
     expect(text).not.toContain(String(place.latitude));
     expect(text).not.toContain(String(place.longitude));
+  });
+
+  it("liefert einen geteilten Root-Link ohne Ortsparameter", () => {
+    const place = getPlaceById("reykjavik")!;
+    const payload = buildSharePayload(
+      place,
+      {
+        kind: "day",
+        title: "Der Tag ist längst unterwegs.",
+        detail: "In Reykjavík steht die Sonne über dem Horizont.",
+      },
+      "14:10 Uhr",
+      "de",
+      "https://example.test/",
+    );
+
+    expect(payload.url).toBe("https://example.test/");
+    expect(payload.url).not.toContain("place=");
+    expect(payload.text).toContain("Reykjavík");
+    expect(payload.text).not.toContain(String(place.latitude));
+    expect(payload.text).not.toContain(String(place.longitude));
   });
 });

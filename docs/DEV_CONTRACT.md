@@ -1,6 +1,7 @@
 # DEV-Integrationsvertrag
 
-Vertragsstand: `public-app-shell/v2.0.3-dev` vom 2026-08-01.
+Vertragsstand: `public-app-shell/v2.0.3` plus
+`public-app-essentials/v1.0.0` vom 2026-08-02.
 
 ## Metadaten
 
@@ -35,11 +36,12 @@ Ein gültiger Readiness-Response enthält:
   "environment": "DEV",
   "readiness": true,
   "shellContract": "public-app-shell/v2.0.3",
+  "essentialsContract": "public-app-essentials/v1.0.0",
   "productionApproved": false
 }
 ```
 
-Der E2E-Start prüft diese sechs Werte inhaltlich. Ein HTTP-200, eine generische
+Der E2E-Start prüft diese sieben Werte inhaltlich. Ein HTTP-200, eine generische
 `/health.json` oder ein fremder Dienst auf demselben Port gelten nicht als
 bereit. Port `4316` ist lokal reserviert; `strictPort` lässt Starts bei einer
 Kollision fehlschlagen. Der Testlauf verwendet keinen vorhandenen Server
@@ -83,6 +85,6 @@ bleiben `dev.url`, `dev.healthUrl`, `devUrl` und `healthcheck` in den externen
 Metadaten gemeinsam `null`. `http://127.0.0.1:4316/` ist ausschließlich die
 lokale Prüfadresse und darf nicht als Portalziel verwendet werden.
 
-Rollback des lokalen Shell-/UI-Wechsels ist der vorherige gesunde Commit
-`06f62fa6c54553e5f0a1bf792827d223854b867e`. Production bleibt `false` und
+Rollback der lokalen Essentials-Integration ist der vorherige gesunde Commit
+`70199aa0d5aafa47220b5956593683e3989c7baf`. Production bleibt `false` und
 unverändert.

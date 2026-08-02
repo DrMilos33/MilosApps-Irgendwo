@@ -21,7 +21,7 @@ import {
   type Language,
   type MessageKey,
 } from "../i18n";
-import { shareMoment } from "../share";
+import { buildSharePayload, type SharePayload } from "../share";
 
 type DataState = "loading" | "live" | "stale" | "fallback" | "withheld";
 type StatusFactory = (language: Language) => string;
@@ -41,7 +41,7 @@ interface Elements {
   scene: HTMLElement;
   scenePlace: HTMLElement;
   sceneTime: HTMLTimeElement;
-  shareButton: HTMLButtonElement;
+  shareButton: MilosShareButtonElement;
   soundToggle: HTMLButtonElement;
   sourceNote: HTMLElement;
   statusLine: HTMLElement;
@@ -49,6 +49,10 @@ interface Elements {
   travelButton: HTMLButtonElement;
   weatherParticles: HTMLElement;
   weatherRetry: HTMLButtonElement;
+}
+
+interface MilosShareButtonElement extends HTMLElement {
+  setPayloadProvider(provider: () => SharePayload): void;
 }
 
 function required<T extends Element>(selector: string): T {
@@ -143,9 +147,25 @@ export class SomewhereNowApp {
   }
 
   start(): void {
+    this.elements.shareButton.setPayloadProvider(() => {
+      if (!this.currentPlace || !this.currentMoment) {
+        return {
+          title: t(this.language, "shareTitle"),
+          text: t(this.language, "initialDetail"),
+          url: new URL("/", window.location.origin).href,
+        };
+      }
+      const place = localizePlace(this.currentPlace, this.language);
+      return buildSharePayload(
+        place,
+        this.currentMoment,
+        formatPlaceTime(place, new Date(), this.language),
+        this.language,
+        new URL("/", window.location.origin).href,
+      );
+    });
     this.elements.travelButton.addEventListener("click", () => void this.travel());
     this.elements.weatherRetry.addEventListener("click", () => void this.retryWeather());
-    this.elements.shareButton.addEventListener("click", () => void this.share());
     this.elements.soundToggle.addEventListener("click", () => void this.toggleSound());
     this.elements.aboutOpen.addEventListener("click", () => this.elements.aboutDialog.showModal());
     this.elements.aboutClose.addEventListener("click", () => this.elements.aboutDialog.close());
@@ -366,7 +386,6 @@ export class SomewhereNowApp {
     this.elements.scenePlace.textContent = place.name;
     this.elements.sceneTime.textContent = localTime;
     this.elements.sceneTime.dateTime = now.toISOString();
-    this.elements.shareButton.disabled = false;
     this.elements.weatherRetry.hidden = state !== "fallback" && state !== "stale";
     this.elements.sourceNote.textContent = weather
       ? weatherSourceLine(weather, place, this.language)
@@ -480,23 +499,6 @@ export class SomewhereNowApp {
       this.elements.soundToggle.setAttribute("aria-pressed", "false");
       this.updateSoundLabel();
       this.showToast(t(this.language, "toastSoundBlocked"));
-    }
-  }
-
-  private async share(): Promise<void> {
-    if (!this.currentPlace || !this.currentMoment) return;
-    const place = localizePlace(this.currentPlace, this.language);
-    try {
-      const result = await shareMoment(
-        place,
-        this.currentMoment,
-        formatPlaceTime(place, new Date(), this.language),
-        this.language,
-      );
-      if (result.method === "clipboard") this.showToast(t(this.language, "toastShareCopied"));
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") return;
-      this.showToast(t(this.language, "toastShareFailed"));
     }
   }
 

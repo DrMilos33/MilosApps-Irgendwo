@@ -7,9 +7,11 @@ if (!root) {
   throw new Error("App-Wurzel nicht gefunden.");
 }
 
+await customElements.whenDefined("milos-share-button");
 const app = new SomewhereNowApp(root, normalizeLanguage(document.documentElement.lang));
 bindAppLocale((language) => app.setLanguage(language));
 app.start();
+document.dispatchEvent(new CustomEvent("milosapps:ready"));
 
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   window.addEventListener("load", () => {

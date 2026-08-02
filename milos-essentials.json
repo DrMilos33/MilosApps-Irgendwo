@@ -1,0 +1,48 @@
+{
+  "$schema": "https://raw.githubusercontent.com/DrMilos33/MilosApps-Shared/b09e09008ff05fe87f05bc647a7c4964ff13e6f6/contracts/public-app-essentials/v1/essentials-manifest.schema.json",
+  "appKey": "somewhere-now",
+  "ownerTask": "MilosApps – Irgendwo ist gerade …",
+  "public": true,
+  "loginRequired": false,
+  "environment": "dev",
+  "productionApproved": false,
+  "entryHtml": "index.html",
+  "integrationFiles": ["src/main.ts", "src/share.ts"],
+  "loading": {
+    "appName": "Irgendwo ist gerade …",
+    "iconPath": "favicon.svg",
+    "message": {
+      "de": "App wird geöffnet …",
+      "en": "Opening app …"
+    }
+  },
+  "privacy": {
+    "mode": "no-cookies",
+    "usesLocalStorage": true,
+    "optionalTracking": false,
+    "privacyUrl": "https://dev.milos-apps.de/datenschutz"
+  },
+  "features": {
+    "startup": true,
+    "privacyNotice": true,
+    "share": true,
+    "datePicker": false,
+    "placeSearch": false
+  },
+  "theme": {
+    "accent": "var(--accent-text)",
+    "accentContrast": "#ffffff",
+    "surface": "var(--paper)",
+    "surfaceSoft": "var(--card)",
+    "text": "var(--ink)",
+    "muted": "var(--ink-muted)",
+    "border": "var(--line)",
+    "focus": "var(--focus)"
+  },
+  "essentialsContract": {
+    "id": "public-app-essentials/v1",
+    "version": "1.0.0",
+    "sharedCommit": "b09e09008ff05fe87f05bc647a7c4964ff13e6f6",
+    "vendorDirectory": "vendor/milosapps-essentials/v1"
+  }
+}

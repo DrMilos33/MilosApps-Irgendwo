@@ -11,10 +11,41 @@
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <link
+      rel="stylesheet"
+      vite-ignore
+      href="/vendor/milosapps-essentials/v1/milos-app-essentials.css"
+    />
+    <link
+      rel="stylesheet"
+      vite-ignore
+      href="/vendor/milosapps-essentials/v1/milos-app-essentials-theme.css"
+    />
     <title>Irgendwo ist gerade … – MilosApps</title>
+    <script
+      type="module"
+      vite-ignore
+      src="/vendor/milosapps-essentials/v1/bootstrap.js"
+    ></script>
     <script type="module" vite-ignore src="/vendor/milosapps-shell/v2/bootstrap.js"></script>
   </head>
   <body>
+    <section data-milos-app-loading role="status" aria-live="polite">
+      <div data-milos-loading-card>
+        <img
+          data-milos-loading-icon
+          src="favicon.svg"
+          width="52"
+          height="52"
+          alt=""
+        />
+        <span data-milos-loading-brand>MilosApps</span>
+        <p data-milos-loading-title>Irgendwo ist gerade …</p>
+        <p data-milos-loading-message>App wird geöffnet …</p>
+        <span data-milos-loading-progress aria-hidden="true"></span>
+      </div>
+    </section>
+
     <milos-app-shell>
       <svg slot="app-icon" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
         <rect width="64" height="64" rx="20" fill="#17283a"></rect>
@@ -45,15 +76,7 @@
                   <path d="m8 5 7 7-7 7"></path>
                 </svg>
               </button>
-              <button
-                class="share-button"
-                id="share-button"
-                type="button"
-                disabled
-                data-app-text="share"
-              >
-                Moment teilen
-              </button>
+              <milos-share-button id="share-button"></milos-share-button>
             </div>
             <p class="status-line" id="status-line" role="status" aria-live="polite" data-app-text="initialStatus">
               Die Reise beginnt …

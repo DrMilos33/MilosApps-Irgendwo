@@ -13,6 +13,8 @@ eigene abstrakte Szene mit optionalem prozeduralem Klang.
 - eigener DEV-Lifecycle, Production nicht freigegeben;
 - keine Shared-Laufzeitabhängigkeit; die öffentliche Shell ist als feste,
   gelockte Kopie aus `public-app-shell/v2.0.3` im Repository enthalten;
+- Ladebildschirm, wahrheitsgemäßer Datenschutzhinweis und Teilen-Funktion sind
+  als feste, gelockte Kopie aus `public-app-essentials/v1.0.0` integriert;
 - Portal-DEV bindet nur über dokumentierte Metadaten und URL an.
 
 Siehe [Produktbrief](docs/PRODUCT_BRIEF.md), [QA-Plan](docs/QA_PLAN.md) und
@@ -47,13 +49,14 @@ Readiness-Nachweis.
 ```powershell
 pnpm test
 pnpm test:shell
+pnpm test:essentials
 pnpm build
 pnpm exec playwright install chromium
 pnpm test:e2e
 ```
 
-`pnpm test:all` prüft zuerst Manifest, Vendor-Lock und SHA-256-Hashes und führt
-danach Logiktests, Build und Browsermatrix aus.
+`pnpm test:all` prüft zuerst beide Manifeste, Vendor-Locks und SHA-256-Hashes
+und führt danach Logiktests, Build und Browsermatrix aus.
 Details stehen im [QA-Bericht](docs/QA_REPORT.md).
 
 ## Öffentliche App-Shell
@@ -69,6 +72,18 @@ Der Build lässt den gelockten Vendorpfad von Vite unverändert und kopiert ihn
 bytegleich nach `dist/vendor/…`. Dadurch funktionieren die externen
 Same-Origin-Styles auch unter `style-src 'self'` ohne Nonce, Hash oder
 `unsafe-inline`.
+
+## Öffentliche App-Essentials
+
+Die Essentials sind aus `DrMilos33/MilosApps-Shared`, Tag
+`public-app-essentials-v1.0.0`, Commit
+`b09e09008ff05fe87f05bc647a7c4964ff13e6f6` vendort. Maßgeblich sind
+[`milos-essentials.json`](milos-essentials.json) und
+[`vendor/milosapps-essentials/v1/essentials-lock.json`](vendor/milosapps-essentials/v1/essentials-lock.json).
+Die App aktiviert nur den CSS-first Ladebildschirm, den Hinweis
+`no-cookies` mit lokaler Speicherung sowie die Teilen-Funktion; Datums- und
+Ortsuche bleiben deaktiviert. Die fünf gelockten Artefakte werden bytegleich
+ausgeliefert, beide CSS-Dateien bleiben externe Same-Origin-Ressourcen.
 
 ## Daten und Datenschutz
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = "somewhere-now-shell-v4";
+const CACHE_NAME = "somewhere-now-shell-v6";
 const SHELL = [
   "/",
   "/index.html",
@@ -6,6 +6,14 @@ const SHELL = [
   "/manifest.webmanifest",
   "/health.json",
   "/health/somewhere-now.json",
+  "/vendor/milosapps-shell/v2/bootstrap.js",
+  "/vendor/milosapps-shell/v2/milos-app-shell.js",
+  "/vendor/milosapps-shell/v2/milos-app-shell.css",
+  "/vendor/milosapps-shell/v2/milos-app-shell-theme.css",
+  "/vendor/milosapps-essentials/v1/bootstrap.js",
+  "/vendor/milosapps-essentials/v1/milos-app-essentials.js",
+  "/vendor/milosapps-essentials/v1/milos-app-essentials.css",
+  "/vendor/milosapps-essentials/v1/milos-app-essentials-theme.css",
 ];
 
 async function precacheShell() {

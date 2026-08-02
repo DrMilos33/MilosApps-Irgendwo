@@ -1,13 +1,13 @@
 # QA-Bericht
 
-Letzte Aktualisierung: 2026-08-01.
+Letzte Aktualisierung: 2026-08-02.
 
 ## Automatisierte Matrix
 
 | Ebene | Abdeckung |
 |---|---|
-| Shell-Vertrag | portabler v2.0.3-Validator, fünf gelockte Vendorartefakte und SHA-256-Prüfung |
-| Logik | 26 Tests: zusätzlich vollständige DE/EN-Texte, englische Orts-/Datumsdarstellung, Gefahrfilter und Teilkarte |
+| Shared-Verträge | portable Validatoren für Shell v2.0.3 und Essentials v1.0.0, je fünf gelockte Vendorartefakte und SHA-256-Prüfung |
+| Logik | 27 Tests: vollständige DE/EN-Texte, Orts-/Datumsdarstellung, Gefahrfilter sowie Teilpayload ohne Query oder Koordinaten |
 | Smartphone | Pixel-7-Touchprofil mit exakt 390 × 844 CSS-Pixeln |
 | Tablet | iPad-Abmessungen und Touch in Chromium |
 | Desktop | 1440 × 900, Maus und Tastatur |
@@ -22,10 +22,10 @@ Ressourcenbudget laufen einmal im Desktopprojekt; die
 geräteabhängigen Hauptflüsse, Accessibility, wiederholten Eingaben,
 Fehlerzustände und Reflowprüfungen laufen in allen drei Projekten.
 
-Der aktuelle Abschlusslauf führte 60 Projektfälle aus: 46 bestanden, 14
+Der aktuelle Abschlusslauf führte 75 Projektfälle aus: 55 bestanden, 20
 bewusst projektübergreifend redundante Spezialfälle wurden übersprungen. Der
-gesonderte Shell-Validator, 26/26 Logiktests und der TypeScript-/Vite-Build
-waren ebenfalls grün.
+Shell- und Essentials-Validator, 27/27 Logiktests und der
+TypeScript-/Vite-Build waren ebenfalls grün.
 
 ## Runde 1 – erster lauffähiger Stand
 
@@ -212,6 +212,63 @@ zweiten Runde umgesetzt:
 - Die CSP-E2E prüft echte Response-Header statt nur Quelltextmuster.
 - Externe DEV-Felder bleiben gemeinsam `null`; dadurch ist der Blocker
   maschinenlesbar, ohne lokale URLs als Portalziele auszugeben.
+
+## Essentials-Migration – zwei Verbesserungsrunden
+
+### Verified
+
+- `public-app-essentials/v1.0.0` ist exakt auf Shared-Commit
+  `b09e09008ff05fe87f05bc647a7c4964ff13e6f6` gepinnt; der portable Validator
+  bestätigt alle fünf Lockartefakte.
+- Der CSS-first Ladebildschirm erscheint bei frischem und gedrosseltem Start,
+  verwendet einen Absatz statt einer Überschrift und verschwindet erst nach
+  `milosapps:ready`. Die Dokumentstruktur enthält genau eine H1.
+- Der Datenschutzhinweis sagt wahrheitsgemäß „keine Werbe- oder
+  Tracking-Cookies“, benennt lokale Sprache/Einstellungen, besitzt ein
+  44-px-Ziel und bleibt nach Bestätigung und Reload geschlossen.
+- Teilen funktioniert über native Web Share API, Clipboard-Fallback und den
+  erwartbaren `AbortError`-Pfad. Der Payload enthält weder Queryparameter noch
+  genaue Ortskoordinaten.
+- DE/EN samt Reload-Persistenz, Reduced Motion, Tastatur, Fokus, 1440 × 900,
+  390 × 844 und 360 × 800 bei 200 % Textzoom sind grün. Smartphone und
+  Desktop wurden zusätzlich sichtbar im In-App-Browser geprüft.
+- Abschlussmatrix: 55 bestanden, 20 planmäßig übersprungen; zusätzlich beide
+  Validatoren, 27/27 Logiktests, Build und Build-Artefaktprüfung grün.
+
+### Confirmed defects
+
+1. Vite zog die neuen Essentials-CSS-Dateien zunächst in den App-Bundle ein
+   und entfernte die externen Links. Korrektur: `vite-ignore` erhält beide
+   Same-Origin-Links; die Build-Prüfung scheitert, wenn sie fehlen, als
+   `data:`-URL erscheinen oder ein Vendorbyte vom Lock abweicht.
+2. Beim ersten Offline-Neuladen blieb der Loader stehen, weil die neu
+   vendorten, transitiv importierten Module vor der Service-Worker-Kontrolle
+   geladen worden waren und deshalb nicht sicher im Cache lagen. Korrektur:
+   alle Shell- und Essentials-Browserartefakte sind explizite Precache-Einträge;
+   der Offline-Regressionsfall ist danach grün.
+3. Acht parallele Chromium-Worker führten unter Windows zu sporadischen
+   Browser-Teardown-Timeouts. Isolierte Wiederholungen belegten keinen
+   App-Fehler. Die reproduzierbare Abschlussmatrix verwendet vier Worker und
+   lief vollständig grün.
+
+### Proposed UI/UX changes
+
+- Der gemeinsame, klein skalierte Loader, der kompakte Datenschutzhinweis und
+  die einheitliche Teilen-Aktion ersetzen die bisherigen Einzellösungen, ohne
+  die ruhige App-Identität oder die primäre „Noch einmal“-Aktion zu verdrängen.
+- Datumsauswahl und Ortssuche bleiben vertragsgemäß deaktiviert, weil diese App
+  keine Nutzereingabe für Datum oder Ort anbietet.
+
+### Technical improvements
+
+- Readiness und App-Metadaten nennen zusätzlich
+  `public-app-essentials/v1.0.0`; eine fremde oder veraltete Instanz wird im
+  E2E-Setup abgewiesen.
+- Der Build kopiert Shell und Essentials eng begrenzt und bytegleich; Locks,
+  Hashes, MIME-Typen und externe CSS-Verweise werden am erzeugten `dist`
+  fail-closed geprüft.
+- Der Service Worker cached ausschließlich eigene statische Vertrags- und
+  App-Artefakte; Wetterantworten bleiben weiterhin ungecached.
 
 ## Noch nicht testbar
 

@@ -53,8 +53,13 @@ async function mockWeather(page: Page, overrides: WeatherOverrides = {}): Promis
   });
 }
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page }, testInfo) => {
   await page.clock.setFixedTime(new Date("2026-07-30T12:10:00Z"));
+  if (!testInfo.title.includes("Datenschutzhinweis")) {
+    await page.addInitScript(() => {
+      localStorage.setItem("milosapps.somewhere-now.privacyNotice.v1", "dismissed");
+    });
+  }
 });
 
 test("lädt ohne Login und zeigt einen vollständigen Moment", async ({ page }) => {
@@ -75,7 +80,7 @@ test("lädt ohne Login und zeigt einen vollständigen Moment", async ({ page }) 
     (element) => element.getBoundingClientRect().top < window.innerHeight,
   );
   expect(travelIsInInitialViewport).toBe(true);
-  await expect(page.getByRole("button", { name: "Moment teilen" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Teilen" })).toBeEnabled();
   await expect(page.getByRole("button", { name: "Klang einschalten" })).toHaveAttribute(
     "aria-pressed",
     "false",
@@ -112,6 +117,201 @@ test("bindet genau eine DEV-Shell mit absoluten Portfolio-Links und ehrlicher Gr
     "Ein stilles Fenster zu einem realen Moment irgendwo auf der Erde.",
   );
   await expect(page.locator("body")).not.toContainText(/anmelden|login|konto erforderlich/i);
+  await expect(page.locator("milos-date-picker, milos-place-search")).toHaveCount(0);
+});
+
+test("zeigt beim frischen und langsamen Start einen kleinen lokalisierten Loader", async ({
+  page,
+}, testInfo) => {
+  if (testInfo.project.name === "smartphone") {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+  }
+  if (testInfo.project.name === "desktop") {
+    await page.addInitScript(() => {
+      localStorage.setItem("milosapps.somewhere-now.language", "en");
+    });
+  }
+  let releaseAppModule!: () => void;
+  const appModuleGate = new Promise<void>((resolve) => {
+    releaseAppModule = resolve;
+  });
+  await page.route("**/assets/index-*.js", async (route) => {
+    await appModuleGate;
+    await route.continue();
+  });
+  await mockWeather(page);
+
+  const navigation = page.goto("/?place=reykjavik");
+  const loader = page.locator("[data-milos-app-loading]");
+  await expect(loader).toBeVisible();
+  await expect(page.locator("h1")).toHaveCount(1);
+  await expect(loader.getByText("Irgendwo ist gerade …", { exact: true })).toBeVisible();
+  await expect(
+    loader.getByText(
+      testInfo.project.name === "desktop" ? "Opening app …" : "App wird geöffnet …",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  if (testInfo.project.name === "smartphone") {
+    await page.evaluate(() => {
+      document.documentElement.style.fontSize = "200%";
+    });
+  }
+  const loaderState = await loader.evaluate((element) => {
+    const icon = element.querySelector<HTMLElement>("[data-milos-loading-icon]");
+    return {
+      iconWidth: icon?.getBoundingClientRect().width ?? 0,
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      visible: getComputedStyle(element).display !== "none",
+      progressExists: Boolean(element.querySelector("[data-milos-loading-progress]")),
+      progressAnimation: getComputedStyle(
+        element.querySelector<HTMLElement>("[data-milos-loading-progress]")!,
+        "::after",
+      ).animationDuration,
+    };
+  });
+  expect(loaderState.visible).toBe(true);
+  expect(loaderState.progressExists).toBe(true);
+  expect(loaderState.overflow).toBeLessThanOrEqual(1);
+  expect(loaderState.iconWidth).toBeLessThanOrEqual(
+    testInfo.project.name === "smartphone" ? 48.5 : 56.5,
+  );
+  if (testInfo.project.name === "smartphone") {
+    expect(Number.parseFloat(loaderState.progressAnimation)).toBeLessThanOrEqual(0.001);
+  }
+
+  releaseAppModule();
+  await navigation;
+  await expect(loader).toBeHidden();
+  await expect(
+    page.getByText(testInfo.project.name === "desktop" ? "current" : "aktuell", {
+      exact: true,
+    }),
+  ).toBeVisible();
+});
+
+test("zeigt den wahrheitsgemäßen Datenschutzhinweis auf Deutsch und Englisch nur einmal", async ({
+  page,
+}, testInfo) => {
+  if (testInfo.project.name === "smartphone") {
+    await page.setViewportSize({ width: 360, height: 800 });
+  }
+  await mockWeather(page);
+  await page.goto("/?place=reykjavik");
+
+  const notice = page.locator("[data-milos-privacy-notice]");
+  await expect(notice).toBeVisible();
+  await expect(notice).toContainText("Keine Werbe- oder Tracking-Cookies");
+  await expect(notice).toContainText("lokal auf diesem Gerät gespeichert");
+  await expect(notice.getByRole("link", { name: "Datenschutz" })).toHaveAttribute(
+    "href",
+    "https://dev.milos-apps.de/datenschutz",
+  );
+  const dismiss = notice.getByRole("button", { name: "Verstanden" });
+  if (testInfo.project.name === "smartphone") {
+    await page.evaluate(() => {
+      document.documentElement.style.fontSize = "200%";
+    });
+    const layout = await page.evaluate(() => ({
+      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+    }));
+    expect(layout.scrollWidth - layout.clientWidth).toBeLessThanOrEqual(1);
+  }
+  await dismiss.focus();
+  await expect(dismiss).toBeFocused();
+  expect(await dismiss.evaluate((element) => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(
+    43.5,
+  );
+  await page.keyboard.press("Enter");
+  await expect(notice).toBeHidden();
+  expect(
+    await page.evaluate(() => localStorage.getItem("milosapps.somewhere-now.privacyNotice.v1")),
+  ).toBe("dismissed");
+  await page.reload();
+  await expect(notice).toHaveCount(0);
+
+  if (testInfo.project.name !== "desktop") return;
+
+  await page.locator("milos-app-shell").locator('button[data-locale="en"]').click();
+  await page.evaluate(() => localStorage.removeItem("milosapps.somewhere-now.privacyNotice.v1"));
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("[data-milos-privacy-notice]")).toContainText(
+    "No advertising or tracking cookies",
+  );
+  await expect(page.getByRole("button", { name: "Got it" })).toBeVisible();
+});
+
+test("teilt den Moment nativ ohne Ortsparameter in der URL", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "Native Share reicht einmal.");
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: async (payload: ShareData) => {
+        (window as typeof window & { sharedPayload?: ShareData }).sharedPayload = payload;
+      },
+    });
+  });
+  await mockWeather(page);
+  await page.goto("/?place=reykjavik");
+  await page.getByRole("button", { name: "Teilen" }).click();
+  await expect(page.getByText("Geteilt", { exact: true })).toBeVisible();
+  const payload = await page.evaluate(
+    () => (window as typeof window & { sharedPayload?: ShareData }).sharedPayload,
+  );
+  expect(payload?.text).toContain("Reykjavík");
+  expect(payload?.url).toBe("http://127.0.0.1:4316/");
+  expect(payload?.url).not.toContain("place=");
+});
+
+test("kopiert beim Share-Fallback Text und sicheren Root-Link", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "Clipboard-Fallback reicht einmal.");
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "share", { configurable: true, value: undefined });
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: async (value: string) => {
+          (window as typeof window & { copiedShare?: string }).copiedShare = value;
+        },
+      },
+    });
+  });
+  await mockWeather(page);
+  await page.goto("/?place=waitangi");
+  await page.getByRole("button", { name: "Teilen" }).click();
+  await expect(page.getByText("Link kopiert", { exact: true })).toBeVisible();
+  const copied = await page.evaluate(
+    () => (window as typeof window & { copiedShare?: string }).copiedShare,
+  );
+  expect(copied).toContain("Waitangi");
+  expect(copied).toContain("http://127.0.0.1:4316/");
+  expect(copied).not.toContain("place=");
+});
+
+test("behandelt den Abbruch des nativen Share-Dialogs nicht als Fehler", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "Abbruchpfad reicht einmal.");
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: async () => {
+        throw new DOMException("cancelled", "AbortError");
+      },
+    });
+  });
+  await mockWeather(page);
+  await page.goto("/?place=reykjavik");
+  const share = page.getByRole("button", { name: "Teilen" });
+  await share.click();
+  await expect(share).toBeEnabled();
+  await expect(page.locator("[data-milos-share-status]")).toHaveText("");
+  expect(consoleErrors).toEqual([]);
 });
 
 test("bleibt unter strikter Same-Origin-CSP vollständig gestaltet", async ({
@@ -191,6 +391,18 @@ test("bleibt unter strikter Same-Origin-CSP vollständig gestaltet", async ({
     expect(response.ok()).toBe(true);
     expect(response.headers()["content-type"]).toContain(expectedType);
   }
+
+  const expectedEssentialsTypes = [
+    ["bootstrap.js", "text/javascript"],
+    ["milos-app-essentials.js", "text/javascript"],
+    ["milos-app-essentials.css", "text/css"],
+    ["milos-app-essentials-theme.css", "text/css"],
+  ] as const;
+  for (const [file, expectedType] of expectedEssentialsTypes) {
+    const response = await request.get(`/vendor/milosapps-essentials/v1/${file}`);
+    expect(response.ok()).toBe(true);
+    expect(response.headers()["content-type"]).toContain(expectedType);
+  }
 });
 
 test("übersetzt die vollständige Fach-UI ins Englische und behält die Wahl nach Reload", async ({
@@ -210,7 +422,7 @@ test("übersetzt die vollständige Fach-UI ins Englische und behält die Wahl na
   await expect(page.getByText("Reykjavík · Iceland")).toBeVisible();
   await expect(page.getByText("current", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Again" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Share moment" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Share" })).toBeEnabled();
   await expect(page.getByRole("button", { name: "Turn sound on" })).toBeVisible();
   await expect(shell.getByRole("link", { name: /All apps/ })).toBeVisible();
   await expect(shell.getByRole("link", { name: "Legal notice" })).toBeVisible();
@@ -564,7 +776,7 @@ test("hält Interaktions- und Ressourcenbudget ein", async ({ page }, testInfo) 
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
   const resourceCount = await page.evaluate(() => performance.getEntriesByType("resource").length);
-  expect(resourceCount).toBeLessThanOrEqual(10);
+  expect(resourceCount).toBeLessThanOrEqual(14);
 
   const interactionLatency = await page.evaluate(
     () =>
