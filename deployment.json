@@ -2,6 +2,6 @@
   "status": "ready",
   "appKey": "somewhere-now",
   "environment": "DEV",
-  "sourceCommit": "04801ba7916dae9b6b7d5990974e0c60b590a18c",
+  "sourceCommit": "3766fc484b8743f56175a3fac600f943a8a0c75f",
   "productionApproved": false
 }
