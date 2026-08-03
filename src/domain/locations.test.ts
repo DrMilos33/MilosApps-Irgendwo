@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { chooseNextPlace, getPlaceById, PLACES } from "./locations";
+import { getPlaceById, PLACES } from "./locations";
 
 describe("kuratierte Orte", () => {
   it("hat eindeutige App- und GeoNames-IDs", () => {
@@ -15,11 +15,6 @@ describe("kuratierte Orte", () => {
       expect(place.longitude).toBeGreaterThanOrEqual(-180);
       expect(place.longitude).toBeLessThanOrEqual(180);
     }
-  });
-
-  it("wählt nicht direkt denselben Ort erneut", () => {
-    expect(chooseNextPlace("longyearbyen", () => 0).id).not.toBe("longyearbyen");
-    expect(chooseNextPlace(null, () => 0)).toEqual(PLACES[0]);
   });
 
   it("löst nur bekannte direkte Ortslinks auf", () => {

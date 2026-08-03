@@ -68,6 +68,7 @@ a {
 
 .app-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
   margin-top: 0.8rem;
@@ -112,9 +113,12 @@ a {
 }
 
 .text-button {
+  display: inline-flex;
+  align-items: center;
   padding: 0.55rem 0.85rem;
   font-size: 0.9rem;
   font-weight: 500;
+  text-decoration: none;
 }
 
 .icon-button:hover,
@@ -146,6 +150,14 @@ a {
   letter-spacing: -0.02em;
 }
 
+.product-promise {
+  max-width: 34rem;
+  margin: -0.7rem 0 1.6rem;
+  color: var(--ink-muted);
+  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+  line-height: 1.55;
+}
+
 .eyebrow,
 .fact-kicker {
   margin: 0;
@@ -165,7 +177,8 @@ a {
   line-height: 0.93;
   letter-spacing: -0.048em;
   text-wrap: balance;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  hyphens: auto;
 }
 
 .moment-detail {
@@ -175,6 +188,16 @@ a {
   font-size: clamp(1rem, 1.4vw, 1.22rem);
   line-height: 1.65;
   text-wrap: pretty;
+}
+
+.selection-reason {
+  max-width: 34rem;
+  margin: 1rem 0 0;
+  padding-inline-start: 0.85rem;
+  border-inline-start: 3px solid var(--accent-text);
+  color: var(--ink-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
 }
 
 .primary-actions {
@@ -915,37 +938,46 @@ a {
     margin: 0 0 0.15rem;
   }
 
-  .eyebrow {
+  .product-promise {
     order: 2;
+    margin: 0 0 0.5rem;
+  }
+
+  .eyebrow {
+    order: 3;
   }
 
   .moment-title {
-    order: 3;
+    order: 4;
     margin: 0.75rem 0 0;
     font-size: clamp(3.2rem, 15vw, 5.7rem);
   }
 
   .moment-detail {
-    order: 4;
+    order: 5;
+  }
+
+  .selection-reason {
+    order: 6;
   }
 
   .primary-actions {
-    order: 5;
+    order: 7;
     margin-top: 0.5rem;
   }
 
   .status-line {
-    order: 6;
+    order: 8;
     margin-top: 0;
   }
 
   .app-actions {
-    order: 7;
+    order: 9;
     margin-top: -0.5rem;
   }
 
   .scene-column {
-    order: 8;
+    order: 10;
   }
 
   .scene-sky {

@@ -16,15 +16,30 @@ export const milosAppEssentials = initMilosAppEssentials({
   "privacy": {
     "mode": "no-cookies",
     "usesLocalStorage": true,
+    "storagePurposes": [
+      {
+        "key": "milosapps.somewhere-now.language",
+        "purpose": "Vom Nutzer gewählte Sprache barrierearm über Seitenaufrufe hinweg beibehalten",
+        "lifetime": "until-user-clears",
+        "strictlyNecessary": true
+      }
+    ],
     "optionalTracking": false,
     "privacyUrl": "https://dev.milos-apps.de/datenschutz"
   },
   "features": {
     "startup": true,
-    "privacyNotice": true,
+    "privacyNotice": false,
     "share": true,
     "datePicker": false,
-    "placeSearch": false
+    "placeSearch": false,
+    "placeSuggestions": {
+      "enabled": false,
+      "minChars": 3,
+      "debounceMs": 350,
+      "providerCapability": "submit-only",
+      "evidenceFile": null
+    }
   }
 });
 globalThis.milosAppEssentials = milosAppEssentials;

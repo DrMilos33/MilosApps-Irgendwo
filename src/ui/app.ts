@@ -1,7 +1,12 @@
 import { ProceduralAudio } from "../audio";
 import { getDaylight } from "../domain/daylight";
-import { chooseNextPlace, getPlaceById } from "../domain/locations";
+import { getPlaceById } from "../domain/locations";
 import { sceneWeather, selectMoment, weatherDescription } from "../domain/moments";
+import {
+  chooseNextPlace,
+  evaluatePlaceInterest,
+  type SelectionReason,
+} from "../domain/selection";
 import { formatLocalDateTime, formatLocalTime, formatPlaceTime } from "../domain/time";
 import type {
   Daylight,
@@ -41,6 +46,7 @@ interface Elements {
   scene: HTMLElement;
   scenePlace: HTMLElement;
   sceneTime: HTMLTimeElement;
+  selectionReason: HTMLElement;
   shareButton: MilosShareButtonElement;
   soundToggle: HTMLButtonElement;
   sourceNote: HTMLElement;
@@ -99,6 +105,25 @@ function particleCount(kind: ReturnType<typeof sceneWeather>): number {
   return 0;
 }
 
+function selectionReasonText(
+  reason: SelectionReason,
+  place: Place,
+  language: Language,
+): string {
+  const keys: Record<SelectionReason, MessageKey> = {
+    "sunrise-soon": "whySunriseSoon",
+    "sunset-soon": "whySunsetSoon",
+    "local-midnight": "whyLocalMidnight",
+    "polar-day": "whyPolarDay",
+    "polar-night": "whyPolarNight",
+    golden: "whyGolden",
+    twilight: "whyTwilight",
+    night: "whyNight",
+    day: "whyDay",
+  };
+  return t(language, keys[reason], { place: place.name });
+}
+
 export class SomewhereNowApp {
   private readonly elements: Elements;
   private readonly audio = new ProceduralAudio();
@@ -109,6 +134,8 @@ export class SomewhereNowApp {
   private currentDataState: DataState = "loading";
   private currentMomentAt = new Date();
   private currentMomentRandom = 0;
+  private currentSelectionReason: SelectionReason = "day";
+  private readonly recentPlaceIds: string[] = [];
   private statusFactory: StatusFactory = (language) => t(language, "initialStatus");
   private requestController: AbortController | null = null;
   private requestNumber = 0;
@@ -135,6 +162,7 @@ export class SomewhereNowApp {
       scene: required("#scene"),
       scenePlace: required("#scene-place"),
       sceneTime: required("#scene-time"),
+      selectionReason: required("#selection-reason"),
       shareButton: required("#share-button"),
       soundToggle: required("#sound-toggle"),
       sourceNote: required("#source-note"),
@@ -199,7 +227,7 @@ export class SomewhereNowApp {
       this.currentMoment = selectMoment(
         displayPlace,
         daylight,
-        this.currentWeather,
+        this.currentWeather?.severe ? this.currentWeather : null,
         this.currentMomentAt,
         () => this.currentMomentRandom,
         language,
@@ -232,10 +260,24 @@ export class SomewhereNowApp {
       ? null
       : getPlaceById(new URLSearchParams(window.location.search).get("place"));
     this.requestedPlaceUsed = true;
-    const place = requestedPlace ?? chooseNextPlace(this.currentPlace?.id ?? null);
-    const displayPlace = localizePlace(place, this.language);
     const now = new Date();
-    const daylight = getDaylight(place, now);
+    const selection = requestedPlace
+      ? evaluatePlaceInterest(
+          requestedPlace,
+          getDaylight(requestedPlace, now),
+          now,
+          this.recentPlaceIds,
+        )
+      : chooseNextPlace({
+          currentId: this.currentPlace?.id ?? null,
+          recentIds: this.recentPlaceIds,
+          now,
+        });
+    const { place, daylight, reason } = selection;
+    const displayPlace = localizePlace(place, this.language);
+    this.currentSelectionReason = reason;
+    this.recentPlaceIds.push(place.id);
+    if (this.recentPlaceIds.length > 12) this.recentPlaceIds.shift();
     this.currentPlace = place;
     this.currentDaylight = daylight;
     this.currentWeather = null;
@@ -266,7 +308,7 @@ export class SomewhereNowApp {
       this.currentMoment = selectMoment(
         localized,
         daylight,
-        weather,
+        weather.severe ? weather : null,
         now,
         () => this.currentMomentRandom,
         this.language,
@@ -335,7 +377,7 @@ export class SomewhereNowApp {
       this.currentMoment = selectMoment(
         localized,
         daylight,
-        weather,
+        weather.severe ? weather : null,
         now,
         () => this.currentMomentRandom,
         this.language,
@@ -377,6 +419,11 @@ export class SomewhereNowApp {
     this.elements.placeLabel.textContent = `${place.name} · ${place.country}`;
     this.elements.momentTitle.textContent = moment.title;
     this.elements.momentDetail.textContent = moment.detail;
+    this.elements.selectionReason.textContent = selectionReasonText(
+      this.currentSelectionReason,
+      place,
+      this.language,
+    );
     this.elements.factPlace.textContent = `${place.name}, ${place.country}`;
     this.elements.factTime.textContent = formatLocalDateTime(now, place.timeZone, this.language);
     this.elements.factWeather.textContent = weather

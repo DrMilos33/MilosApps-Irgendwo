@@ -9,7 +9,7 @@
   "devUrl": null,
   "healthcheck": null,
   "shellContract": "public-app-shell/v2.0.3",
-  "essentialsContract": "public-app-essentials/v1.0.0",
+  "essentialsContract": "public-app-essentials/v1.1.0",
   "productionApproved": false,
   "previewImage": {
     "path": "/preview.png",

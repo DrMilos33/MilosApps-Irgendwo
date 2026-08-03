@@ -1,4 +1,4 @@
-const CACHE_NAME = "somewhere-now-shell-v6";
+const CACHE_NAME = "somewhere-now-shell-v7";
 const SHELL = [
   "/",
   "/index.html",

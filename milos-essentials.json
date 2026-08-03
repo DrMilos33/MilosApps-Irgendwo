@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/DrMilos33/MilosApps-Shared/b09e09008ff05fe87f05bc647a7c4964ff13e6f6/contracts/public-app-essentials/v1/essentials-manifest.schema.json",
+  "$schema": "https://raw.githubusercontent.com/DrMilos33/MilosApps-Shared/d96e6806862a4a7405b03bd710100543916de76d/contracts/public-app-essentials/v1/essentials-manifest.schema.json",
   "appKey": "somewhere-now",
   "ownerTask": "MilosApps – Irgendwo ist gerade …",
   "public": true,
@@ -19,15 +19,30 @@
   "privacy": {
     "mode": "no-cookies",
     "usesLocalStorage": true,
+    "storagePurposes": [
+      {
+        "key": "milosapps.somewhere-now.language",
+        "purpose": "Vom Nutzer gewählte Sprache barrierearm über Seitenaufrufe hinweg beibehalten",
+        "lifetime": "until-user-clears",
+        "strictlyNecessary": true
+      }
+    ],
     "optionalTracking": false,
     "privacyUrl": "https://dev.milos-apps.de/datenschutz"
   },
   "features": {
     "startup": true,
-    "privacyNotice": true,
+    "privacyNotice": false,
     "share": true,
     "datePicker": false,
-    "placeSearch": false
+    "placeSearch": false,
+    "placeSuggestions": {
+      "enabled": false,
+      "minChars": 3,
+      "debounceMs": 350,
+      "providerCapability": "submit-only",
+      "evidenceFile": null
+    }
   },
   "theme": {
     "accent": "var(--accent-text)",
@@ -41,8 +56,8 @@
   },
   "essentialsContract": {
     "id": "public-app-essentials/v1",
-    "version": "1.0.0",
-    "sharedCommit": "b09e09008ff05fe87f05bc647a7c4964ff13e6f6",
+    "version": "1.1.0",
+    "sharedCommit": "d96e6806862a4a7405b03bd710100543916de76d",
     "vendorDirectory": "vendor/milosapps-essentials/v1"
   }
 }

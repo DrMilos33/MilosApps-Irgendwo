@@ -7,15 +7,19 @@ const de = {
   metaDescription:
     "Ein stilles Fenster zu einem realen Moment irgendwo auf der Erde – aus Zeit, Tageslicht und Wetter.",
   appTitle: "Irgendwo ist gerade …",
+  productPromise:
+    "Entdecke einen realen Moment irgendwo auf der Erde – ausgewählt nach Ortszeit und Licht.",
   initialPlace: "Ein Punkt auf der Erde",
   initialMoment: "Hier öffnet sich gleich ein anderer Augenblick.",
   initialDetail: "Zeit und Tageslicht sind sofort da. Das Wetter darf einen Moment brauchen.",
-  travel: "Noch einmal",
+  selectionInitial: "Die App sucht nach einem besonderen lokalen Übergang.",
+  travel: "Nächsten Moment entdecken",
   share: "Moment teilen",
   initialStatus: "Die Reise beginnt …",
   soundOn: "Klang einschalten",
   soundOff: "Klang ausschalten",
   aboutOpen: "Über diese Reise",
+  privacyInfo: "Datenschutz",
   sceneInitial: "Eine abstrakte Landschaft entsteht.",
   sceneTraveling: "Unterwegs",
   factRegion: "Details zu diesem Moment",
@@ -123,6 +127,15 @@ const de = {
   momentColdDetail: "In {place} zeigt das Wettermodell gerade {temperature} Grad.",
   momentWindTitle: "Der Wind ist deutlich zu spüren.",
   momentWindDetail: "In {place} bewegt sich die Luft mit rund {speed} km/h.",
+  whySunriseSoon: "Ausgewählt, weil in {place} der Sonnenaufgang in weniger als einer Stunde beginnt.",
+  whySunsetSoon: "Ausgewählt, weil in {place} der Sonnenuntergang in weniger als einer Stunde beginnt.",
+  whyLocalMidnight: "Ausgewählt, weil {place} gerade die Datumsgrenze passiert.",
+  whyPolarDay: "Ausgewählt, weil die Sonne in {place} heute nicht untergeht.",
+  whyPolarNight: "Ausgewählt, weil die Sonne in {place} heute nicht aufgeht.",
+  whyGolden: "Ausgewählt, weil das Licht in {place} gerade besonders tief steht.",
+  whyTwilight: "Ausgewählt, weil {place} gerade zwischen Tag und Nacht liegt.",
+  whyNight: "Ausgewählt für einen Blick auf die nächtliche Seite der Erde.",
+  whyDay: "Ausgewählt für einen Blick auf die helle Seite der Erde.",
 } as const;
 
 export type MessageKey = keyof typeof de;
@@ -132,15 +145,19 @@ const en: Record<MessageKey, string> = {
   metaDescription:
     "A quiet window into a real moment somewhere on Earth – shaped by time, daylight and weather.",
   appTitle: "Somewhere, right now …",
+  productPromise:
+    "Discover a real moment somewhere on Earth – selected by local time and light.",
   initialPlace: "A point on Earth",
   initialMoment: "Another moment is about to open here.",
   initialDetail: "Time and daylight are here at once. Weather may take a moment.",
-  travel: "Again",
+  selectionInitial: "The app is looking for a distinctive local transition.",
+  travel: "Discover another moment",
   share: "Share moment",
   initialStatus: "The journey begins …",
   soundOn: "Turn sound on",
   soundOff: "Turn sound off",
   aboutOpen: "About this journey",
+  privacyInfo: "Privacy",
   sceneInitial: "An abstract landscape is taking shape.",
   sceneTraveling: "Travelling",
   factRegion: "Details about this moment",
@@ -248,6 +265,15 @@ const en: Record<MessageKey, string> = {
   momentColdDetail: "The weather model shows {temperature} degrees in {place} right now.",
   momentWindTitle: "The wind can clearly be felt.",
   momentWindDetail: "The air in {place} is moving at around {speed} km/h.",
+  whySunriseSoon: "Selected because sunrise begins in {place} within the next hour.",
+  whySunsetSoon: "Selected because sunset begins in {place} within the next hour.",
+  whyLocalMidnight: "Selected because {place} is crossing into a new date right now.",
+  whyPolarDay: "Selected because the sun does not set in {place} today.",
+  whyPolarNight: "Selected because the sun does not rise in {place} today.",
+  whyGolden: "Selected because the light is especially low in {place} right now.",
+  whyTwilight: "Selected because {place} is between day and night right now.",
+  whyNight: "Selected for a glimpse of the night side of Earth.",
+  whyDay: "Selected for a glimpse of the bright side of Earth.",
 };
 
 const dictionaries: Record<Language, Record<MessageKey, string>> = { de, en };

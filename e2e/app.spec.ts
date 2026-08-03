@@ -53,13 +53,8 @@ async function mockWeather(page: Page, overrides: WeatherOverrides = {}): Promis
   });
 }
 
-test.beforeEach(async ({ page }, testInfo) => {
+test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(new Date("2026-07-30T12:10:00Z"));
-  if (!testInfo.title.includes("Datenschutzhinweis")) {
-    await page.addInitScript(() => {
-      localStorage.setItem("milosapps.somewhere-now.privacyNotice.v1", "dismissed");
-    });
-  }
 });
 
 test("lädt ohne Login und zeigt einen vollständigen Moment", async ({ page }) => {
@@ -74,7 +69,9 @@ test("lädt ohne Login und zeigt einen vollständigen Moment", async ({ page }) 
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByText("Reykjavík · Island")).toBeVisible();
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
-  const travel = page.getByRole("button", { name: "Noch einmal" });
+  await expect(page.getByText(/Entdecke einen realen Moment irgendwo auf der Erde/)).toBeVisible();
+  await expect(page.locator("#selection-reason")).toContainText("Ausgewählt");
+  const travel = page.getByRole("button", { name: "Nächsten Moment entdecken" });
   await expect(travel).toBeEnabled();
   const travelIsInInitialViewport = await travel.evaluate(
     (element) => element.getBoundingClientRect().top < window.innerHeight,
@@ -87,6 +84,51 @@ test("lädt ohne Login und zeigt einen vollständigen Moment", async ({ page }) 
   );
   await expect(page.locator("body")).not.toContainText(/anmelden|login|konto erforderlich/i);
   expect(consoleErrors).toEqual([]);
+});
+
+test("hält die Warum-jetzt-Aussage stabil, während Wetter ergänzt wird", async ({ page }) => {
+  let releaseWeather!: () => void;
+  const weatherGate = new Promise<void>((resolve) => {
+    releaseWeather = resolve;
+  });
+  await page.route("https://api.open-meteo.com/**", async (route) => {
+    await weatherGate;
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(weatherBody({ cloud_cover: 92 })),
+    });
+  });
+
+  await page.goto("/?place=reykjavik");
+  await expect(page.getByText("lädt", { exact: true })).toBeVisible();
+  const momentBefore = await page.locator("#moment-title").textContent();
+  const reasonBefore = await page.locator("#selection-reason").textContent();
+  releaseWeather();
+  await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
+
+  await expect(page.locator("#moment-title")).toHaveText(momentBefore ?? "");
+  await expect(page.locator("#selection-reason")).toHaveText(reasonBefore ?? "");
+  await expect(page.locator("#fact-weather")).toContainText("bedeckt");
+});
+
+test("zeigt in einer realen Reise sieben verschiedene Orte ohne Direktwiederholung", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "Die deterministische Sitzungsregel reicht einmal.");
+  await mockWeather(page);
+  await page.goto("/?place=reykjavik");
+  await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
+
+  const seen: string[] = [await page.locator("#place-label").innerText()];
+  const travel = page.getByRole("button", { name: "Nächsten Moment entdecken" });
+  for (let index = 0; index < 6; index += 1) {
+    await travel.click();
+    await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
+    seen.push(await page.locator("#place-label").innerText());
+  }
+
+  expect(new Set(seen).size).toBe(seen.length);
 });
 
 test("bindet genau eine DEV-Shell mit absoluten Portfolio-Links und ehrlicher Grenze ein", async ({
@@ -191,24 +233,30 @@ test("zeigt beim frischen und langsamen Start einen kleinen lokalisierten Loader
   ).toBeVisible();
 });
 
-test("zeigt den wahrheitsgemäßen Datenschutzhinweis auf Deutsch und Englisch nur einmal", async ({
+test("zeigt ohne Schein-Einwilligung eine dauerhafte Datenschutzinformation", async ({
   page,
 }, testInfo) => {
   if (testInfo.project.name === "smartphone") {
     await page.setViewportSize({ width: 360, height: 800 });
   }
+  await page.addInitScript(() => {
+    localStorage.setItem("milosapps.somewhere-now.privacyNotice.v1", "dismissed");
+  });
   await mockWeather(page);
   await page.goto("/?place=reykjavik");
 
-  const notice = page.locator("[data-milos-privacy-notice]");
-  await expect(notice).toBeVisible();
-  await expect(notice).toContainText("Keine Werbe- oder Tracking-Cookies");
-  await expect(notice).toContainText("lokal auf diesem Gerät gespeichert");
-  await expect(notice.getByRole("link", { name: "Datenschutz" })).toHaveAttribute(
+  await expect(page.locator("[data-milos-privacy-notice]")).toHaveCount(0);
+  const privacyLink = page.locator("[data-milos-privacy-info]");
+  await expect(privacyLink).toBeVisible();
+  await expect(privacyLink).toHaveAttribute(
     "href",
     "https://dev.milos-apps.de/datenschutz",
   );
-  const dismiss = notice.getByRole("button", { name: "Verstanden" });
+  await expect(privacyLink).toHaveText("Datenschutz");
+  await expect(privacyLink).toHaveCSS("min-height", "44px");
+  expect(
+    await page.evaluate(() => localStorage.getItem("milosapps.somewhere-now.privacyNotice.v1")),
+  ).toBeNull();
   if (testInfo.project.name === "smartphone") {
     await page.evaluate(() => {
       document.documentElement.style.fontSize = "200%";
@@ -219,29 +267,14 @@ test("zeigt den wahrheitsgemäßen Datenschutzhinweis auf Deutsch und Englisch n
     }));
     expect(layout.scrollWidth - layout.clientWidth).toBeLessThanOrEqual(1);
   }
-  await dismiss.focus();
-  await expect(dismiss).toBeFocused();
-  expect(await dismiss.evaluate((element) => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(
-    43.5,
-  );
-  await page.keyboard.press("Enter");
-  await expect(notice).toBeHidden();
-  expect(
-    await page.evaluate(() => localStorage.getItem("milosapps.somewhere-now.privacyNotice.v1")),
-  ).toBe("dismissed");
-  await page.reload();
-  await expect(notice).toHaveCount(0);
 
   if (testInfo.project.name !== "desktop") return;
 
   await page.locator("milos-app-shell").locator('button[data-locale="en"]').click();
-  await page.evaluate(() => localStorage.removeItem("milosapps.somewhere-now.privacyNotice.v1"));
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  await expect(page.locator("[data-milos-privacy-notice]")).toContainText(
-    "No advertising or tracking cookies",
-  );
-  await expect(page.getByRole("button", { name: "Got it" })).toBeVisible();
+  await expect(page.locator("[data-milos-privacy-notice]")).toHaveCount(0);
+  await expect(page.locator("[data-milos-privacy-info]")).toHaveText("Privacy");
 });
 
 test("teilt den Moment nativ ohne Ortsparameter in der URL", async ({ page }, testInfo) => {
@@ -256,8 +289,13 @@ test("teilt den Moment nativ ohne Ortsparameter in der URL", async ({ page }, te
   });
   await mockWeather(page);
   await page.goto("/?place=reykjavik");
-  await page.getByRole("button", { name: "Teilen" }).click();
-  await expect(page.getByText("Geteilt", { exact: true })).toBeVisible();
+  const share = page.getByRole("button", { name: "Teilen" });
+  const before = await share.evaluate((element) => element.getBoundingClientRect().toJSON());
+  await share.click();
+  await expect(page.locator("[data-milos-share-status]")).toHaveText("");
+  const after = await share.evaluate((element) => element.getBoundingClientRect().toJSON());
+  expect(after.width).toBeCloseTo(before.width, 1);
+  expect(after.height).toBeCloseTo(before.height, 1);
   const payload = await page.evaluate(
     () => (window as typeof window & { sharedPayload?: ShareData }).sharedPayload,
   );
@@ -281,8 +319,14 @@ test("kopiert beim Share-Fallback Text und sicheren Root-Link", async ({ page },
   });
   await mockWeather(page);
   await page.goto("/?place=waitangi");
-  await page.getByRole("button", { name: "Teilen" }).click();
+  const share = page.getByRole("button", { name: "Teilen" });
+  const before = await share.evaluate((element) => element.getBoundingClientRect().toJSON());
+  await share.click();
   await expect(page.getByText("Link kopiert", { exact: true })).toBeVisible();
+  const after = await share.evaluate((element) => element.getBoundingClientRect().toJSON());
+  expect(after.width).toBeCloseTo(before.width, 1);
+  expect(after.height).toBeCloseTo(before.height, 1);
+  await expect(page.locator("[data-milos-share-status]")).toHaveCSS("position", "fixed");
   const copied = await page.evaluate(
     () => (window as typeof window & { copiedShare?: string }).copiedShare,
   );
@@ -421,7 +465,7 @@ test("übersetzt die vollständige Fach-UI ins Englische und behält die Wahl na
   await expect(page.getByRole("heading", { level: 1, name: "Somewhere, right now …" })).toBeVisible();
   await expect(page.getByText("Reykjavík · Iceland")).toBeVisible();
   await expect(page.getByText("current", { exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Again" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Discover another moment" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Share" })).toBeEnabled();
   await expect(page.getByRole("button", { name: "Turn sound on" })).toBeVisible();
   await expect(shell.getByRole("link", { name: /All apps/ })).toBeVisible();
@@ -442,10 +486,10 @@ test("übersetzt die vollständige Fach-UI ins Englische und behält die Wahl na
 
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByText("current", { exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Again" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Discover another moment" })).toBeVisible();
   await expect(english).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("#app")).not.toContainText(
-    /Noch einmal|Moment teilen|Über diese Reise|Ortszeit|Wetter erneut laden/,
+    /Nächsten Moment entdecken|Moment teilen|Über diese Reise|Ortszeit|Wetter erneut laden/,
   );
   const skip = shell.locator(".skip");
   await skip.focus();
@@ -558,7 +602,7 @@ test("Dialog und Hauptaktion funktionieren vollständig per Tastatur", async ({ 
   await expect(page.getByRole("dialog")).toBeHidden();
   await expect(about).toBeFocused();
 
-  await page.getByRole("button", { name: "Noch einmal" }).focus();
+  await page.getByRole("button", { name: "Nächsten Moment entdecken" }).focus();
   await page.keyboard.press("Enter");
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 });
@@ -576,7 +620,7 @@ test("schnelle Wiederholungen lassen nur die letzte Anfrage gewinnen", async ({ 
   });
   await page.goto("/?place=reykjavik");
 
-  const travel = page.getByRole("button", { name: "Noch einmal" });
+  const travel = page.getByRole("button", { name: "Nächsten Moment entdecken" });
   await expect(travel).toBeVisible();
   await travel.click({ clickCount: 8, delay: 15 });
 
@@ -592,7 +636,7 @@ test("bleibt bei fehlendem Wetter nutzbar und kann erneut versuchen", async ({ p
   await expect(page.getByText("ohne Wetter", { exact: true })).toBeVisible();
   await expect(page.getByText(/Zeit und Tageslicht bleiben aktuell/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Wetter erneut laden" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Noch einmal" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Nächsten Moment entdecken" })).toBeEnabled();
 });
 
 test("erholt sich nach einem Wetterfehler über den sichtbaren Retry", async ({

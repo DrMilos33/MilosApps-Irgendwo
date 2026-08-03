@@ -371,19 +371,6 @@ export const PLACES: readonly Place[] = [
   },
 ] as const;
 
-export function chooseNextPlace(
-  currentId: string | null,
-  random: () => number = Math.random,
-): Place {
-  const candidates = PLACES.filter((place) => place.id !== currentId);
-  const index = Math.min(candidates.length - 1, Math.floor(random() * candidates.length));
-  const place = candidates[index];
-  if (!place) {
-    throw new Error("Kein Ort verfügbar.");
-  }
-  return place;
-}
-
 export function getPlaceById(id: string | null): Place | null {
   if (!id) return null;
   return PLACES.find((place) => place.id === id) ?? null;
