@@ -112,7 +112,7 @@ test("hält die Warum-jetzt-Aussage stabil, während Wetter ergänzt wird", asyn
   await expect(page.locator("#fact-weather")).toContainText("bedeckt");
 });
 
-test("zeigt in einer realen Reise sieben verschiedene Orte ohne Direktwiederholung", async ({
+test("zeigt in einer realen Reise neue Orte, Szenenprofile und Fortschritt", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "Die deterministische Sitzungsregel reicht einmal.");
@@ -121,14 +121,26 @@ test("zeigt in einer realen Reise sieben verschiedene Orte ohne Direktwiederholu
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
   const seen: string[] = [await page.locator("#place-label").innerText()];
+  const variants: string[] = [await page.locator("#scene").getAttribute("data-scene-variant") ?? ""];
+  await expect(page.locator("#session-note")).toContainText("Ein Ort entdeckt");
   const travel = page.getByRole("button", { name: "Nächsten Moment entdecken" });
   for (let index = 0; index < 6; index += 1) {
     await travel.click();
     await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
     seen.push(await page.locator("#place-label").innerText());
+    variants.push(await page.locator("#scene").getAttribute("data-scene-variant") ?? "");
   }
 
   expect(new Set(seen).size).toBe(seen.length);
+  expect(new Set(variants).size).toBeGreaterThanOrEqual(6);
+  await expect(page.locator("#session-note")).toContainText("7 verschiedene Orte");
+  await expect(page.locator("#session-note")).toContainText("Landschaften in dieser Reise");
+  await expect(page.locator("#journey-trail li")).toHaveCount(3);
+  await expect(page.locator("#journey-trail li[aria-current='true']")).toHaveCount(1);
+  await expect(page.locator("#journey-trail li[aria-current='true']")).toContainText(
+    seen.at(-1)?.split("·")[0]?.trim() ?? "",
+    { ignoreCase: true },
+  );
 });
 
 test("bindet genau eine DEV-Shell mit absoluten Portfolio-Links und ehrlicher Grenze ein", async ({
@@ -147,11 +159,12 @@ test("bindet genau eine DEV-Shell mit absoluten Portfolio-Links und ehrlicher Gr
     "href",
     "https://dev.milos-apps.de/apps",
   );
-  await expect(shell.getByRole("link", { name: "Impressum" })).toHaveAttribute(
+  const legalNavigation = shell.getByRole("navigation", { name: "Rechtliches" });
+  await expect(legalNavigation.getByRole("link", { name: "Impressum" })).toHaveAttribute(
     "href",
     "https://dev.milos-apps.de/impressum",
   );
-  await expect(shell.getByRole("link", { name: "Datenschutz" })).toHaveAttribute(
+  await expect(legalNavigation.getByRole("link", { name: "Datenschutz" })).toHaveAttribute(
     "href",
     "https://dev.milos-apps.de/datenschutz",
   );
@@ -178,7 +191,7 @@ test("zeigt beim frischen und langsamen Start einen kleinen lokalisierten Loader
   const appModuleGate = new Promise<void>((resolve) => {
     releaseAppModule = resolve;
   });
-  await page.route("**/assets/index-*.js", async (route) => {
+  await page.route("**/src/entry.js", async (route) => {
     await appModuleGate;
     await route.continue();
   });
@@ -300,6 +313,8 @@ test("teilt den Moment nativ ohne Ortsparameter in der URL", async ({ page }, te
     () => (window as typeof window & { sharedPayload?: ShareData }).sharedPayload,
   );
   expect(payload?.text).toContain("Reykjavík");
+  expect(payload?.text).toContain("Ortszeit:");
+  expect(payload?.text).toContain("„Irgendwo ist gerade …“");
   expect(payload?.url).toBe("http://127.0.0.1:4316/");
   expect(payload?.url).not.toContain("place=");
 });
@@ -331,6 +346,7 @@ test("kopiert beim Share-Fallback Text und sicheren Root-Link", async ({ page },
     () => (window as typeof window & { copiedShare?: string }).copiedShare,
   );
   expect(copied).toContain("Waitangi");
+  expect(copied).toContain("Ortszeit:");
   expect(copied).toContain("http://127.0.0.1:4316/");
   expect(copied).not.toContain("place=");
 });
@@ -464,6 +480,16 @@ test("übersetzt die vollständige Fach-UI ins Englische und behält die Wahl na
   await expect(page).toHaveTitle("Somewhere, right now … – MilosApps");
   await expect(page.getByRole("heading", { level: 1, name: "Somewhere, right now …" })).toBeVisible();
   await expect(page.getByText("Reykjavík · Iceland")).toBeVisible();
+  await expect(
+    page.getByText("Discover a real moment somewhere on Earth – selected by local time and light."),
+  ).toBeVisible();
+  await expect(page.locator("#selection-reason")).toContainText(/^Selected /);
+  await expect(page.locator("#session-note")).toContainText("One place discovered");
+  await expect(page.locator("#journey-trail")).toHaveAttribute(
+    "aria-label",
+    "Recent discoveries",
+  );
+  await expect(page.locator("#journey-trail li[aria-current='true']")).toHaveText("Reykjavík");
   await expect(page.getByText("current", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Discover another moment" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Share" })).toBeEnabled();
@@ -487,6 +513,7 @@ test("übersetzt die vollständige Fach-UI ins Englische und behält die Wahl na
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByText("current", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Discover another moment" })).toBeVisible();
+  await expect(page.locator("#session-note")).toContainText("One place discovered");
   await expect(english).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("#app")).not.toContainText(
     /Nächsten Moment entdecken|Moment teilen|Über diese Reise|Ortszeit|Wetter erneut laden/,
@@ -538,6 +565,19 @@ test("hat in der Hauptansicht keine automatisch erkannten Accessibility-Verstö�
   await page.goto("/?place=kathmandu");
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
+  const adaptiveTheme = await page.evaluate(() => {
+    const app = getComputedStyle(document.documentElement);
+    const share = getComputedStyle(document.querySelector("milos-share-button > button")!);
+    return {
+      appColor: app.color,
+      appSurface: app.backgroundColor,
+      shareColor: share.color,
+      shareSurface: share.backgroundColor,
+    };
+  });
+  expect(adaptiveTheme.shareColor).toBe(adaptiveTheme.appColor);
+  expect(adaptiveTheme.shareSurface).toBe(adaptiveTheme.appSurface);
+
   const results = await new AxeBuilder({ page }).analyze();
   const knownShadowBoundary = results.violations.filter(
     (violation) =>
@@ -562,6 +602,19 @@ test("bleibt auch im dunklen Systemdesign kontrastreich", async ({ page }) => {
   await mockWeather(page);
   await page.goto("/?place=kathmandu");
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
+
+  const adaptiveTheme = await page.evaluate(() => {
+    const app = getComputedStyle(document.documentElement);
+    const share = getComputedStyle(document.querySelector("milos-share-button > button")!);
+    return {
+      appColor: app.color,
+      appSurface: app.backgroundColor,
+      shareColor: share.color,
+      shareSurface: share.backgroundColor,
+    };
+  });
+  expect(adaptiveTheme.shareColor).toBe("rgb(237, 240, 233)");
+  expect(adaptiveTheme.shareSurface).toBe("rgb(19, 33, 43)");
 
   const results = await new AxeBuilder({ page }).analyze();
   const knownShadowBoundary = results.violations.filter(

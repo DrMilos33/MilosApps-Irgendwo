@@ -15,6 +15,9 @@ describe("Teilkarte", () => {
       },
       "00:15 Uhr",
     );
+    expect(text).toContain("Gerade in Waitangi");
+    expect(text).toContain("Ortszeit: 00:15 Uhr");
+    expect(text).toContain("„Irgendwo ist gerade …“");
     expect(text).toContain("Waitangi");
     expect(text).not.toContain(String(place.latitude));
     expect(text).not.toContain(String(place.longitude));
@@ -35,7 +38,8 @@ describe("Teilkarte", () => {
       "en",
     );
     expect(text).toContain("Somewhere, right now …");
-    expect(text).toContain("Waitangi, Chatham Islands, New Zealand · 00:15");
+    expect(text).toContain("Right now in Waitangi, Chatham Islands, New Zealand");
+    expect(text).toContain("Local time: 00:15");
     expect(text).not.toContain(String(place.latitude));
     expect(text).not.toContain(String(place.longitude));
   });
@@ -57,6 +61,7 @@ describe("Teilkarte", () => {
     expect(payload.url).toBe("https://example.test/");
     expect(payload.url).not.toContain("place=");
     expect(payload.text).toContain("Reykjavík");
+    expect(payload.text).toContain("Ortszeit: 14:10 Uhr");
     expect(payload.text).not.toContain(String(place.latitude));
     expect(payload.text).not.toContain(String(place.longitude));
   });

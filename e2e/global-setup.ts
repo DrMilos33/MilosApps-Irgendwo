@@ -25,7 +25,7 @@ export default async function verifySomewhereNowReadiness(): Promise<void> {
     data.environment !== "DEV" ||
     data.readiness !== true ||
     data.shellContract !== "public-app-shell/v2.0.3" ||
-    data.essentialsContract !== "public-app-essentials/v1.1.0" ||
+    data.essentialsContract !== "public-app-essentials/v1.1.2" ||
     data.productionApproved !== false
   ) {
     throw new Error(

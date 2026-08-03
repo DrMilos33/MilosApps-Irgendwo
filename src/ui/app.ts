@@ -7,6 +7,7 @@ import {
   evaluatePlaceInterest,
   type SelectionReason,
 } from "../domain/selection";
+import { sceneVariantForPlace } from "../domain/scene";
 import { formatLocalDateTime, formatLocalTime, formatPlaceTime } from "../domain/time";
 import type {
   Daylight,
@@ -40,6 +41,7 @@ interface Elements {
   factPlace: HTMLElement;
   factTime: HTMLElement;
   factWeather: HTMLElement;
+  journeyTrail: HTMLOListElement;
   momentDetail: HTMLElement;
   momentTitle: HTMLElement;
   placeLabel: HTMLElement;
@@ -47,6 +49,7 @@ interface Elements {
   scenePlace: HTMLElement;
   sceneTime: HTMLTimeElement;
   selectionReason: HTMLElement;
+  sessionNote: HTMLElement;
   shareButton: MilosShareButtonElement;
   soundToggle: HTMLButtonElement;
   sourceNote: HTMLElement;
@@ -136,6 +139,8 @@ export class SomewhereNowApp {
   private currentMomentRandom = 0;
   private currentSelectionReason: SelectionReason = "day";
   private readonly recentPlaceIds: string[] = [];
+  private readonly visitedPlaceIds = new Set<string>();
+  private readonly visitedLandscapes = new Set<Place["landscape"]>();
   private statusFactory: StatusFactory = (language) => t(language, "initialStatus");
   private requestController: AbortController | null = null;
   private requestNumber = 0;
@@ -156,6 +161,7 @@ export class SomewhereNowApp {
       factPlace: required("#fact-place"),
       factTime: required("#fact-time"),
       factWeather: required("#fact-weather"),
+      journeyTrail: required("#journey-trail"),
       momentDetail: required("#moment-detail"),
       momentTitle: required("#moment-title"),
       placeLabel: required("#place-label"),
@@ -163,6 +169,7 @@ export class SomewhereNowApp {
       scenePlace: required("#scene-place"),
       sceneTime: required("#scene-time"),
       selectionReason: required("#selection-reason"),
+      sessionNote: required("#session-note"),
       shareButton: required("#share-button"),
       soundToggle: required("#sound-toggle"),
       sourceNote: required("#source-note"),
@@ -242,6 +249,8 @@ export class SomewhereNowApp {
       );
     }
     this.elements.statusLine.textContent = this.statusFactory(language);
+    this.renderSessionNote();
+    this.renderJourneyTrail();
   }
 
   destroy(): void {
@@ -278,6 +287,8 @@ export class SomewhereNowApp {
     this.currentSelectionReason = reason;
     this.recentPlaceIds.push(place.id);
     if (this.recentPlaceIds.length > 12) this.recentPlaceIds.shift();
+    this.visitedPlaceIds.add(place.id);
+    this.visitedLandscapes.add(place.landscape);
     this.currentPlace = place;
     this.currentDaylight = daylight;
     this.currentWeather = null;
@@ -424,6 +435,8 @@ export class SomewhereNowApp {
       place,
       this.language,
     );
+    this.renderSessionNote();
+    this.renderJourneyTrail();
     this.elements.factPlace.textContent = `${place.name}, ${place.country}`;
     this.elements.factTime.textContent = formatLocalDateTime(now, place.timeZone, this.language);
     this.elements.factWeather.textContent = weather
@@ -457,7 +470,8 @@ export class SomewhereNowApp {
     const sunY = Math.round(Math.max(10, Math.min(80, 68 - daylight.altitude * 0.7)) / 10) * 10;
     scene.dataset.sunX = String(sunX);
     scene.dataset.sunY = String(sunY);
-    scene.dataset.sceneSeed = String(place.sceneSeed % 5);
+    scene.dataset.sceneVariant = String(sceneVariantForPlace(place));
+    scene.dataset.moment = moment.kind;
     scene.setAttribute(
       "aria-label",
       t(this.language, "sceneLabel", {
@@ -497,6 +511,32 @@ export class SomewhereNowApp {
     if (this.currentMoment) {
       this.renderScene(displayPlace, daylight, this.currentWeather, this.currentMoment);
     }
+  }
+
+  private renderSessionNote(): void {
+    const placeCount = this.visitedPlaceIds.size;
+    const landscapeCount = this.visitedLandscapes.size;
+    this.elements.sessionNote.textContent =
+      placeCount <= 1
+        ? t(this.language, "sessionFirst")
+        : t(this.language, "sessionProgress", {
+            places: String(placeCount),
+            landscapes: String(landscapeCount),
+          });
+  }
+
+  private renderJourneyTrail(): void {
+    const items = this.recentPlaceIds.slice(-3).map((id, index, recent) => {
+      const place = getPlaceById(id);
+      if (!place) return null;
+      const item = document.createElement("li");
+      item.textContent = localizePlace(place, this.language).name;
+      if (index === recent.length - 1) item.setAttribute("aria-current", "true");
+      return item;
+    });
+    this.elements.journeyTrail.replaceChildren(
+      ...items.filter((item): item is HTMLLIElement => Boolean(item)),
+    );
   }
 
   private setBusy(isBusy: boolean): void {

@@ -1,13 +1,13 @@
 # QA-Bericht
 
-Letzte Aktualisierung: 2026-08-02.
+Letzte Aktualisierung: 2026-08-03.
 
 ## Automatisierte Matrix
 
 | Ebene | Abdeckung |
 |---|---|
-| Shared-Verträge | portable Validatoren für Shell v2.0.3 und Essentials v1.0.0, je fünf gelockte Vendorartefakte und SHA-256-Prüfung |
-| Logik | 27 Tests: vollständige DE/EN-Texte, Orts-/Datumsdarstellung, Gefahrfilter sowie Teilpayload ohne Query oder Koordinaten |
+| Shared-Verträge | portable Validatoren für Shell v2.0.3 mit fünf sowie Essentials v1.1.2 mit sechs gelockten Verbraucherartefakten, Manifesthash und SHA-256-Prüfung |
+| Logik | 32 Tests: vollständige DE/EN-Texte, Auswahlranking, zwölf Szenenprofile, Orts-/Datumsdarstellung, Gefahrfilter sowie Teilpayload ohne Query oder Koordinaten |
 | Smartphone | Pixel-7-Touchprofil mit exakt 390 × 844 CSS-Pixeln |
 | Tablet | iPad-Abmessungen und Touch in Chromium |
 | Desktop | 1440 × 900, Maus und Tastatur |
@@ -22,10 +22,10 @@ Ressourcenbudget laufen einmal im Desktopprojekt; die
 geräteabhängigen Hauptflüsse, Accessibility, wiederholten Eingaben,
 Fehlerzustände und Reflowprüfungen laufen in allen drei Projekten.
 
-Der aktuelle Abschlusslauf führte 75 Projektfälle aus: 55 bestanden, 20
+Der aktuelle Abschlusslauf führte 81 Projektfälle aus: 59 bestanden, 22
 bewusst projektübergreifend redundante Spezialfälle wurden übersprungen. Der
-Shell- und Essentials-Validator, 27/27 Logiktests und der
-TypeScript-/Vite-Build waren ebenfalls grün.
+Shell- und Essentials-Validator, 32/32 Logiktests und der
+TypeScript-/Vite-Build samt Build-Artefaktprüfung waren ebenfalls grün.
 
 ## Runde 1 – erster lauffähiger Stand
 
@@ -213,7 +213,7 @@ zweiten Runde umgesetzt:
 - Externe DEV-Felder bleiben gemeinsam `null`; dadurch ist der Blocker
   maschinenlesbar, ohne lokale URLs als Portalziele auszugeben.
 
-## Essentials-Migration – zwei Verbesserungsrunden
+## Essentials-v1.0-Baseline – zwei Verbesserungsrunden
 
 ### Verified
 
@@ -269,6 +269,76 @@ zweiten Runde umgesetzt:
   fail-closed geprüft.
 - Der Service Worker cached ausschließlich eigene statische Vertrags- und
   App-Artefakte; Wetterantworten bleiben weiterhin ungecached.
+
+## UX-Refinement 2026-08 – Analyse-Design-Realaufgabe-Test
+
+### Runde 1 – Warum dieser Moment?
+
+| Schritt | Evidenz |
+|---|---|
+| Analyse | Der Ausgangsstand wählte Orte gleichverteilt. Der Moment konnte nach einer gewöhnlichen Wetterantwort wechseln, und die Oberfläche erklärte weder Auswahlgrund noch Produktversprechen ausreichend. Wiederholte reale Klicks konnten einen der letzten Orte direkt erneut zeigen. |
+| Design | Ortszeit und lokal berechnetes Tageslicht bilden den stabilen Kern. Lichtwechsel innerhalb einer Stunde, lokale Mitternacht, Polartag/-nacht, Golden Hour und Dämmerung erhalten ein nachvollziehbares Ranking. Die letzten sechs Orte und drei Landschaften fließen als Neuheitsfenster ein. |
+| Realaufgabe | Einstieg ohne Standortfreigabe, danach siebenmal „Nächsten Moment entdecken“ bei normaler, langsamer und fehlender Wetterantwort. Der Nutzer muss sofort erkennen, was die App liefert und warum der gewählte Ort gerade interessant ist. |
+| Test | Baseline `pnpm test:all`: Shell-/Essentials-Validator grün, 27/27 Logiktests, Build PASS, 55 Browserfälle bestanden und 20 profilspezifisch übersprungen. Nach der Änderung: 29/29 Logiktests, Build PASS, sechs fokussierte Desktoppfade sowie sichtbare 1440-×900- und 390-×844-Abnahme grün. |
+| Ergebnis | Produktversprechen, konkrete Hauptaktion und „Ausgewählt, weil …“ sind sichtbar. Sieben Ergebnisse bleiben ohne Ortswiederholung; gewöhnliches Wetter ergänzt Fakten und Szene, verändert aber die Kernaussage nicht. Gefährliches Wetter darf weiterhin nur in den zurückhaltenden Zustand wechseln. |
+
+### Runde 2 – Szenenvielfalt und Sitzungsneuheit
+
+| Schritt | Evidenz |
+|---|---|
+| Analyse | Fünf reine Rotationsvarianten der gleichen Hügelformen erzeugten zu wenig Wiederholungsreiz. Der Share-Text war korrekt, aber ohne klaren Lesepfad. Eine Sitzung zeigte nicht, was bereits entdeckt worden war. |
+| Design | Zwölf deterministische Szenenprofile kombinieren Bergkontur, Wolken-/Sternlage, landschaftsspezifische Geländedetails, Stadtlichter und arktisches Nachtlicht. Die Auswahl meidet zusätzlich die letzten fünf Szenenprofile. Ein sitzungsgebundener Fortschritt benennt Orte und Landschaften; Share folgt Ort → Moment → Ortszeit → App-Kontext. |
+| Realaufgabe | Eine Reise aus sieben Klicks muss verschiedene Orte und mindestens sechs Szenenprofile liefern, den Fortschritt nach jedem Klick aktualisieren und einen verständlichen Text ohne Koordinaten oder Orts-Query teilen. |
+| Test | 32/32 Logiktests und Build-Vendorprüfung PASS. Fokussiert: vier Share-/Reisepfade Desktop, erneuter Sieben-Orte-Pfad, Smartphone-Hauptpfad sowie Reduced Motion/360×800 bei 200 % grün. Im sichtbaren 390-×844-Test lieferten sechs aufeinanderfolgende Ergebnisse sechs verschiedene Profile und drei Landschaften. |
+| Ergebnis | Die Szene besitzt mehr als doppelt so viele Grundprofile und sichtbare Landschaftsdetails. Native Share-Erfolg und -Abbruch bleiben still, der Clipboard-Fallback viewportfest. Die Smartphone-Abnahme fand zwei Regressionen: Sitzungsinfo stand wegen fehlender Grid-Reihenfolge vor der H1; bei 200 % machte die lange Hauptaktion 3 px Horizontalüberlauf. Beide Fehler wurden behoben und als Regression erneut grün geprüft. |
+
+### Vergleich mit sechs Schwester-Apps
+
+Read-only verglichen wurden die aktuellen DEV-Einstiege am 2026-08-03 im
+In-App-Browser. Bewertet wurden Einstieg, Verständlichkeit und
+Wiederholungswert; kein fremdes Repository wurde verändert.
+
+| App | Einstieg und Verständlichkeit | Wiederholungswert | Übertragbarer Befund |
+|---|---|---|---|
+| Sky | „The sky. Now.“, sofortiges Planetarium und klare Ortsaktion | Drehen, Zoomen und Zeit verändern denselben Zustand direkt | Veränderung muss als Zustand sichtbar bleiben. |
+| Gravity Loop | Startaktion und Spielregel stehen direkt am Spielfeld | Punkte, Sterne, Schild und Bestwert machen Fortschritt greifbar | Eine Zahl allein reicht nur, wenn ihr Gegenstand klar ist. |
+| Welcher Müll? | Suche, kurze Erklärung und drei Beispiele ergeben einen eindeutigen ersten Schritt | Neue Gegenstände liefern wiederholt konkreten Nutzen | Beispiele und Ergebnisbezug reduzieren Erklärungsaufwand. |
+| Noch hell? | Frage, Ortsweg und aktuelles Ja/Nein-Ergebnis sind sofort erkennbar | Ort und Tageszeit erzeugen wiederkehrenden Alltagsnutzen | Ein Ergebnis braucht eine eindeutige, stabile Kernaussage. |
+| Wolkenpost | nummerierter Ablauf von Reisendem über Startpunkt bis Flug | neue Zeichnung, Ort und Windroute erzeugen Variation | Schritte machen eine längere Reise beherrschbar. |
+| Nudelrechner | konkrete Leitfrage, vier nummerierte Eingabebereiche und erwartetes Ergebnis | Parameteränderungen machen das Modell wiederholt erforschbar | Fortschritt wird verständlich, wenn vergangene Zustände benannt sind. |
+
+**Daraus folgende weitere Verbesserung:** Unter dem Sitzungszähler zeigt eine
+kompakte, nicht interaktive Liste die letzten drei Entdeckungen und markiert den
+aktuellen Ort semantisch mit `aria-current`. Sie bleibt nur im Arbeitsspeicher,
+wird bei DE/EN neu lokalisiert und verdrängt die Hauptaktion auf keinem
+Startviewport. Der Sieben-Orte-E2E verlangt exakt drei Einträge und genau einen
+aktuellen Eintrag; Smartphone-Reflow und Build sind danach erneut grün.
+
+### Finaler Essentials-v1.1.2-Abschluss
+
+- `public-app-essentials/v1.1.2` ist exakt auf Shared-Commit
+  `b14aac6107b75f03ff49e74160af7e7e30c29e59` gepinnt. Der portable
+  Verifier bestätigt Manifesthash, getrennten physischen Iconpfad
+  `public/favicon.svg`, Runtimepfad `favicon.svg`, stabiles Entry-Modul und
+  alle sechs Lockartefakte.
+- Source und lokale HTTP-Antwort des Loader-Icons sind bytegleich
+  (`sha256:6f1080d60851cd2fecc238b54044c115be6a2aa963811ee4775c5fd5bcc3d05b`);
+  die Antwort liefert 200 und `image/svg+xml`.
+- Der erste Abschlusslauf fand zwei echte Integrationsregressionen: Der
+  Loader-Test drosselte noch den früheren Hash-Entry, und der Service Worker
+  precachte das neue stabile `/src/entry.js` nicht. Nach Korrektur bestanden
+  die vier fokussierten Fälle und anschließend die gesamte Matrix mit 59
+  bestandenen Fällen, 22 Profilskips und 0 Fehlern.
+- Sichtbare Browserabnahme: 390 × 844 ergab 375/375 px
+  Client-/Scrollbreite, eine im Startviewport vollständige Hauptaktion und
+  genau eine H1; 1440 × 900 ergab 1425/1425 px und eine vollständige ruhige
+  Momentansicht. 360 × 800 bei 200 % bleibt automatisiert ohne horizontalen
+  Überlauf, mit reduziertem Bewegungsverhalten und Footerabschluss grün.
+- Der no-cookies-Modus erzeugt kein Banner und keinen Dismiss-Key. Der exakte
+  Datenschutzlink bleibt in DE/EN dauerhaft erreichbar; als persistenter
+  Web-Storage-Zugriff ist ausschließlich die notwendige Sprachwahl
+  inventarisiert. Cache Storage enthält nur die eigene App-Hülle und keine
+  Wetterantworten.
 
 ## Noch nicht testbar
 

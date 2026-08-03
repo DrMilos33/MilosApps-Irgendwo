@@ -1,4 +1,4 @@
-const CACHE_NAME = "somewhere-now-shell-v7";
+const CACHE_NAME = "somewhere-now-shell-v8";
 const SHELL = [
   "/",
   "/index.html",
@@ -6,6 +6,7 @@ const SHELL = [
   "/manifest.webmanifest",
   "/health.json",
   "/health/somewhere-now.json",
+  "/src/entry.js",
   "/vendor/milosapps-shell/v2/bootstrap.js",
   "/vendor/milosapps-shell/v2/milos-app-shell.js",
   "/vendor/milosapps-shell/v2/milos-app-shell.css",

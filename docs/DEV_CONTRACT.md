@@ -1,7 +1,7 @@
 # DEV-Integrationsvertrag
 
 Vertragsstand: `public-app-shell/v2.0.3` plus
-`public-app-essentials/v1.0.0` vom 2026-08-02.
+`public-app-essentials/v1.1.2` vom 2026-08-03.
 
 ## Metadaten
 
@@ -36,7 +36,7 @@ Ein gültiger Readiness-Response enthält:
   "environment": "DEV",
   "readiness": true,
   "shellContract": "public-app-shell/v2.0.3",
-  "essentialsContract": "public-app-essentials/v1.0.0",
+  "essentialsContract": "public-app-essentials/v1.1.2",
   "productionApproved": false
 }
 ```
@@ -85,6 +85,6 @@ bleiben `dev.url`, `dev.healthUrl`, `devUrl` und `healthcheck` in den externen
 Metadaten gemeinsam `null`. `http://127.0.0.1:4316/` ist ausschließlich die
 lokale Prüfadresse und darf nicht als Portalziel verwendet werden.
 
-Rollback der lokalen Essentials-Integration ist der vorherige gesunde Commit
-`70199aa0d5aafa47220b5956593683e3989c7baf`. Production bleibt `false` und
-unverändert.
+Rollback des lokalen UX-/Essentials-Abschlusses ist der vorherige vollständig
+verifizierte v1.0-Stand `39c4d60074800738907af275d53831ce901aa330`.
+Production bleibt `false` und unverändert.

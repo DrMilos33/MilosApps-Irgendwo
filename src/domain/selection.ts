@@ -1,5 +1,6 @@
 import { getDaylight } from "./daylight";
 import { PLACES } from "./locations";
+import { sceneVariantForPlace } from "./scene";
 import { minutesBetween, minutesFromLocalMidnight } from "./time";
 import type { Daylight, Place } from "./types";
 
@@ -30,6 +31,7 @@ interface SelectionOptions {
 }
 
 const RECENT_PLACE_WINDOW = 6;
+const RECENT_SCENE_WINDOW = 5;
 const INTERESTING_POOL_SIZE = 8;
 
 function phaseInterest(phase: Daylight["phase"]): { reason: SelectionReason; score: number } {
@@ -99,9 +101,28 @@ export function chooseNextPlace({
     candidates = PLACES.filter((place) => place.id !== currentId);
   }
 
+  const recentVariants = new Set(
+    recentIds
+      .slice(-RECENT_SCENE_WINDOW)
+      .map((id) => PLACES.find((place) => place.id === id))
+      .filter((place): place is Place => Boolean(place))
+      .map(sceneVariantForPlace),
+  );
+  const visuallyFreshCandidates = candidates.filter(
+    (place) => !recentVariants.has(sceneVariantForPlace(place)),
+  );
+  if (visuallyFreshCandidates.length >= INTERESTING_POOL_SIZE) {
+    candidates = visuallyFreshCandidates;
+  }
+
   const ranked = candidates
     .map((place) => evaluatePlaceInterest(place, daylightForPlace(place, now), now, recentIds))
-    .sort((left, right) => right.score - left.score || left.place.sceneSeed - right.place.sceneSeed);
+    .sort(
+      (left, right) =>
+        right.score - left.score ||
+        sceneVariantForPlace(left.place) - sceneVariantForPlace(right.place) ||
+        left.place.sceneSeed - right.place.sceneSeed,
+    );
   const pool = ranked.slice(0, Math.min(INTERESTING_POOL_SIZE, ranked.length));
   const index = Math.min(pool.length - 1, Math.floor(random() * pool.length));
   const selection = pool[index];

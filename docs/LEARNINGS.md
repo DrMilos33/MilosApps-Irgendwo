@@ -173,3 +173,57 @@ nach der Korrektur grün.
 Service-Worker-Erstinstallation keine Offlinefähigkeit transitiver Module.
 Explizites Precache ist für eine kleine, gelockte statische Abhängigkeitsmenge
 geeignet; große oder dynamische Datenbestände benötigen eine andere Strategie.
+
+## 2026-08-03 – Wiederholungswert braucht fachliche Neuheit und sichtbare Erinnerung
+
+**Beobachtung und Evidenz:** Eine gleichverteilte Ortsauswahl mit fünf nur
+gedrehten Hügelprofilen konnte trotz vieler Orte schnell gleichförmig wirken.
+Im Vergleich mit sechs Schwester-Apps vermitteln besonders Gravity Loop,
+Wolkenpost und Nudelrechner ihren veränderten Zustand sichtbar.
+
+**Änderung und Regression:** Die Auswahl rankt Licht-/Ortszeitübergänge,
+vermeidet die letzten sechs Orte und bei ausreichender Auswahl die letzten
+fünf von zwölf Szenenprofilen. Sitzungszähler und die letzten drei
+Entdeckungen bleiben flüchtig im Arbeitsspeicher. Unit-Tests belegen alle
+zwölf Profile im Ortsbestand; der reale Sieben-Klick-Pfad verlangt
+sieben Orte und mindestens sechs Profile.
+
+**Übertragbarkeit:** Wiederholungswert sollte nicht nur durch mehr zufällige
+Assets entstehen. Eine kleine fachliche Neuheitsregel plus sichtbarer, nicht
+zwingend persistenter Verlauf kann Vielfalt verständlich machen. Das konkrete
+Fenster und Ranking bleiben produktspezifisch.
+
+## 2026-08-03 – Neue Elemente brauchen explizite mobile Grid-Reihenfolge
+
+**Beobachtung und Evidenz:** `.moment-copy` wird im schmalen Layout zu
+`display: contents`; seine Kinder besitzen explizite `order`-Werte. Die neue
+Sitzungsinfo hatte zunächst keinen Wert und sprang deshalb vor die H1. Beim
+200-%-Reflow überschritt außerdem die lange Primäraktion den Viewport um 3 px.
+
+**Änderung und Regression:** Sitzungsinfo, Reiseverlauf, Nebenaktionen und
+Szene erhielten eine lückenlose Reihenfolge. Die Primäraktion besitzt im
+schmalen Profil eine begrenzte Breite, umbruchfähigen Text und ein nicht
+schrumpfendes Icon. Sichtbare 390-×844-QA sowie 360×800 bei 200 % sind danach
+ohne horizontalen Überlauf grün.
+
+**Übertragbarkeit:** `display: contents` plus `order` macht die mobile
+Informationshierarchie flexibel, aber neue Geschwister dürfen nicht auf dem
+Defaultwert bleiben. Reflowtests müssen reale Langtexte und zusammengesetzte
+Icon/Text-Aktionen einschließen.
+
+## 2026-08-03 – Datenschutzinventar trennt Persistenz von flüchtigem Zustand
+
+**Beobachtung und Evidenz:** Die Sprache, der Offline-Cache, die aktuelle Reise
+und der optionale Klang haben unterschiedliche Lebenszyklen. Die pauschale
+Aussage „lokale Einstellungen“ hätte diese Grenzen verschleiert und einen
+Schein-Einwilligungsbanner begünstigt.
+
+**Änderung und Regression:** Das zweckweise Inventar dokumentiert Schlüssel,
+Inhalt, Laufzeit und Erforderlichkeit. Nur die Sprachwahl und eigene statische
+Offline-Artefakte sind persistent; Reise und Klang bleiben im Arbeitsspeicher.
+Es gibt keinen Banner, aber eine dauerhafte Datenschutzverknüpfung.
+
+**Übertragbarkeit:** Apps sollten Cookies, Web Storage, Cache Storage und
+flüchtigen Arbeitsspeicher getrennt inventarisieren. Ob eine Information oder
+Einwilligung nötig ist, folgt aus dem tatsächlichen Zugriff und Zweck, nicht
+aus einem portfolioeinheitlichen Bannerdesign.

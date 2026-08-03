@@ -35,6 +35,7 @@
         <img
           data-milos-loading-icon
           src="favicon.svg"
+          vite-ignore
           width="52"
           height="52"
           alt=""
@@ -87,6 +88,15 @@
             <p class="status-line" id="status-line" role="status" aria-live="polite" data-app-text="initialStatus">
               Die Reise beginnt …
             </p>
+            <p class="session-note" id="session-note" data-app-text="sessionInitial">
+              Der nächste Klick führt zu einem anderen Ort und Szenenbild.
+            </p>
+            <ol
+              class="journey-trail"
+              id="journey-trail"
+              aria-label="Letzte Entdeckungen"
+              data-app-aria-label="journeyTrailLabel"
+            ></ol>
             <div class="app-actions">
               <button
                 class="icon-button"
@@ -136,9 +146,13 @@
                 <span class="cloud cloud-b"></span>
                 <span class="weather-particles" id="weather-particles"></span>
                 <span class="haze"></span>
+                <span class="aurora aurora-a"></span>
+                <span class="aurora aurora-b"></span>
                 <span class="hill hill-back"></span>
                 <span class="hill hill-mid"></span>
                 <span class="hill hill-front"></span>
+                <span class="terrain-detail terrain-detail-a"></span>
+                <span class="terrain-detail terrain-detail-b"></span>
                 <span class="water-line"></span>
               </div>
               <figcaption class="scene-caption">
@@ -236,6 +250,6 @@
       </main>
     </milos-app-shell>
 
-    <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="/src/entry.js"></script>
   </body>
 </html>

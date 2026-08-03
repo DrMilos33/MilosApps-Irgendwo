@@ -14,7 +14,7 @@ eigene abstrakte Szene mit optionalem prozeduralem Klang.
 - keine Shared-Laufzeitabhängigkeit; die öffentliche Shell ist als feste,
   gelockte Kopie aus `public-app-shell/v2.0.3` im Repository enthalten;
 - Ladebildschirm, wahrheitsgemäßer Datenschutzhinweis und Teilen-Funktion sind
-  als feste, gelockte Kopie aus `public-app-essentials/v1.0.0` integriert;
+  als feste, gelockte Kopie aus `public-app-essentials/v1.1.2` integriert;
 - Portal-DEV bindet nur über dokumentierte Metadaten und URL an.
 
 Siehe [Produktbrief](docs/PRODUCT_BRIEF.md), [QA-Plan](docs/QA_PLAN.md) und
@@ -76,13 +76,14 @@ Same-Origin-Styles auch unter `style-src 'self'` ohne Nonce, Hash oder
 ## Öffentliche App-Essentials
 
 Die Essentials sind aus `DrMilos33/MilosApps-Shared`, Tag
-`public-app-essentials-v1.0.0`, Commit
-`b09e09008ff05fe87f05bc647a7c4964ff13e6f6` vendort. Maßgeblich sind
+`public-app-essentials-v1.1.2`, Commit
+`b14aac6107b75f03ff49e74160af7e7e30c29e59` vendort. Maßgeblich sind
 [`milos-essentials.json`](milos-essentials.json) und
 [`vendor/milosapps-essentials/v1/essentials-lock.json`](vendor/milosapps-essentials/v1/essentials-lock.json).
-Die App aktiviert nur den CSS-first Ladebildschirm, den Hinweis
-`no-cookies` mit lokaler Speicherung sowie die Teilen-Funktion; Datums- und
-Ortsuche bleiben deaktiviert. Die fünf gelockten Artefakte werden bytegleich
+Die App aktiviert den CSS-first Ladebildschirm, eine dauerhaft erreichbare
+`no-cookies`-Datenschutzinformation ohne Schein-Einwilligung sowie die
+Teilen-Funktion; Datums- und Ortssuche bleiben deaktiviert. Die sechs
+gelockten Verbraucherartefakte einschließlich Schema werden bytegleich
 ausgeliefert, beide CSS-Dateien bleiben externe Same-Origin-Ressourcen.
 
 ## Daten und Datenschutz

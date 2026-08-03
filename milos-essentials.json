@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/DrMilos33/MilosApps-Shared/d96e6806862a4a7405b03bd710100543916de76d/contracts/public-app-essentials/v1/essentials-manifest.schema.json",
+  "$schema": "./vendor/milosapps-essentials/v1/essentials-manifest.schema.json",
   "appKey": "somewhere-now",
   "ownerTask": "MilosApps – Irgendwo ist gerade …",
   "public": true,
@@ -7,10 +7,15 @@
   "environment": "dev",
   "productionApproved": false,
   "entryHtml": "index.html",
-  "integrationFiles": ["src/main.ts", "src/share.ts"],
+  "consumerEntryModule": {
+    "sourceFile": "src/entry.js",
+    "runtimePath": "/src/entry.js"
+  },
+  "integrationFiles": ["index.html", "src/entry.js", "src/main.ts", "src/ui/app.ts", "src/share.ts"],
   "loading": {
     "appName": "Irgendwo ist gerade …",
-    "iconPath": "favicon.svg",
+    "iconPath": "public/favicon.svg",
+    "iconRuntimePath": "favicon.svg",
     "message": {
       "de": "App wird geöffnet …",
       "en": "Opening app …"
@@ -56,8 +61,9 @@
   },
   "essentialsContract": {
     "id": "public-app-essentials/v1",
-    "version": "1.1.0",
-    "sharedCommit": "d96e6806862a4a7405b03bd710100543916de76d",
-    "vendorDirectory": "vendor/milosapps-essentials/v1"
+    "version": "1.1.2",
+    "sharedCommit": "b14aac6107b75f03ff49e74160af7e7e30c29e59",
+    "vendorDirectory": "vendor/milosapps-essentials/v1",
+    "runtimeBasePath": "/vendor/milosapps-essentials/v1"
   }
 }

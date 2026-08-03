@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { chooseNextPlace, evaluatePlaceInterest } from "./selection";
 import { getPlaceById } from "./locations";
+import { sceneVariantForPlace } from "./scene";
 import type { Daylight } from "./types";
 
 const now = new Date("2026-08-03T12:00:00Z");
@@ -56,5 +57,21 @@ describe("interessante Ortsauswahl", () => {
     });
 
     expect(selection.place.landscape).not.toBe("island");
+  });
+
+  it("vermeidet bei ausreichender Auswahl auch die letzten Szenenprofile", () => {
+    const recentIds = ["reykjavik", "nuuk", "dakar", "quito", "tokyo"];
+    const recentVariants = new Set(
+      recentIds.map((id) => sceneVariantForPlace(getPlaceById(id)!)),
+    );
+    const selection = chooseNextPlace({
+      currentId: "reykjavik",
+      recentIds,
+      now,
+      random: () => 0,
+      daylightForPlace: () => daylight({ phase: "golden" }),
+    });
+
+    expect(recentVariants).not.toContain(sceneVariantForPlace(selection.place));
   });
 });

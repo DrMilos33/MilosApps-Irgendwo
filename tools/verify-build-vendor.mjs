@@ -15,8 +15,8 @@ const contracts = [
     name: "Essentials",
     directory: "milosapps-essentials/v1",
     lockFile: "essentials-lock.json",
-    version: "1.1.0",
-    sharedCommit: "d96e6806862a4a7405b03bd710100543916de76d",
+    version: "1.1.2",
+    sharedCommit: "b14aac6107b75f03ff49e74160af7e7e30c29e59",
   },
 ];
 
@@ -52,6 +52,10 @@ if (!index.includes('src="/vendor/milosapps-shell/v2/bootstrap.js"')) {
 if (!index.includes('src="/vendor/milosapps-essentials/v1/bootstrap.js"')) {
   throw new Error("Der Build referenziert nicht das unveränderte Essentials-Bootstrap.");
 }
+if (!index.includes('src="/src/entry.js"')) {
+  throw new Error("Der Build referenziert nicht das deklarierte stabile App-Einstiegsmodul.");
+}
+await readFile(new URL("../dist/src/entry.js", import.meta.url));
 for (const stylesheet of ["milos-app-essentials.css", "milos-app-essentials-theme.css"]) {
   if (!index.includes(`href="/vendor/milosapps-essentials/v1/${stylesheet}"`)) {
     throw new Error(`Der Build referenziert nicht das externe ${stylesheet}.`);

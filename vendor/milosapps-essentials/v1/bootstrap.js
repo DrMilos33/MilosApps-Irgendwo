@@ -7,7 +7,8 @@ export const milosAppEssentials = initMilosAppEssentials({
   "productionApproved": false,
   "loading": {
     "appName": "Irgendwo ist gerade …",
-    "iconPath": "favicon.svg",
+    "iconPath": "public/favicon.svg",
+    "iconRuntimePath": "favicon.svg",
     "message": {
       "de": "App wird geöffnet …",
       "en": "Opening app …"

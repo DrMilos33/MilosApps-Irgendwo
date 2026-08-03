@@ -3,7 +3,8 @@
 ## Produktversprechen
 
 Ein einziger Tipp öffnet ein kurzes Fenster zu einem realen, gerade
-stattfindenden Moment irgendwo auf der Erde.
+stattfindenden Moment irgendwo auf der Erde. Die Auswahl erklärt sichtbar,
+warum Ortszeit oder Licht genau jetzt interessant sind.
 
 ## MVP
 
@@ -14,7 +15,12 @@ stattfindenden Moment irgendwo auf der Erde.
 - vollständig eigene, prozedurale Szene;
 - optionaler, erst nach Nutzeraktion startender Klang;
 - verständliche Orts-, Zeit-, Wetter- und Quellenkarte;
-- „Noch einmal“-Interaktion und bewusst teilbare Ergebniskarte;
+- nach Interesse gerankte „Nächster Moment“-Interaktion ohne unmittelbare
+  Orts- oder Szenenwiederholung;
+- zwölf deterministische Szenenprofile mit landschafts- und
+  tageszeitabhängigen Details;
+- rein sitzungsgebundener Fortschritt und die letzten drei Entdeckungen;
+- verständlicher Teiltext mit Ortszeit und App-Kontext, aber ohne Koordinaten;
 - ehrlicher Zustand bei fehlenden oder veralteten Wetterdaten.
 
 ## Ton und Auswahlregeln
@@ -26,9 +32,12 @@ Unwettergefahren werden nicht als überraschender Unterhaltungsmoment verwendet.
 
 ## Datenschutz und Daten
 
-Die App benötigt keinen Nutzerstandort. Einstellungen wie Klang oder zuletzt
-gewählte Darstellungsart dürfen lokal gespeichert werden. Externe Daten werden
-mit Quelle und Zeitstempel angezeigt.
+Die App benötigt keinen Nutzerstandort. Nur die ausdrücklich gewählte Sprache
+wird lokal persistiert; Klang, Reiseverlauf und Szenenfolge bleiben im
+Arbeitsspeicher. Der Service Worker speichert ausschließlich eigene statische
+App-Artefakte für den Offline-Kern. Externe Daten werden mit Quelle und
+Zeitstempel angezeigt. Das vollständige Inventar steht in
+[`PRIVACY_INVENTORY.md`](PRIVACY_INVENTORY.md).
 
 ## Portalvertrag
 

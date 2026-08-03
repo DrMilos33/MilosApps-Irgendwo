@@ -33,6 +33,11 @@ export default defineConfig({
   build: {
     target: "es2022",
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        entryFileNames: "src/entry.js",
+      },
+    },
   },
   test: {
     exclude: ["e2e/**", "node_modules/**"],

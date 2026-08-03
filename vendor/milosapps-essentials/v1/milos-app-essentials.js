@@ -1,5 +1,5 @@
 const CONTRACT_ID = "public-app-essentials/v1";
-const CONTRACT_VERSION = "1.1.0";
+const CONTRACT_VERSION = "1.1.2";
 const LOCALE_EVENT = "milosapps:localechange";
 const READY_EVENT = "milosapps:ready";
 
@@ -55,6 +55,7 @@ const COPY = Object.freeze({
 let activeConfig = null;
 let activeLocale = "de";
 let privacyVisible = false;
+let privacyDismissedForDocument = false;
 
 function normalizeLocale(value) {
   return value === "en" ? "en" : "de";
@@ -62,6 +63,22 @@ function normalizeLocale(value) {
 
 function assertString(value, label) {
   if (typeof value !== "string" || !value.trim()) throw new TypeError(`${label} must be a non-empty string`);
+}
+
+function validHttpsUrl(value) {
+  if (typeof value !== "string" || /\s/.test(value)) return false;
+  try {
+    const parsed = new URL(value);
+    const hostname = parsed.hostname.replace(/\.$/, "");
+    const labels = hostname.split(".");
+    return parsed.protocol === "https:"
+      && labels.length >= 2
+      && labels.every((label) => /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i.test(label))
+      && !parsed.username
+      && !parsed.password;
+  } catch {
+    return false;
+  }
 }
 
 function normalizeStoragePurposes(input, appKey, usesLocalStorage) {
@@ -89,9 +106,13 @@ function normalizeConfig(input) {
   if (input.environment === "production" && input.productionApproved !== true) throw new TypeError("Production requires explicit approval");
   if (input.privacy?.mode !== "no-cookies" && input.privacy?.mode !== "essential-only") throw new TypeError("Unsupported privacy mode");
   if (input.privacy?.optionalTracking !== false) throw new TypeError("Optional tracking is forbidden by public-app-essentials/v1");
-  if (!/^https:\/\//.test(input.privacy?.privacyUrl || "")) throw new TypeError("privacyUrl must use HTTPS");
+  if (!validHttpsUrl(input.privacy?.privacyUrl)) throw new TypeError("privacyUrl must be an absolute HTTPS URL with a valid host and no credentials");
   const usesLocalStorage = input.privacy.usesLocalStorage === true;
   const storagePurposes = normalizeStoragePurposes(input.privacy.storagePurposes, input.appKey, usesLocalStorage);
+  if (input.features?.startup !== true) throw new TypeError("Startup is required for public apps");
+  if (input.features?.share !== true) throw new TypeError("Share is required for public apps");
+  if (input.privacy.mode === "no-cookies" && input.features?.privacyNotice !== false) throw new TypeError("no-cookies requires privacyNotice=false");
+  if (input.privacy.mode === "essential-only" && input.features?.privacyNotice !== true) throw new TypeError("essential-only requires privacyNotice=true");
   const placeSuggestions = input.features?.placeSuggestions;
   if (!placeSuggestions || typeof placeSuggestions !== "object") throw new TypeError("features.placeSuggestions is required");
   if (!Number.isInteger(placeSuggestions.minChars) || placeSuggestions.minChars < 2 || placeSuggestions.minChars > 6) throw new TypeError("placeSuggestions.minChars must be between 2 and 6");
@@ -128,14 +149,6 @@ function normalizeConfig(input) {
 
 function localeCopy() {
   return COPY[activeLocale];
-}
-
-function storageGet(key) {
-  try { return localStorage.getItem(key); } catch { return null; }
-}
-
-function storageSet(key, value) {
-  try { localStorage.setItem(key, value); } catch { /* Local persistence is optional comfort. */ }
 }
 
 function storageRemove(key) {
@@ -183,14 +196,9 @@ function updatePrivacyCopy() {
   notice.querySelector("[data-milos-privacy-link]").textContent = copy.privacy;
 }
 
-function privacyStorageKey() {
-  return `milosapps.${activeConfig.appKey}.essentialCookieInfo.v1`;
-}
-
 function showPrivacyNotice() {
   if (activeConfig?.privacy?.mode === "no-cookies") return;
-  const dismissed = activeConfig?.privacy?.usesLocalStorage && storageGet(privacyStorageKey()) === "dismissed";
-  if (!activeConfig?.features?.privacyNotice || privacyVisible || dismissed) return;
+  if (!activeConfig?.features?.privacyNotice || privacyVisible || privacyDismissedForDocument) return;
   privacyVisible = true;
   const notice = document.createElement("aside");
   notice.dataset.milosPrivacyNotice = "";
@@ -216,8 +224,8 @@ function showPrivacyNotice() {
   dismiss.type = "button";
   dismiss.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" stroke-linecap="round"/></svg>';
   dismiss.addEventListener("click", () => {
-    if (activeConfig.privacy.usesLocalStorage) storageSet(privacyStorageKey(), "dismissed");
     privacyVisible = false;
+    privacyDismissedForDocument = true;
     notice.remove();
   });
   actions.append(privacyLink, dismiss);
@@ -261,7 +269,10 @@ export async function shareMilosContent(payload = {}) {
 export class MilosShareButton extends HTMLElement {
   connectedCallback() {
     this.connectionEpoch = (this.connectionEpoch || 0) + 1;
-    if (this.dataset.milosReady === "true") return;
+    if (this.dataset.milosReady === "true") {
+      this.setLocale(activeLocale);
+      return;
+    }
     this.dataset.milosReady = "true";
     this.payloadProvider ??= () => ({ title: document.title, url: window.location.href });
     this.replaceChildren();
@@ -362,8 +373,21 @@ function isoToday() {
   return local.toISOString().slice(0, 10);
 }
 
+function validIsoDate(value) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || "");
+  if (!match) return false;
+  const [, yearText, monthText, dayText] = match;
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const calendar = new Date(0);
+  calendar.setUTCHours(0, 0, 0, 0);
+  calendar.setUTCFullYear(year, month - 1, day);
+  return calendar.getUTCFullYear() === year && calendar.getUTCMonth() === month - 1 && calendar.getUTCDate() === day;
+}
+
 function clampIsoDate(value, min, max) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) return "";
+  if (!validIsoDate(value)) return "";
   if (min && value < min) return min;
   if (max && value > max) return max;
   return value;
@@ -372,13 +396,19 @@ function clampIsoDate(value, min, max) {
 function replaceYear(value, year) {
   const [oldYear, month, day] = value.split("-").map(Number);
   if (![oldYear, month, day, year].every(Number.isFinite)) return value;
-  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const calendar = new Date(0);
+  calendar.setUTCHours(0, 0, 0, 0);
+  calendar.setUTCFullYear(year, month, 0);
+  const lastDay = calendar.getUTCDate();
   return `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}-${String(Math.min(day, lastDay)).padStart(2, "0")}`;
 }
 
-class MilosDatePicker extends HTMLElement {
+export class MilosDatePicker extends HTMLElement {
   connectedCallback() {
-    if (this.dataset.milosReady === "true") return;
+    if (this.dataset.milosReady === "true") {
+      this.setLocale(activeLocale);
+      return;
+    }
     this.dataset.milosReady = "true";
     this.min = this.getAttribute("min") || "1900-01-01";
     this.max = this.getAttribute("max") || "2100-12-31";
@@ -406,6 +436,10 @@ class MilosDatePicker extends HTMLElement {
     input.value = this.currentValue;
     const year = document.createElement("select");
     year.dataset.milosDateYear = "";
+    const emptyYear = document.createElement("option");
+    emptyYear.value = "";
+    emptyYear.textContent = "—";
+    year.append(emptyYear);
     const firstYear = Number(this.min.slice(0, 4));
     const lastYear = Number(this.max.slice(0, 4));
     for (let value = lastYear; value >= firstYear; value -= 1) {
@@ -418,8 +452,16 @@ class MilosDatePicker extends HTMLElement {
     const today = document.createElement("button");
     today.type = "button";
     today.dataset.milosDateToday = "";
-    input.addEventListener("change", () => this.commit(input.value, input, year));
-    year.addEventListener("change", () => this.commit(replaceYear(input.value || this.currentValue, Number(year.value)), input, year));
+    input.addEventListener("change", (event) => { event.stopPropagation(); this.commit(input.value, input, year); });
+    year.addEventListener("change", (event) => {
+      event.stopPropagation();
+      if (!year.value) {
+        this.commit("", input, year);
+        return;
+      }
+      const base = input.value || this.currentValue || clampIsoDate(isoToday(), this.min, this.max);
+      this.commit(replaceYear(base, Number(year.value)), input, year);
+    });
     today.addEventListener("click", () => this.commit(clampIsoDate(isoToday(), this.min, this.max), input, year));
     row.append(input, year, today);
     const note = document.createElement("p");
@@ -432,12 +474,23 @@ class MilosDatePicker extends HTMLElement {
   }
 
   commit(value, input = this.input, year = this.yearSelect) {
-    const normalized = clampIsoDate(value, this.min, this.max);
-    if (!normalized) return;
+    const requested = String(value || "");
+    const normalized = clampIsoDate(requested, this.min, this.max);
+    if (requested && !normalized) {
+      input.value = this.currentValue || "";
+      year.value = this.currentValue?.slice(0, 4) || "";
+      return;
+    }
+    if (normalized === (this.currentValue || "")) {
+      input.value = normalized;
+      year.value = normalized.slice(0, 4);
+      return;
+    }
     this.currentValue = normalized;
     input.value = normalized;
     year.value = normalized.slice(0, 4);
-    this.setAttribute("value", normalized);
+    if (normalized) this.setAttribute("value", normalized);
+    else this.removeAttribute("value");
     this.dispatchEvent(new CustomEvent("milosapps:datechange", { detail: Object.freeze({ value: normalized }), bubbles: true, composed: true }));
     this.dispatchEvent(new Event("change", { bubbles: true }));
   }
@@ -491,7 +544,10 @@ export function normalizeMilosPlaceResults(values) {
 export class MilosPlaceSearch extends HTMLElement {
   connectedCallback() {
     this.connectionEpoch = (this.connectionEpoch || 0) + 1;
-    if (this.dataset.milosReady === "true") return;
+    if (this.dataset.milosReady === "true") {
+      this.setLocale(activeLocale);
+      return;
+    }
     this.dataset.milosReady = "true";
     this.results = [];
     this.activeIndex = -1;
@@ -545,7 +601,7 @@ export class MilosPlaceSearch extends HTMLElement {
     const locate = document.createElement("button");
     locate.type = "button";
     locate.dataset.milosPlaceLocate = "";
-    locate.hidden = true;
+    locate.hidden = !this.locateProvider;
     const results = document.createElement("div");
     results.id = listId;
     results.dataset.milosPlaceResults = "";
@@ -648,7 +704,8 @@ export class MilosPlaceSearch extends HTMLElement {
       this.results = normalizeMilosPlaceResults(values);
       this.renderResults(this.results);
     } catch (error) {
-      if (error?.name !== "AbortError" && this.isCurrentPlaceOperation("suggestions", requestId, connectionEpoch, signal)) this.setOperationStatus("suggestions", localeCopy().searchFailed);
+      const currentQuery = this.input.value.trim().replace(/\s+/g, " ");
+      if (error?.name !== "AbortError" && currentQuery === query && this.isCurrentPlaceOperation("suggestions", requestId, connectionEpoch, signal)) this.setOperationStatus("suggestions", localeCopy().searchFailed);
     } finally {
       if (this.isCurrentPlaceOperation("suggestions", requestId, connectionEpoch, signal)) this.endBusy("suggestions");
     }
@@ -765,7 +822,9 @@ export class MilosPlaceSearch extends HTMLElement {
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       event.preventDefault();
       const direction = event.key === "ArrowDown" ? 1 : -1;
-      this.activeIndex = (this.activeIndex + direction + this.results.length) % this.results.length;
+      this.activeIndex = this.activeIndex < 0
+        ? (direction > 0 ? 0 : this.results.length - 1)
+        : (this.activeIndex + direction + this.results.length) % this.results.length;
       this.highlight();
     } else if (event.key === "Enter") {
       event.preventDefault();
@@ -787,7 +846,7 @@ export class MilosPlaceSearch extends HTMLElement {
     this.cancelSuggestions();
     this.cancelSearch();
     this.cancelLocate();
-    this.input.value = [place.name, place.region].filter(Boolean).join(", ");
+    this.input.value = [place.name, place.region, place.country].filter(Boolean).join(", ");
     this.renderResults([]);
     this.clearOperationStatus();
     this.dispatchEvent(new CustomEvent("milosapps:placechange", { detail: place, bubbles: true, composed: true }));
@@ -796,6 +855,14 @@ export class MilosPlaceSearch extends HTMLElement {
 
   setLocale(locale) {
     const selected = normalizeLocale(locale);
+    if (this.locale && this.locale !== selected) {
+      this.cancelSuggestions();
+      this.cancelSearch();
+      this.cancelLocate();
+      this.renderResults([]);
+      this.clearOperationStatus();
+    }
+    this.locale = selected;
     const copy = COPY[selected];
     if (this.label) this.label.textContent = this.getAttribute(`label-${selected}`) || copy.placeLabel;
     if (this.input) this.input.placeholder = this.getAttribute(`placeholder-${selected}`) || copy.placePlaceholder;
@@ -825,7 +892,10 @@ export function markMilosAppReady() {
 
 export function initMilosAppEssentials(config) {
   activeConfig = normalizeConfig(config);
-  if (activeConfig.privacy.usesLocalStorage) storageRemove(`milosapps.${activeConfig.appKey}.privacyNotice.v1`);
+  if (activeConfig.privacy.usesLocalStorage) {
+    storageRemove(`milosapps.${activeConfig.appKey}.privacyNotice.v1`);
+    storageRemove(`milosapps.${activeConfig.appKey}.essentialCookieInfo.v1`);
+  }
   activeLocale = normalizeLocale(document.documentElement.lang);
   document.body?.setAttribute("data-milos-essentials-page", "");
   if (activeConfig.features.startup) document.body?.setAttribute("data-milos-essentials-loading", "");
