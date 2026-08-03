@@ -6,5 +6,5 @@
   "shellContract": "public-app-shell/v2.0.3",
   "essentialsContract": "public-app-essentials/v1.1.2",
   "productionApproved": false,
-  "sourceCommit": "476ca03957c8d0b2b7cd1db54ae8ec6bf9855918"
+  "sourceCommit": "5d32e8ddd4660dae41687b75406829b730148e70"
 }
