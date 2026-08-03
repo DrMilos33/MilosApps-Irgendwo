@@ -367,6 +367,12 @@ test("begrenzt das Shell-Slot-Icon während des gesamten Komponentenübergangs",
     try {
       await expect(shellIcon, scenario.name).toBeAttached();
       await expect(loaderIcon, scenario.name).toBeVisible();
+      await transitionPage.waitForFunction(() => {
+        const essentialsLink = document.querySelector<HTMLLinkElement>(
+          'link[href*="milos-app-essentials.css"]',
+        );
+        return Boolean(essentialsLink?.sheet);
+      });
 
       const beforeUpgrade = await readState();
       expect(beforeUpgrade.essentialsCssLoaded, scenario.name).toBe(true);
