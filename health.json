@@ -4,7 +4,7 @@
   "environment": "DEV",
   "readiness": true,
   "shellContract": "public-app-shell/v2.0.3",
-  "essentialsContract": "public-app-essentials/v1.1.2",
+  "essentialsContract": "public-app-essentials/v1.1.3",
   "productionApproved": false,
-  "sourceCommit": "5d32e8ddd4660dae41687b75406829b730148e70"
+  "sourceCommit": "1a3b2b89954f88f9a971fbfae286ff76c09f1fd5"
 }
