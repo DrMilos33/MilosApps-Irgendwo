@@ -471,3 +471,27 @@ aktuellen Eintrag; Smartphone-Reflow und Build sind danach erneut grün.
   Matrix aus Produktstart, Dichtegate, Tastaturfokus/44 px, Axe und
   Reduced-Motion/200-%-Reflow bestand auf Smartphone, Tablet und Desktop mit
   15/15 Fällen. Root- und Pages-Buildgate sind grün.
+
+### Stabile Hauptaktion, Suchfokus und prozedurales Live-Fenster
+
+- Die Baseline zeigte die Ursache des Layoutsprungs: Titel, Detail und
+  Auswahlbegründung standen ohne reserviertes Textbudget direkt vor der
+  Hauptaktion. Der neue Browserfall ersetzt alle drei Texte durch kurze und
+  realistisch lange Varianten und verlangt auf 390 px, Tablet und Desktop eine
+  Abweichung der Buttonoberkante von höchstens 1 px.
+- Die Suchauswahl „Überrasch mich“, „Morgenlicht“, „Abendlicht“ und
+  „Nachtseite“ verändert nachweislich Ranking, Begründung, Momenttext und
+  Aktionslabel. DE/EN und der bestehende Sprach-Reload bleiben vollständig.
+- Szene und Fakten bilden nun eine zusammenhängende Live-Fläche. Sichtbare
+  Viewfinder-/Live-Elemente verwenden keine fremden Medien; der Hinweis
+  „Aus Live-Daten · keine Kamera“ macht die Daten-/Rechensoftwaregrenze
+  ausdrücklich. Ortszeit, Wetterzustand und Tageslicht bleiben semantische
+  Definitionsdaten unterhalb der als Bild beschrifteten Szene.
+- Logik und Lokalisierung bestanden 35/35. Die responsive Matrix aus Start,
+  Textstabilität, Suchfokus, Tastatur, 44-px-Zielen, Axe, Dark Mode, schnellen
+  Wiederholungen, Wetterfallback und 200-%-Reflow bestand 33/33; die separate
+  vollständige DE/EN-/Reload-Matrix 3/3. Der Root-Build ist grün.
+- Eine Bestands-Browsersitzung belegte, dass der stabile `src/entry.js`-Pfad
+  mit dem bisherigen Cache-Namen noch altes Verhalten liefern konnte. Der
+  Cache wurde deshalb auf `somewhere-now-shell-v13` angehoben und das
+  Root-/Pages-Buildgate verlangt diese Revision fail-closed.

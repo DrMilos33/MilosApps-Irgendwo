@@ -12,6 +12,7 @@ import { formatLocalDateTime, formatLocalTime, formatPlaceTime } from "../domain
 import type {
   Daylight,
   Moment,
+  MomentFocus,
   Place,
   Weather,
   WeatherFailureReason,
@@ -41,6 +42,7 @@ interface Elements {
   factPlace: HTMLElement;
   factTime: HTMLElement;
   factWeather: HTMLElement;
+  focusInputs: HTMLInputElement[];
   journeyTrail: HTMLOListElement;
   momentDetail: HTMLElement;
   momentTitle: HTMLElement;
@@ -56,6 +58,7 @@ interface Elements {
   statusLine: HTMLElement;
   toast: HTMLElement;
   travelButton: HTMLButtonElement;
+  travelLabel: HTMLElement;
   weatherParticles: HTMLElement;
   weatherRetry: HTMLButtonElement;
 }
@@ -68,6 +71,16 @@ function required<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
   if (!element) throw new Error(`Element fehlt: ${selector}`);
   return element;
+}
+
+function requiredAll<T extends Element>(selector: string): T[] {
+  const elements = Array.from(document.querySelectorAll<T>(selector));
+  if (elements.length === 0) throw new Error(`Elemente fehlen: ${selector}`);
+  return elements;
+}
+
+function isMomentFocus(value: string): value is MomentFocus {
+  return ["surprise", "sunrise", "sunset", "night"].includes(value);
 }
 
 function weatherSourceLine(weather: Weather, place: Place, language: Language): string {
@@ -111,8 +124,27 @@ function particleCount(kind: ReturnType<typeof sceneWeather>): number {
 function selectionReasonText(
   reason: SelectionReason,
   place: Place,
+  daylight: Daylight,
   language: Language,
 ): string {
+  if (reason === "next-sunrise" && daylight.nextEventAt) {
+    return t(language, "whyNextSunrise", {
+      place: place.name,
+      time: formatLocalTime(daylight.nextEventAt, place.timeZone, language),
+    });
+  }
+  if (reason === "next-sunrise") {
+    return t(language, "whySunriseFocus", { place: place.name });
+  }
+  if (reason === "next-sunset" && daylight.nextEventAt) {
+    return t(language, "whyNextSunset", {
+      place: place.name,
+      time: formatLocalTime(daylight.nextEventAt, place.timeZone, language),
+    });
+  }
+  if (reason === "next-sunset") {
+    return t(language, "whySunsetFocus", { place: place.name });
+  }
   const keys: Record<SelectionReason, MessageKey> = {
     "sunrise-soon": "whySunriseSoon",
     "sunset-soon": "whySunsetSoon",
@@ -123,6 +155,9 @@ function selectionReasonText(
     twilight: "whyTwilight",
     night: "whyNight",
     day: "whyDay",
+    "next-sunrise": "whySunriseFocus",
+    "next-sunset": "whySunsetFocus",
+    "night-focus": "whyNightFocus",
   };
   return t(language, keys[reason], { place: place.name });
 }
@@ -137,6 +172,7 @@ export class SomewhereNowApp {
   private currentDataState: DataState = "loading";
   private currentMomentAt = new Date();
   private currentMomentRandom = 0;
+  private currentFocus: MomentFocus = "surprise";
   private currentSelectionReason: SelectionReason = "day";
   private readonly recentPlaceIds: string[] = [];
   private readonly visitedPlaceIds = new Set<string>();
@@ -161,6 +197,7 @@ export class SomewhereNowApp {
       factPlace: required("#fact-place"),
       factTime: required("#fact-time"),
       factWeather: required("#fact-weather"),
+      focusInputs: requiredAll('input[name="moment-focus"]'),
       journeyTrail: required("#journey-trail"),
       momentDetail: required("#moment-detail"),
       momentTitle: required("#moment-title"),
@@ -176,6 +213,7 @@ export class SomewhereNowApp {
       statusLine: required("#status-line"),
       toast: required("#toast"),
       travelButton: required("#travel-button"),
+      travelLabel: required("#travel-label"),
       weatherParticles: required("#weather-particles"),
       weatherRetry: required("#weather-retry"),
     };
@@ -200,6 +238,14 @@ export class SomewhereNowApp {
         appUrl,
       );
     });
+    this.elements.focusInputs.forEach((input) => {
+      input.addEventListener("change", () => {
+        if (!input.checked || !isMomentFocus(input.value)) return;
+        this.currentFocus = input.value;
+        this.root.dataset.momentFocus = this.currentFocus;
+        this.updateTravelLabel();
+      });
+    });
     this.elements.travelButton.addEventListener("click", () => void this.travel());
     this.elements.weatherRetry.addEventListener("click", () => void this.retryWeather());
     this.elements.soundToggle.addEventListener("click", () => void this.toggleSound());
@@ -220,6 +266,8 @@ export class SomewhereNowApp {
     });
 
     this.updateSoundLabel();
+    this.root.dataset.momentFocus = this.currentFocus;
+    this.updateTravelLabel();
     this.clockTimer = window.setInterval(() => this.refreshClock(), 30_000);
     void this.travel();
   }
@@ -227,6 +275,7 @@ export class SomewhereNowApp {
   setLanguage(language: Language): void {
     this.language = language;
     this.updateSoundLabel();
+    this.updateTravelLabel();
 
     const place = this.currentPlace;
     const daylight = this.currentDaylight;
@@ -239,6 +288,7 @@ export class SomewhereNowApp {
         this.currentMomentAt,
         () => this.currentMomentRandom,
         language,
+        this.currentFocus,
       );
       this.render(
         displayPlace,
@@ -277,11 +327,13 @@ export class SomewhereNowApp {
           getDaylight(requestedPlace, now),
           now,
           this.recentPlaceIds,
+          this.currentFocus,
         )
       : chooseNextPlace({
           currentId: this.currentPlace?.id ?? null,
           recentIds: this.recentPlaceIds,
           now,
+          focus: this.currentFocus,
         });
     const { place, daylight, reason } = selection;
     const displayPlace = localizePlace(place, this.language);
@@ -302,6 +354,7 @@ export class SomewhereNowApp {
       now,
       () => this.currentMomentRandom,
       this.language,
+      this.currentFocus,
     );
 
     this.setBusy(true);
@@ -324,6 +377,7 @@ export class SomewhereNowApp {
         now,
         () => this.currentMomentRandom,
         this.language,
+        this.currentFocus,
       );
       const dataState: DataState = weather.severe
         ? "withheld"
@@ -351,6 +405,7 @@ export class SomewhereNowApp {
         now,
         () => this.currentMomentRandom,
         this.language,
+        this.currentFocus,
       );
       this.render(localized, daylight, null, this.currentMoment, now, "fallback");
       this.setStatus((language) => weatherFailureMessage(reason, language));
@@ -393,6 +448,7 @@ export class SomewhereNowApp {
         now,
         () => this.currentMomentRandom,
         this.language,
+        this.currentFocus,
       );
       const state: DataState = weather.severe
         ? "withheld"
@@ -434,6 +490,7 @@ export class SomewhereNowApp {
     this.elements.selectionReason.textContent = selectionReasonText(
       this.currentSelectionReason,
       place,
+      daylight,
       this.language,
     );
     this.renderSessionNote();
@@ -568,6 +625,16 @@ export class SomewhereNowApp {
       "aria-label",
       t(this.language, this.audio.isEnabled ? "soundOff" : "soundOn"),
     );
+  }
+
+  private updateTravelLabel(): void {
+    const keys: Record<MomentFocus, MessageKey> = {
+      surprise: "travel",
+      sunrise: "travelSunrise",
+      sunset: "travelSunset",
+      night: "travelNight",
+    };
+    this.elements.travelLabel.textContent = t(this.language, keys[this.currentFocus]);
   }
 
   private async toggleSound(): Promise<void> {

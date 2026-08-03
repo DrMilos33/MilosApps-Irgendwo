@@ -74,4 +74,48 @@ describe("interessante Ortsauswahl", () => {
 
     expect(recentVariants).not.toContain(sceneVariantForPlace(selection.place));
   });
+
+  it("findet gezielt den nächsten Sonnenaufgang statt nur allgemein interessante Orte", () => {
+    const sunrisePlace = getPlaceById("tokyo")!;
+    const selection = chooseNextPlace({
+      currentId: "reykjavik",
+      recentIds: [],
+      now,
+      focus: "sunrise",
+      random: () => 0,
+      daylightForPlace: (place) =>
+        daylight(
+          place.id === sunrisePlace.id
+            ? {
+                phase: "twilight",
+                nextEvent: "sunrise",
+                nextEventAt: new Date(now.getTime() + 25 * 60_000),
+              }
+            : {
+                phase: "day",
+                nextEvent: "sunset",
+                nextEventAt: new Date(now.getTime() + 5 * 60_000),
+              },
+        ),
+    });
+
+    expect(selection.place.id).toBe(sunrisePlace.id);
+    expect(selection.reason).toBe("sunrise-soon");
+  });
+
+  it("findet für den Nachtfokus zuverlässig die dunkle Seite der Erde", () => {
+    const nightPlace = getPlaceById("tokyo")!;
+    const selection = chooseNextPlace({
+      currentId: "reykjavik",
+      recentIds: [],
+      now,
+      focus: "night",
+      random: () => 0,
+      daylightForPlace: (place) =>
+        daylight({ phase: place.id === nightPlace.id ? "night" : "day" }),
+    });
+
+    expect(selection.place.id).toBe(nightPlace.id);
+    expect(selection.reason).toBe("night-focus");
+  });
 });

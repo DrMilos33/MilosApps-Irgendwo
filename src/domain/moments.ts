@@ -1,5 +1,5 @@
 import { formatLocalTime, minutesBetween, minutesFromLocalMidnight } from "./time";
-import type { Daylight, Moment, Place, Weather } from "./types";
+import type { Daylight, Moment, MomentFocus, Place, Weather } from "./types";
 import { t, type Language } from "../i18n";
 
 interface Candidate extends Moment {
@@ -79,12 +79,45 @@ export function selectMoment(
   now: Date,
   random: () => number = Math.random,
   language: Language = "de",
+  focus: MomentFocus = "surprise",
 ): Moment {
   if (weather?.severe) {
     return {
       kind: "weather-withheld",
       title: t(language, "momentWithheldTitle"),
       detail: t(language, "momentWithheldDetail", { place: place.name }),
+    };
+  }
+
+  if (focus === "sunrise" && daylight.nextEvent === "sunrise" && daylight.nextEventAt) {
+    return {
+      kind: "sunrise",
+      title: t(language, "momentSunriseFocusTitle"),
+      detail: t(language, "momentSunriseFocusDetail", {
+        place: place.name,
+        time: formatLocalTime(daylight.nextEventAt, place.timeZone, language),
+      }),
+    };
+  }
+  if (focus === "sunset" && daylight.nextEvent === "sunset" && daylight.nextEventAt) {
+    return {
+      kind: "sunset",
+      title: t(language, "momentSunsetFocusTitle"),
+      detail: t(language, "momentSunsetFocusDetail", {
+        place: place.name,
+        time: formatLocalTime(daylight.nextEventAt, place.timeZone, language),
+      }),
+    };
+  }
+  if (focus === "night") {
+    if (daylight.phase === "polar-night") return daylightFallback(place, daylight, language);
+    return {
+      kind: "night",
+      title: t(language, "momentNightFocusTitle"),
+      detail: t(language, "momentNightFocusDetail", {
+        place: place.name,
+        time: formatLocalTime(now, place.timeZone, language),
+      }),
     };
   }
 

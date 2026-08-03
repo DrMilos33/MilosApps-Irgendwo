@@ -75,21 +75,44 @@
             <p class="product-promise" data-app-text="productPromise">
               Entdecke einen realen Moment irgendwo auf der Erde – ausgewählt nach Ortszeit und Licht.
             </p>
-            <p class="eyebrow" id="place-label" data-app-text="initialPlace">
-              Ein Punkt auf der Erde
-            </p>
-            <h2 class="moment-title" id="moment-title" data-app-text="initialMoment">
-              Hier öffnet sich gleich ein anderer Augenblick.
-            </h2>
-            <p class="moment-detail" id="moment-detail" data-app-text="initialDetail">
-              Zeit und Tageslicht sind sofort da. Das Wetter darf einen Moment brauchen.
-            </p>
-            <p class="selection-reason" id="selection-reason" data-app-text="selectionInitial">
-              Die App sucht nach einem besonderen lokalen Übergang.
-            </p>
+            <div class="moment-story">
+              <p class="eyebrow" id="place-label" data-app-text="initialPlace">
+                Ein Punkt auf der Erde
+              </p>
+              <h2 class="moment-title" id="moment-title" data-app-text="initialMoment">
+                Hier öffnet sich gleich ein anderer Augenblick.
+              </h2>
+              <p class="moment-detail" id="moment-detail" data-app-text="initialDetail">
+                Zeit und Tageslicht sind sofort da. Das Wetter darf einen Moment brauchen.
+              </p>
+              <p class="selection-reason" id="selection-reason" data-app-text="selectionInitial">
+                Die App sucht nach einem besonderen lokalen Übergang.
+              </p>
+            </div>
+            <fieldset class="moment-focus">
+              <legend data-app-text="focusLegend">Was möchtest du gerade sehen?</legend>
+              <div class="focus-options">
+                <label class="focus-option">
+                  <input type="radio" name="moment-focus" value="surprise" checked>
+                  <span data-app-text="focusSurprise">Überrasch mich</span>
+                </label>
+                <label class="focus-option">
+                  <input type="radio" name="moment-focus" value="sunrise">
+                  <span data-app-text="focusSunrise">Morgenlicht</span>
+                </label>
+                <label class="focus-option">
+                  <input type="radio" name="moment-focus" value="sunset">
+                  <span data-app-text="focusSunset">Abendlicht</span>
+                </label>
+                <label class="focus-option">
+                  <input type="radio" name="moment-focus" value="night">
+                  <span data-app-text="focusNight">Nachtseite</span>
+                </label>
+              </div>
+            </fieldset>
             <div class="primary-actions">
               <button class="travel-button" id="travel-button" type="button">
-                <span data-app-text="travel">Nächsten Moment entdecken</span>
+                <span id="travel-label" data-app-text="travel">Nächsten Moment entdecken</span>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="m8 5 7 7-7 7"></path>
                 </svg>
@@ -147,6 +170,20 @@
               data-weather="clear"
             >
               <div class="scene-sky" aria-hidden="true">
+                <div class="live-hud">
+                  <span class="live-indicator">
+                    <span class="live-dot"></span>
+                    <span data-app-text="liveWindow">LIVE-FENSTER</span>
+                  </span>
+                  <span class="live-generated" data-app-text="liveGenerated">
+                    Aus Live-Daten · keine Kamera
+                  </span>
+                </div>
+                <span class="camera-grid"></span>
+                <span class="camera-corner camera-corner-tl"></span>
+                <span class="camera-corner camera-corner-tr"></span>
+                <span class="camera-corner camera-corner-bl"></span>
+                <span class="camera-corner camera-corner-br"></span>
                 <span class="scene-orbit">
                   <span class="scene-sun"></span>
                   <span class="scene-moon"></span>
@@ -175,6 +212,7 @@
 
             <section
               class="fact-card"
+              id="fact-card"
               aria-label="Details zu diesem Moment"
               data-app-aria-label="factRegion"
             >

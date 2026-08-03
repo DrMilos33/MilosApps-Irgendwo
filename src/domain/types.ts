@@ -70,6 +70,8 @@ export type MomentKind =
   | "wind"
   | "weather-withheld";
 
+export type MomentFocus = "surprise" | "sunrise" | "sunset" | "night";
+
 export interface Moment {
   kind: MomentKind;
   title: string;

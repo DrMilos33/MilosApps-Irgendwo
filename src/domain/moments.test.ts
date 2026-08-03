@@ -76,4 +76,23 @@ describe("Momentauswahl", () => {
     );
     expect(moment.kind).not.toBe("clear-night");
   });
+
+  it("erzählt beim gewählten Abendlicht gezielt den nächsten Sonnenuntergang", () => {
+    const moment = selectMoment(
+      place,
+      daylight,
+      weather,
+      new Date("2026-07-30T12:10:00Z"),
+      () => 0,
+      "de",
+      "sunset",
+    );
+
+    expect(moment).toMatchObject({
+      kind: "sunset",
+      title: "Das Abendlicht ist unterwegs.",
+    });
+    expect(moment.detail).toContain("Tromsø");
+    expect(moment.detail).toContain("23:00");
+  });
 });

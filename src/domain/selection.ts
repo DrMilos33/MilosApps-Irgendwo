@@ -2,7 +2,7 @@ import { getDaylight } from "./daylight";
 import { PLACES } from "./locations";
 import { sceneVariantForPlace } from "./scene";
 import { minutesBetween, minutesFromLocalMidnight } from "./time";
-import type { Daylight, Place } from "./types";
+import type { Daylight, MomentFocus, Place } from "./types";
 
 export type SelectionReason =
   | "sunrise-soon"
@@ -13,7 +13,10 @@ export type SelectionReason =
   | "golden"
   | "twilight"
   | "night"
-  | "day";
+  | "day"
+  | "next-sunrise"
+  | "next-sunset"
+  | "night-focus";
 
 export interface PlaceSelection {
   place: Place;
@@ -26,8 +29,45 @@ interface SelectionOptions {
   currentId: string | null;
   recentIds: readonly string[];
   now: Date;
+  focus?: MomentFocus;
   random?: () => number;
   daylightForPlace?: (place: Place, now: Date) => Daylight;
+}
+
+function focusedInterest(
+  place: Place,
+  daylight: Daylight,
+  now: Date,
+  focus: Exclude<MomentFocus, "surprise">,
+): { reason: SelectionReason; score: number } {
+  const eventMinutes = daylight.nextEventAt ? minutesBetween(now, daylight.nextEventAt) : null;
+  if (focus === "sunrise") {
+    if (daylight.nextEvent === "sunrise" && eventMinutes !== null && eventMinutes >= 0) {
+      return {
+        reason: eventMinutes <= 60 ? "sunrise-soon" : "next-sunrise",
+        score: 240 - Math.min(eventMinutes, 1_440) / 10,
+      };
+    }
+    return { reason: "next-sunrise", score: daylight.phase === "polar-night" ? -20 : 12 };
+  }
+  if (focus === "sunset") {
+    if (daylight.nextEvent === "sunset" && eventMinutes !== null && eventMinutes >= 0) {
+      return {
+        reason: eventMinutes <= 60 ? "sunset-soon" : "next-sunset",
+        score: 240 - Math.min(eventMinutes, 1_440) / 10,
+      };
+    }
+    return { reason: "next-sunset", score: daylight.phase === "polar-day" ? -20 : 12 };
+  }
+
+  const localMinute = minutesFromLocalMidnight(now, place.timeZone);
+  if (daylight.phase === "polar-night") return { reason: "night-focus", score: 245 };
+  if (daylight.phase === "night") {
+    const distanceFromMidnight = Math.min(localMinute, 1_440 - localMinute);
+    return { reason: "night-focus", score: 225 - distanceFromMidnight / 20 };
+  }
+  if (daylight.phase === "twilight") return { reason: "night-focus", score: 90 };
+  return { reason: "night-focus", score: 12 };
 }
 
 const RECENT_PLACE_WINDOW = 6;
@@ -56,22 +96,29 @@ export function evaluatePlaceInterest(
   daylight: Daylight,
   now: Date,
   recentIds: readonly string[] = [],
+  focus: MomentFocus = "surprise",
 ): PlaceSelection {
-  let { reason, score } = phaseInterest(daylight.phase);
-  const eventMinutes = daylight.nextEventAt ? minutesBetween(now, daylight.nextEventAt) : null;
-  if (
-    daylight.nextEvent &&
-    eventMinutes !== null &&
-    eventMinutes >= 0 &&
-    eventMinutes <= 60
-  ) {
-    reason = daylight.nextEvent === "sunrise" ? "sunrise-soon" : "sunset-soon";
-    score = 110 - eventMinutes / 2;
-  } else {
-    const localMinute = minutesFromLocalMidnight(now, place.timeZone);
-    if (localMinute <= 30 || localMinute >= 1410) {
-      reason = "local-midnight";
-      score = 88;
+  const interest =
+    focus === "surprise"
+      ? phaseInterest(daylight.phase)
+      : focusedInterest(place, daylight, now, focus);
+  let { reason, score } = interest;
+  if (focus === "surprise") {
+    const eventMinutes = daylight.nextEventAt ? minutesBetween(now, daylight.nextEventAt) : null;
+    if (
+      daylight.nextEvent &&
+      eventMinutes !== null &&
+      eventMinutes >= 0 &&
+      eventMinutes <= 60
+    ) {
+      reason = daylight.nextEvent === "sunrise" ? "sunrise-soon" : "sunset-soon";
+      score = 110 - eventMinutes / 2;
+    } else {
+      const localMinute = minutesFromLocalMidnight(now, place.timeZone);
+      if (localMinute <= 30 || localMinute >= 1410) {
+        reason = "local-midnight";
+        score = 88;
+      }
     }
   }
 
@@ -90,6 +137,7 @@ export function chooseNextPlace({
   currentId,
   recentIds,
   now,
+  focus = "surprise",
   random = Math.random,
   daylightForPlace = getDaylight,
 }: SelectionOptions): PlaceSelection {
@@ -116,7 +164,9 @@ export function chooseNextPlace({
   }
 
   const ranked = candidates
-    .map((place) => evaluatePlaceInterest(place, daylightForPlace(place, now), now, recentIds))
+    .map((place) =>
+      evaluatePlaceInterest(place, daylightForPlace(place, now), now, recentIds, focus),
+    )
     .sort(
       (left, right) =>
         right.score - left.score ||

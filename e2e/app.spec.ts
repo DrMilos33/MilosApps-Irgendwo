@@ -130,6 +130,75 @@ test("hält die Einstiegshierarchie kompakt und die Hauptaktion im ersten Viewpo
   expect(metrics.overflow).toBeLessThanOrEqual(1);
 });
 
+test("hält die Hauptaktion bei kurzen und langen Momenttexten an derselben Position", async ({
+  page,
+}) => {
+  await mockWeather(page);
+  await page.goto(appPath("?place=reykjavik"));
+  await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
+
+  const metricsFor = async (title: string, detail: string, reason: string) =>
+    page.evaluate(
+      ({ title, detail, reason }) => {
+        const titleElement = document.querySelector<HTMLElement>("#moment-title")!;
+        const detailElement = document.querySelector<HTMLElement>("#moment-detail")!;
+        const reasonElement = document.querySelector<HTMLElement>("#selection-reason")!;
+        titleElement.textContent = title;
+        detailElement.textContent = detail;
+        reasonElement.textContent = reason;
+        return {
+          travelTop: document.querySelector<HTMLElement>("#travel-button")!.getBoundingClientRect().top,
+          titleHeight: titleElement.getBoundingClientRect().height,
+          detailHeight: detailElement.getBoundingClientRect().height,
+          reasonHeight: reasonElement.getBoundingClientRect().height,
+        };
+      },
+      { title, detail, reason },
+    );
+
+  const short = await metricsFor("Tag.", "Jetzt.", "Ausgewählt.");
+  const long = await metricsFor(
+    "Die Stadtseite der Erde schläft.",
+    "Über Longyearbyen sinkt die Sonne an diesem Tag nicht unter den Horizont.",
+    "Ausgewählt, weil in Longyearbyen der Sonnenaufgang in weniger als einer Stunde beginnt.",
+  );
+
+  expect(
+    Math.abs(long.travelTop - short.travelTop),
+    JSON.stringify({ short, long }),
+  ).toBeLessThanOrEqual(1);
+});
+
+test("lässt die gesuchte Momentart wählen und zeigt ein ehrliches Live-Fenster", async ({
+  page,
+}) => {
+  await mockWeather(page);
+  await page.goto(appPath("?place=reykjavik"));
+  await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
+
+  const sunrise = page.getByRole("radio", { name: "Morgenlicht" });
+  await sunrise.check();
+  await expect(sunrise).toBeChecked();
+  await expect(page.getByRole("button", { name: "Morgenlicht finden" })).toBeVisible();
+  await page.getByRole("button", { name: "Morgenlicht finden" }).click();
+  await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
+  await expect(page.locator("#selection-reason")).toContainText(/Sonnenaufgang|Morgenlicht/);
+
+  const shell = page.locator("milos-app-shell");
+  await shell.locator('button[data-locale="en"]').click();
+  await expect(page.getByRole("button", { name: "Find morning light" })).toBeVisible();
+  await expect(page.getByRole("radio", { name: "Morning light" })).toBeChecked();
+  await shell.locator('button[data-locale="de"]').click();
+
+  await expect(page.locator("#scene")).toContainText("LIVE-FENSTER");
+  await expect(page.locator("#scene")).toContainText("keine Kamera");
+  await expect(page.locator(".fact-card")).toHaveCSS("margin-left", "0px");
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(1);
+});
+
 test("hält die Warum-jetzt-Aussage stabil, während Wetter ergänzt wird", async ({ page }) => {
   let releaseWeather!: () => void;
   const weatherGate = new Promise<void>((resolve) => {
@@ -713,6 +782,10 @@ test("übersetzt die vollständige Fach-UI ins Englische und behält die Wahl na
     page.getByText("Discover a real moment somewhere on Earth – selected by local time and light."),
   ).toBeVisible();
   await expect(page.locator("#selection-reason")).toContainText(/^Selected /);
+  await expect(page.getByRole("group", { name: "What would you like to see right now?" })).toBeVisible();
+  await expect(page.getByRole("radio", { name: "Morning light" })).toBeVisible();
+  await expect(page.locator("#scene")).toContainText("LIVE WINDOW");
+  await expect(page.locator("#scene")).toContainText("no camera");
   await expect(page.locator("#session-note")).toContainText("One place discovered");
   await expect(page.locator("#journey-trail")).toHaveAttribute(
     "aria-label",

@@ -12,7 +12,10 @@ warum Ortszeit oder Licht genau jetzt interessant sind.
 - kuratierter, lizenzklarer Ortsbestand mit Zeitzone und groben Koordinaten;
 - Auswahl interessanter, sachlich formulierter Momente aus Tageslicht und
   Wetter;
-- vollständig eigene, prozedurale Szene;
+- wählbarer Suchfokus für Überraschung, Morgenlicht, Abendlicht oder
+  Nachtseite;
+- vollständig eigenes, prozedurales Live-Fenster aus Ortszeit, Sonnenstand und
+  Wetterdaten; keine fremde Kamera und kein fremdes Bildmaterial;
 - optionaler, erst nach Nutzeraktion startender Klang;
 - verständliche Orts-, Zeit-, Wetter- und Quellenkarte;
 - nach Interesse gerankte „Nächster Moment“-Interaktion ohne unmittelbare

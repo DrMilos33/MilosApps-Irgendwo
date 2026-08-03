@@ -281,3 +281,24 @@ die fokussierte Desktop-/Tablet-/Smartphone-Matrix bestand 15 von 15 Fällen.
 Produktaktion nicht verdrängen. Ein responsives Dichtebudget sollte Titel,
 Erklärung, Hauptaktion und erste Arbeits- oder Erlebnisfläche gemeinsam
 betrachten, statt nur einzelne Schriftgrößen zu verkleinern.
+
+## 2026-08-03 – Eine Live-Metapher braucht echte Steuerung und ehrliche Herkunft
+
+**Beobachtung und Evidenz:** Die schmale prozedurale Szene und eine separat
+darübergelegte Faktenkarte wirkten statisch, obwohl Zeit, Licht und Wetter
+tatsächlich live berechnet werden. Gleichzeitig blieb die Reise trotz gutem
+Ranking eine einzige Zufallsaktion; Nutzer konnten ihr Interesse nicht
+ausdrücken.
+
+**Änderung und Regression:** Die Szene und ihre Fakten wurden zu einem breiten
+Live-Fenster mit sichtbarer Ortszeit, Viewfinder und integrierter Datenleiste
+verbunden. Eine zugängliche Auswahl steuert das Ranking jetzt gezielt auf
+Überraschung, Morgenlicht, Abendlicht oder Nachtseite. Die Oberfläche sagt
+ausdrücklich „keine Kamera“, weil ausschließlich eigene prozedurale Grafik und
+erlaubte Daten verwendet werden. Ein Browsergate hält die Hauptaktion bei
+kurzen und langen Texten pixelstabil.
+
+**Übertragbarkeit:** Eine Kamera- oder Live-Metapher darf keine fremden Medien
+vortäuschen. Sie wird glaubwürdig, wenn Datenherkunft sichtbar ist und der
+Nutzer eine fachlich wirksame Auswahl erhält. Bei stabilen Service-Worker-URLs
+muss eine solche JS-/CSS-Revision außerdem einen neuen Cache-Namen erhalten.
