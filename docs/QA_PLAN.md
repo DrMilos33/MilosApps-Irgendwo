@@ -40,3 +40,16 @@
 3. Vergleich mit Sky, Gravity Loop, Welcher Müll?, Noch hell?, Wolkenpost und
    Nudelrechner auf Einstieg, Verständlichkeit und Wiederholungswert; mindestens
    eine daraus abgeleitete Verbesserung erneut prüfen.
+
+## Pages-DEV-Matrix
+
+- Root-Build `/` und Pages-Build `/MilosApps-Irgendwo/` getrennt prüfen;
+- basisbewusste Manifest-, Share-, Service-Worker-, Health- und Vendorpfade;
+- Offline-Erstinstallation und Offline-Reload der App-Shell;
+- Health, App-Metadaten und `deployment.json` niemals aus dem Service-Worker-
+  Cache beantworten;
+- gestempelten vollständigen Source-SHA in allen vier Release-Metadaten prüfen;
+- externe HTTPS-Matrix ohne Login auf Smartphone, Tablet und Desktop;
+- 360×800 bei 200 Prozent, 390×844 und 1440×900 ohne horizontalen Überlauf;
+- Icon und externe Vendorassets mit korrektem MIME-Typ sowie Readiness mit
+  `appKey=somewhere-now`, `environment=DEV` und `productionApproved=false`.

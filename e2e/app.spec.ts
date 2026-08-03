@@ -1,6 +1,13 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page, type Route } from "@playwright/test";
 
+const APP_PATH =
+  process.env.E2E_BASE_URL || process.env.E2E_PAGES === "true"
+    ? new URL(process.env.E2E_BASE_URL ?? "http://127.0.0.1:4316/MilosApps-Irgendwo/")
+        .pathname.replace(/\/$/, "")
+    : "";
+const appPath = (search = "") => `${APP_PATH}/${search}`;
+
 interface WeatherOverrides {
   time?: string;
   weather_code?: number;
@@ -64,7 +71,7 @@ test("lädt ohne Login und zeigt einen vollständigen Moment", async ({ page }) 
   });
   await mockWeather(page);
 
-  await page.goto("/?place=reykjavik");
+  await page.goto(appPath("?place=reykjavik"));
 
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByText("Reykjavík · Island")).toBeVisible();
@@ -100,7 +107,7 @@ test("hält die Warum-jetzt-Aussage stabil, während Wetter ergänzt wird", asyn
     });
   });
 
-  await page.goto("/?place=reykjavik");
+  await page.goto(appPath("?place=reykjavik"));
   await expect(page.getByText("lädt", { exact: true })).toBeVisible();
   const momentBefore = await page.locator("#moment-title").textContent();
   const reasonBefore = await page.locator("#selection-reason").textContent();
@@ -117,7 +124,7 @@ test("zeigt in einer realen Reise neue Orte, Szenenprofile und Fortschritt", asy
 }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "Die deterministische Sitzungsregel reicht einmal.");
   await mockWeather(page);
-  await page.goto("/?place=reykjavik");
+  await page.goto(appPath("?place=reykjavik"));
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
   const seen: string[] = [await page.locator("#place-label").innerText()];
@@ -147,7 +154,7 @@ test("bindet genau eine DEV-Shell mit absoluten Portfolio-Links und ehrlicher Gr
   page,
 }) => {
   await mockWeather(page);
-  await page.goto("/?place=reykjavik");
+  await page.goto(appPath("?place=reykjavik"));
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
   const shell = page.locator("milos-app-shell");
@@ -197,7 +204,7 @@ test("zeigt beim frischen und langsamen Start einen kleinen lokalisierten Loader
   });
   await mockWeather(page);
 
-  const navigation = page.goto("/?place=reykjavik");
+  const navigation = page.goto(appPath("?place=reykjavik"));
   const loader = page.locator("[data-milos-app-loading]");
   await expect(loader).toBeVisible();
   await expect(page.locator("h1")).toHaveCount(1);
@@ -256,7 +263,7 @@ test("zeigt ohne Schein-Einwilligung eine dauerhafte Datenschutzinformation", as
     localStorage.setItem("milosapps.somewhere-now.privacyNotice.v1", "dismissed");
   });
   await mockWeather(page);
-  await page.goto("/?place=reykjavik");
+  await page.goto(appPath("?place=reykjavik"));
 
   await expect(page.locator("[data-milos-privacy-notice]")).toHaveCount(0);
   const privacyLink = page.locator("[data-milos-privacy-info]");
@@ -301,7 +308,7 @@ test("teilt den Moment nativ ohne Ortsparameter in der URL", async ({ page }, te
     });
   });
   await mockWeather(page);
-  await page.goto("/?place=reykjavik");
+  await page.goto(appPath("?place=reykjavik"));
   const share = page.getByRole("button", { name: "Teilen" });
   const before = await share.evaluate((element) => element.getBoundingClientRect().toJSON());
   await share.click();
@@ -315,7 +322,7 @@ test("teilt den Moment nativ ohne Ortsparameter in der URL", async ({ page }, te
   expect(payload?.text).toContain("Reykjavík");
   expect(payload?.text).toContain("Ortszeit:");
   expect(payload?.text).toContain("„Irgendwo ist gerade …“");
-  expect(payload?.url).toBe("http://127.0.0.1:4316/");
+  expect(payload?.url).toBe(new URL(appPath(), page.url()).href);
   expect(payload?.url).not.toContain("place=");
 });
 
@@ -333,7 +340,7 @@ test("kopiert beim Share-Fallback Text und sicheren Root-Link", async ({ page },
     });
   });
   await mockWeather(page);
-  await page.goto("/?place=waitangi");
+  await page.goto(appPath("?place=waitangi"));
   const share = page.getByRole("button", { name: "Teilen" });
   const before = await share.evaluate((element) => element.getBoundingClientRect().toJSON());
   await share.click();
@@ -347,7 +354,7 @@ test("kopiert beim Share-Fallback Text und sicheren Root-Link", async ({ page },
   );
   expect(copied).toContain("Waitangi");
   expect(copied).toContain("Ortszeit:");
-  expect(copied).toContain("http://127.0.0.1:4316/");
+  expect(copied).toContain(new URL(appPath(), page.url()).href);
   expect(copied).not.toContain("place=");
 });
 
@@ -366,7 +373,7 @@ test("behandelt den Abbruch des nativen Share-Dialogs nicht als Fehler", async (
     });
   });
   await mockWeather(page);
-  await page.goto("/?place=reykjavik");
+  await page.goto(appPath("?place=reykjavik"));
   const share = page.getByRole("button", { name: "Teilen" });
   await share.click();
   await expect(share).toBeEnabled();
@@ -408,7 +415,7 @@ test("bleibt unter strikter Same-Origin-CSP vollständig gestaltet", async ({
     });
   });
   await mockWeather(page);
-  await page.goto("/?place=reykjavik");
+  await page.goto(appPath("?place=reykjavik"));
   await page.waitForTimeout(250);
   expect(cspMessages).toEqual([]);
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
@@ -447,7 +454,7 @@ test("bleibt unter strikter Same-Origin-CSP vollständig gestaltet", async ({
     ["milos-app-shell-theme.css", "text/css"],
   ] as const;
   for (const [file, expectedType] of expectedTypes) {
-    const response = await request.get(`/vendor/milosapps-shell/v2/${file}`);
+    const response = await request.get(appPath(`vendor/milosapps-shell/v2/${file}`));
     expect(response.ok()).toBe(true);
     expect(response.headers()["content-type"]).toContain(expectedType);
   }
@@ -459,7 +466,7 @@ test("bleibt unter strikter Same-Origin-CSP vollständig gestaltet", async ({
     ["milos-app-essentials-theme.css", "text/css"],
   ] as const;
   for (const [file, expectedType] of expectedEssentialsTypes) {
-    const response = await request.get(`/vendor/milosapps-essentials/v1/${file}`);
+    const response = await request.get(appPath(`vendor/milosapps-essentials/v1/${file}`));
     expect(response.ok()).toBe(true);
     expect(response.headers()["content-type"]).toContain(expectedType);
   }
@@ -469,7 +476,7 @@ test("übersetzt die vollständige Fach-UI ins Englische und behält die Wahl na
   page,
 }) => {
   await mockWeather(page);
-  await page.goto("/?place=reykjavik");
+  await page.goto(appPath("?place=reykjavik"));
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
   const shell = page.locator("milos-app-shell");
@@ -527,7 +534,7 @@ test("übersetzt die vollständige Fach-UI ins Englische und behält die Wahl na
 
 test("bietet sichtbaren Tastaturfokus und mindestens 44 Pixel große Ziele", async ({ page }) => {
   await mockWeather(page);
-  await page.goto("/?place=kathmandu");
+  await page.goto(appPath("?place=kathmandu"));
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
   const english = page.locator("milos-app-shell").locator('button[data-locale="en"]');
@@ -562,7 +569,7 @@ test("hat in der Hauptansicht keine automatisch erkannten Accessibility-Verstö�
 }) => {
   test.slow();
   await mockWeather(page);
-  await page.goto("/?place=kathmandu");
+  await page.goto(appPath("?place=kathmandu"));
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
   const adaptiveTheme = await page.evaluate(() => {
@@ -600,7 +607,7 @@ test("bleibt auch im dunklen Systemdesign kontrastreich", async ({ page }) => {
   test.slow();
   await page.emulateMedia({ colorScheme: "dark" });
   await mockWeather(page);
-  await page.goto("/?place=kathmandu");
+  await page.goto(appPath("?place=kathmandu"));
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
   const adaptiveTheme = await page.evaluate(() => {
@@ -636,7 +643,7 @@ test("bleibt auch im dunklen Systemdesign kontrastreich", async ({ page }) => {
 
 test("Dialog und Hauptaktion funktionieren vollständig per Tastatur", async ({ page }) => {
   await mockWeather(page);
-  await page.goto("/?place=waitangi");
+  await page.goto(appPath("?place=waitangi"));
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
   const skip = page.locator("milos-app-shell").locator(".skip");
@@ -671,7 +678,7 @@ test("schnelle Wiederholungen lassen nur die letzte Anfrage gewinnen", async ({ 
       body: JSON.stringify(weatherBody({ temperature_2m: 10 + requestCount })),
     });
   });
-  await page.goto("/?place=reykjavik");
+  await page.goto(appPath("?place=reykjavik"));
 
   const travel = page.getByRole("button", { name: "Nächsten Moment entdecken" });
   await expect(travel).toBeVisible();
@@ -684,7 +691,7 @@ test("schnelle Wiederholungen lassen nur die letzte Anfrage gewinnen", async ({ 
 
 test("bleibt bei fehlendem Wetter nutzbar und kann erneut versuchen", async ({ page }) => {
   await page.route("https://api.open-meteo.com/**", (route) => route.abort("failed"));
-  await page.goto("/?place=quito");
+  await page.goto(appPath("?place=quito"));
 
   await expect(page.getByText("ohne Wetter", { exact: true })).toBeVisible();
   await expect(page.getByText(/Zeit und Tageslicht bleiben aktuell/)).toBeVisible();
@@ -708,7 +715,7 @@ test("erholt sich nach einem Wetterfehler über den sichtbaren Retry", async ({
       body: JSON.stringify(weatherBody()),
     });
   });
-  await page.goto("/?place=quito");
+  await page.goto(appPath("?place=quito"));
   await expect(page.getByText("ohne Wetter", { exact: true })).toBeVisible();
 
   shouldFail = false;
@@ -722,7 +729,7 @@ test("markiert langsame Daten nach Timeout als Fallback", async ({ page }, testI
   await page.route("https://api.open-meteo.com/**", async () => {
     await new Promise(() => {});
   });
-  await page.goto("/?place=tokyo");
+  await page.goto(appPath("?place=tokyo"));
   await page.clock.fastForward("00:00:07");
 
   await expect(page.getByText("ohne Wetter", { exact: true })).toBeVisible();
@@ -731,7 +738,7 @@ test("markiert langsame Daten nach Timeout als Fallback", async ({ page }, testI
 
 test("stellt ältere Wetterdaten und einen Wiederholweg ehrlich dar", async ({ page }) => {
   await mockWeather(page, { time: "2026-07-30T09:00" });
-  await page.goto("/?place=istanbul");
+  await page.goto(appPath("?place=istanbul"));
 
   await expect(page.getByText("älter", { exact: true })).toBeVisible();
   await expect(page.getByText(/älter markiert/)).toBeVisible();
@@ -744,7 +751,7 @@ test("inszeniert gefährliche Wettercodes nicht", async ({ page }) => {
     precipitation: 5,
     wind_gusts_10m: 90,
   });
-  await page.goto("/?place=tromso");
+  await page.goto(appPath("?place=tromso"));
 
   await expect(page.getByText("bewusst ruhig", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Heute nur Zeit und Licht." })).toBeVisible();
@@ -756,7 +763,7 @@ test("bleibt bei blockiertem Audio still und erklärt den Zustand", async ({ pag
     Object.defineProperty(window, "AudioContext", { value: undefined, configurable: true });
   });
   await mockWeather(page);
-  await page.goto("/?place=dakar");
+  await page.goto(appPath("?place=dakar"));
 
   await page.getByRole("button", { name: "Klang einschalten" }).click();
   await expect(page.getByText("Der Browser hat den Klang nicht freigegeben.")).toBeVisible();
@@ -769,7 +776,7 @@ test("bleibt bei blockiertem Audio still und erklärt den Zustand", async ({ pag
 test("Klang bleibt nach App-Resume kontrollierbar", async ({ page, context }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "App-Resume reicht einmal.");
   await mockWeather(page);
-  await page.goto("/?place=dakar");
+  await page.goto(appPath("?place=dakar"));
   const sound = page.getByRole("button", { name: "Klang einschalten" });
   await sound.click();
   await expect(page.getByRole("button", { name: "Klang ausschalten" })).toHaveAttribute(
@@ -795,7 +802,7 @@ test("respektiert reduzierte Bewegung und bleibt bei 200 Prozent Zoom reflow-fä
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: 360, height: 800 });
   await mockWeather(page);
-  await page.goto("/?place=longyearbyen");
+  await page.goto(appPath("?place=longyearbyen"));
   await page.evaluate(() => {
     document.documentElement.style.fontSize = "200%";
   });
@@ -825,7 +832,7 @@ test("zeigt Polartag, Polarnacht und eine Datumsgrenze korrekt", async ({
   await mockWeather(page);
 
   await page.clock.setFixedTime(new Date("2026-06-21T12:00:00Z"));
-  await page.goto("/?place=longyearbyen");
+  await page.goto(appPath("?place=longyearbyen"));
   await expect(page.getByText("Polartag", { exact: true })).toBeVisible();
 
   await page.clock.setFixedTime(new Date("2026-12-21T12:00:00Z"));
@@ -833,7 +840,7 @@ test("zeigt Polartag, Polarnacht und eine Datumsgrenze korrekt", async ({
   await expect(page.getByText("Polarnacht", { exact: true })).toBeVisible();
 
   await page.clock.setFixedTime(new Date("2026-01-01T10:30:00Z"));
-  await page.goto("/?place=waitangi");
+  await page.goto(appPath("?place=waitangi"));
   await expect(page.locator("#fact-time")).toContainText("Freitag, 2. Januar");
   await expect(page.locator("#scene-time")).toHaveText("00:15 Uhr");
 });
@@ -843,16 +850,39 @@ test("funktioniert nach erstem Laden auch ohne Netz als App-Hülle", async ({
   context,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "Service-Worker-Prüfung reicht einmal.");
-  await page.goto("/?place=reykjavik");
+  await page.goto(appPath("?place=reykjavik"));
+  await expect(page.locator("[data-milos-app-loading]")).toBeHidden();
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;
+    if (!navigator.serviceWorker.controller) {
+      await new Promise<void>((resolve) => {
+        navigator.serviceWorker.addEventListener("controllerchange", () => resolve(), {
+          once: true,
+        });
+      });
+    }
+  });
+  const appOrigin = new URL(page.url()).origin;
+  const failedSameOriginRequests: string[] = [];
+  page.on("requestfailed", (request) => {
+    if (new URL(request.url()).origin === appOrigin) failedSameOriginRequests.push(request.url());
   });
   await context.setOffline(true);
   await page.reload();
 
+  expect(failedSameOriginRequests).toEqual([]);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByText("ohne Wetter", { exact: true })).toBeVisible();
   await expect(page.getByText(/nicht erreichbar|Offline/)).toBeVisible();
+  const healthStayedNetworkOnly = await page.evaluate(async (healthUrl) => {
+    try {
+      await fetch(healthUrl, { cache: "no-store" });
+      return false;
+    } catch {
+      return true;
+    }
+  }, appPath("health/somewhere-now.json"));
+  expect(healthStayedNetworkOnly).toBe(true);
 });
 
 test("hält Interaktions- und Ressourcenbudget ein", async ({ page }, testInfo) => {
@@ -869,7 +899,7 @@ test("hält Interaktions- und Ressourcenbudget ein", async ({ page }, testInfo) 
       body: JSON.stringify(weatherBody()),
     });
   });
-  await page.goto("/?place=reykjavik");
+  await page.goto(appPath("?place=reykjavik"));
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
   const resourceCount = await page.evaluate(() => performance.getEntriesByType("resource").length);

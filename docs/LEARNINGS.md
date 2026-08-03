@@ -244,3 +244,21 @@ bestehen.
 benachbarten, ebenfalls bytegelockten Vendorordner. Jeder unabhängig gelockte
 Vertrag braucht seine eigene enge Policy; gewöhnlicher App-Quelltext bleibt
 davon unberührt.
+
+## 2026-08-03 – Unterpfad-DEV braucht zwei Builds und frische Healthdaten
+
+**Beobachtung und Evidenz:** Eine PWA kann lokal an `/` fehlerfrei sein und
+unter GitHub Pages dennoch an Manifest-, Share-, Vendor- oder Service-Worker-
+Pfaden scheitern. Zusätzlich würde ein precachter Healthcheck nach einem
+Rollout möglicherweise den SHA der vorherigen Revision als gesund ausweisen.
+
+**Änderung und Regression:** Ein eigener Pages-Modus mit festem Repository-
+Basispfad prüft den Unterpfad, während relative `vite-ignore`-Ressourcen Root
+und Pages gemeinsam tragen. App-Shell und gelockte Runtimeassets bleiben
+offlinefähig; Health, App-Metadaten und Deploymentidentität werden
+network-only beantwortet. Nach dem Artefaktstempel prüft ein zweites Gate den
+vollständigen Source-SHA in allen vier Release-Metadaten.
+
+**Übertragbarkeit:** Source-CI, Unterpfad-Build und deploytes Artefakt sind drei
+eigene Nachweise. Readiness darf nicht aus demselben langlebigen Offline-Cache
+kommen wie die App-Shell, wenn sie eine aktuelle Deployrevision belegen soll.

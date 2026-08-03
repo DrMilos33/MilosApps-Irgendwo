@@ -1,0 +1,44 @@
+name: App quality gate
+
+on:
+  push:
+    branches:
+      - codex/somewhere-now-dev
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Test root build
+        run: pnpm test:all
+
+      - name: Verify stamped Pages release artifact
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: pnpm build:pages:release

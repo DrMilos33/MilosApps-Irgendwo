@@ -6,13 +6,13 @@
   "languages": ["de", "en"],
   "status": "DEV",
   "route": "/apps/somewhere-now",
-  "devUrl": null,
-  "healthcheck": null,
+  "devUrl": "https://drmilos33.github.io/MilosApps-Irgendwo/",
+  "healthcheck": "https://drmilos33.github.io/MilosApps-Irgendwo/health/somewhere-now.json",
   "shellContract": "public-app-shell/v2.0.3",
   "essentialsContract": "public-app-essentials/v1.1.2",
   "productionApproved": false,
   "previewImage": {
-    "path": "/preview.png",
+    "path": "/MilosApps-Irgendwo/preview.png",
     "rights": "Eigenes App-Screenshot; alle sichtbaren Szenenelemente sind prozedural erzeugt."
   },
   "authentication": "none"

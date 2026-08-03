@@ -44,6 +44,29 @@ Eine gültige Antwort enthält unter anderem `"appKey": "somewhere-now"` und
 `"readiness": true`. Ein beliebiger HTTP-200 ist kein gültiger
 Readiness-Nachweis.
 
+## GitHub-Pages-DEV
+
+Das unabhängige öffentliche DEV-Ziel ist
+`https://drmilos33.github.io/MilosApps-Irgendwo/`. Der Quellstand lebt auf
+`codex/somewhere-now-dev`; das gebaute, gestempelte Artefakt wird getrennt auf
+`gh-pages` veröffentlicht. Production ist davon nicht betroffen.
+
+Root- und Pages-Build sind bewusst getrennt:
+
+```powershell
+pnpm build
+pnpm build:pages
+$env:SOURCE_SHA = git rev-parse HEAD
+pnpm build:pages:release
+```
+
+Der Release-Build prüft nach dem Stempeln nochmals fail-closed, dass Health,
+Metadaten und `deployment.json` denselben vollständigen Source-SHA tragen. Der
+Service Worker ist unter dem Repositorypfad basisbewusst; App-Shell und
+Vendorassets sind offlinefähig, Readiness- und Deploymentdaten bleiben
+network-only und können daher keinen alten SHA aus einem Cache vortäuschen.
+Details und Rollback stehen in [Pages-DEV](docs/PAGES_DEV.md).
+
 ## Qualitätssicherung
 
 ```powershell
@@ -57,6 +80,16 @@ pnpm test:e2e
 
 `pnpm test:all` prüft zuerst beide Manifeste, Vendor-Locks und SHA-256-Hashes
 und führt danach Logiktests, Build und Browsermatrix aus.
+Die lokale Unterpfadmatrix läuft mit gesetztem `E2E_PAGES=true` und
+`pnpm test:e2e`. Externe E2E werden ausschließlich mit einer HTTPS-URL und dem
+erwarteten vollständigen Source-SHA gestartet:
+
+```powershell
+$env:E2E_BASE_URL = "https://drmilos33.github.io/MilosApps-Irgendwo/"
+$env:E2E_EXPECTED_SOURCE_SHA = "<40-stelliger Source-SHA>"
+pnpm test:e2e:external
+```
+
 Details stehen im [QA-Bericht](docs/QA_REPORT.md).
 
 ## Öffentliche App-Shell

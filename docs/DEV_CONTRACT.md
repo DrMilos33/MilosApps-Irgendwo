@@ -15,8 +15,8 @@ Vertragsstand: `public-app-shell/v2.0.3` plus
 | Authentifizierung | keine |
 | Portalroute | `/apps/somewhere-now` |
 | Lokale DEV-URL | `http://127.0.0.1:4316/` |
-| Unabhängige HTTPS-DEV-URL | noch nicht bereitgestellt; nicht erfinden |
-| Externer Healthcheck | `null`, solange kein HTTPS-DEV existiert |
+| Unabhängige HTTPS-DEV-URL | `https://drmilos33.github.io/MilosApps-Irgendwo/` |
+| Externer Healthcheck | `https://drmilos33.github.io/MilosApps-Irgendwo/health/somewhere-now.json` |
 | Lokaler Readiness-Pfad | `/health/somewhere-now.json` |
 | Metadaten | `/app-metadata.json` |
 | Vorschaubild | `/preview.png` |
@@ -65,29 +65,28 @@ ungeprüft weiter.
 - keine kommerzielle Nutzung des freien Open-Meteo-Endpunkts;
 - keine Eintragung einer erfundenen DEV-URL.
 
-## Externer DEV-Blocker
+## Eigenständiger Pages-DEV-Lifecycle
 
-Der lokale, vollständig getestete DEV-Stand ist bereit. Eine unabhängige
-HTTPS-DEV-URL kann derzeit nicht wahrheitsgemäß übergeben werden:
+Die App ist eine statische Vite/PWA und wird deshalb app-eigen über GitHub
+Pages veröffentlicht. Das Quellrepository ist
+`DrMilos33/MilosApps-Irgendwo`; `codex/somewhere-now-dev` enthält den geprüften
+Quellstand, `gh-pages` ausschließlich das aus genau diesem SHA gebaute und
+gestempelte Artefakt. Ein App-Release ist erst gültig, wenn Source-CI,
+Artefakt-SHA, Readiness und externe No-Login-Browsermatrix grün sind.
 
-- für dieses Repository ist kein Git-Remote oder GitHub-Repository
-  eingetragen;
-- das Railway-Projekt `8f67be1c-9824-4750-838e-bf3bc639bf2c` ist in der
-  Umgebung `development` erreichbar, besitzt aber weiterhin weder Service
-  noch Domain;
-- ein am 2026-08-03 erneut ausdrücklich beauftragter Versuch mit Railway CLI
-  5.30.3 bestätigte zuerst Projekt und Umgebung eindeutig. Bereits
-  `railway add --service somewhere-now --json` brach erneut mit
-  `Free plan resource provision limit exceeded` ab; die anschließende
-  Statusprüfung bestätigte weiterhin null Services und null Service-Instanzen;
-- ein Tarifupgrade oder Alternativhosting ist nicht freigegeben;
-- ein Production-Deployment ist ausdrücklich nicht freigegeben.
+Der lokale Root-Modus `/` und der Pages-Modus `/MilosApps-Irgendwo/` bleiben
+getrennt reproduzierbar. Manifest, Service Worker, Share-URL und externe
+Same-Origin-Vendorassets sind unterpfadfähig. Health, App-Metadaten und
+`deployment.json` sind ausdrücklich nicht Teil des Offline-Precaches und
+werden network-only beantwortet, damit sie stets die aktuelle Revision
+belegen.
 
-Bis derselbe DEV-Lifecycle einen echten Dienst und eine HTTPS-Domain liefert,
-bleiben `dev.url`, `dev.healthUrl`, `devUrl` und `healthcheck` in den externen
-Metadaten gemeinsam `null`. `http://127.0.0.1:4316/` ist ausschließlich die
-lokale Prüfadresse und darf nicht als Portalziel verwendet werden.
+Das leere Railway-Projekt `8f67be1c-9824-4750-838e-bf3bc639bf2c` bleibt als
+historische, durch die Free-Plan-Ressourcengrenze blockierte Ressource
+unverändert bestehen. Es ist nicht mehr Zielhost dieser statischen App; es wird
+weder aufgewertet noch gelöscht.
 
-Rollback des lokalen UX-/Essentials-Abschlusses ist der vorherige vollständig
-verifizierte v1.0-Stand `39c4d60074800738907af275d53831ce901aa330`.
-Production bleibt `false` und unverändert.
+Rollback ist die zuletzt extern gesund geprüfte `gh-pages`-Artefaktrevision
+zusammen mit ihrem Source-SHA. Vor der ersten Aktivierung kann Pages wieder
+deaktiviert und der Artefaktbranch entfernt werden, ohne Railway, Portal oder
+Production zu verändern. Production bleibt `false` und unverändert.

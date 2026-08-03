@@ -9,7 +9,7 @@
   "entryHtml": "index.html",
   "consumerEntryModule": {
     "sourceFile": "src/entry.js",
-    "runtimePath": "/src/entry.js"
+    "runtimePath": "src/entry.js"
   },
   "integrationFiles": ["index.html", "src/entry.js", "src/main.ts", "src/ui/app.ts", "src/share.ts"],
   "loading": {
@@ -64,6 +64,6 @@
     "version": "1.1.2",
     "sharedCommit": "b14aac6107b75f03ff49e74160af7e7e30c29e59",
     "vendorDirectory": "vendor/milosapps-essentials/v1",
-    "runtimeBasePath": "/vendor/milosapps-essentials/v1"
+    "runtimeBasePath": "vendor/milosapps-essentials/v1"
   }
 }

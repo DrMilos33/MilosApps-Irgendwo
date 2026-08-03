@@ -4,8 +4,10 @@ import { fileURLToPath } from "node:url";
 
 const repositoryRoot = fileURLToPath(new URL(".", import.meta.url));
 const vendorDirectories = ["milosapps-shell/v2", "milosapps-essentials/v1"];
+const pagesBasePath = "/MilosApps-Irgendwo/";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  base: mode === "pages" ? pagesBasePath : "/",
   plugins: [
     {
       name: "copy-locked-milosapps-contracts",
@@ -42,4 +44,4 @@ export default defineConfig({
   test: {
     exclude: ["e2e/**", "node_modules/**"],
   },
-});
+}));

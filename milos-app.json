@@ -30,8 +30,8 @@
     "portalRoute": "/apps/somewhere-now"
   },
   "dev": {
-    "url": null,
-    "healthUrl": null
+    "url": "https://drmilos33.github.io/MilosApps-Irgendwo/",
+    "healthUrl": "https://drmilos33.github.io/MilosApps-Irgendwo/health/somewhere-now.json"
   },
   "productionApproved": false
 }

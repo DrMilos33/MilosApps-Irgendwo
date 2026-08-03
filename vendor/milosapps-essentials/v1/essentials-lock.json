@@ -4,9 +4,9 @@
   "sharedCommit": "b14aac6107b75f03ff49e74160af7e7e30c29e59",
   "appKey": "somewhere-now",
   "manifest": "milos-essentials.json",
-  "manifestSha256": "sha256:ce6935f80754d86c2f442cce29d3575a474814b96c5e193ade1f3602a0d3ce44",
+  "manifestSha256": "sha256:cc2e8ccc7b30b24b841076bdbaff86338e56f91482805f4230b50e3207106898",
   "vendorDirectory": "vendor/milosapps-essentials/v1",
-  "runtimeBasePath": "/vendor/milosapps-essentials/v1",
+  "runtimeBasePath": "vendor/milosapps-essentials/v1",
   "loadingIconRuntimePath": "favicon.svg",
   "artifacts": {
     "milos-app-essentials.css": "sha256:4854809f96bc3965daf97aa041223a9068129d67ae6d3f1637262008143bde1e",

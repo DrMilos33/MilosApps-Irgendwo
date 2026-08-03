@@ -3,6 +3,13 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 const repositoryRoot = fileURLToPath(new URL("../", import.meta.url));
+const pagesBasePath = "/MilosApps-Irgendwo/";
+const modeFlag = process.argv.indexOf("--mode");
+const mode = modeFlag >= 0 ? process.argv[modeFlag + 1] : "root";
+if (!['root', 'pages'].includes(mode)) {
+  throw new Error(`Unbekannter Buildmodus: ${mode ?? "(fehlt)"}`);
+}
+
 const contracts = [
   {
     name: "Shell",
@@ -46,23 +53,83 @@ for (const contract of contracts) {
 }
 
 const index = await readFile(new URL("../dist/index.html", import.meta.url), "utf8");
-if (!index.includes('src="/vendor/milosapps-shell/v2/bootstrap.js"')) {
-  throw new Error("Der Build referenziert nicht das unveränderte Vendor-Bootstrap.");
+const expectedEntry = mode === "pages" ? `${pagesBasePath}src/entry.js` : "/src/entry.js";
+for (const [label, reference] of [
+  ["Shell-Bootstrap", 'src="./vendor/milosapps-shell/v2/bootstrap.js"'],
+  ["Essentials-Bootstrap", 'src="./vendor/milosapps-essentials/v1/bootstrap.js"'],
+  ["Essentials-Basis-CSS", 'href="./vendor/milosapps-essentials/v1/milos-app-essentials.css"'],
+  ["Essentials-Theme-CSS", 'href="./vendor/milosapps-essentials/v1/milos-app-essentials-theme.css"'],
+]) {
+  if (!index.includes(reference)) throw new Error(`${label} ist nicht als relative externe Same-Origin-Ressource erhalten.`);
 }
-if (!index.includes('src="/vendor/milosapps-essentials/v1/bootstrap.js"')) {
-  throw new Error("Der Build referenziert nicht das unveränderte Essentials-Bootstrap.");
+if (!index.includes(`src="${expectedEntry}"`)) {
+  throw new Error(`Der ${mode}-Build referenziert nicht das erwartete stabile App-Einstiegsmodul ${expectedEntry}.`);
 }
-if (!index.includes('src="/src/entry.js"')) {
-  throw new Error("Der Build referenziert nicht das deklarierte stabile App-Einstiegsmodul.");
+if (/\b(?:src|href)="\/(?:vendor|favicon\.svg|manifest\.webmanifest)/.test(index)) {
+  throw new Error("Vite-ignore-/Public-Ressourcen dürfen nicht an die Originwurzel gebunden sein.");
 }
-await readFile(new URL("../dist/src/entry.js", import.meta.url));
-for (const stylesheet of ["milos-app-essentials.css", "milos-app-essentials-theme.css"]) {
-  if (!index.includes(`href="/vendor/milosapps-essentials/v1/${stylesheet}"`)) {
-    throw new Error(`Der Build referenziert nicht das externe ${stylesheet}.`);
-  }
+if (/data:text\/(?:css|javascript)/i.test(index)) {
+  throw new Error("Vendor-CSS oder -JavaScript darf nicht als data:-URL eingebettet werden.");
 }
 if (/<h[1-6][^>]*data-milos-loading-title/i.test(index)) {
   throw new Error("Der Loader darf keine zusätzliche Dokumentüberschrift erzeugen.");
 }
+if (mode === "pages") {
+  const rootReferences = [...index.matchAll(/\b(?:src|href)="(\/[^\"]+)"/g)].map((match) => match[1]);
+  if (rootReferences.some((reference) => !reference.startsWith(pagesBasePath))) {
+    throw new Error(`Pages-Build enthält eine lokale Root-URL außerhalb von ${pagesBasePath}.`);
+  }
+}
 
-console.log(`Build-Vendorprüfung: PASS (${repositoryRoot})`);
+await readFile(new URL("../dist/src/entry.js", import.meta.url));
+await readFile(new URL("../dist/.nojekyll", import.meta.url));
+
+const manifest = JSON.parse(await readFile(new URL("../dist/manifest.webmanifest", import.meta.url), "utf8"));
+if (manifest.start_url !== "./" || manifest.scope !== "./" || manifest.icons?.[0]?.src !== "./favicon.svg") {
+  throw new Error("Webmanifest ist nicht relativ und damit nicht Root-/Pages-portabel.");
+}
+
+const health = JSON.parse(await readFile(new URL("../dist/health/somewhere-now.json", import.meta.url), "utf8"));
+if (
+  health.appKey !== "somewhere-now" ||
+  health.environment !== "DEV" ||
+  health.readiness !== true ||
+  health.productionApproved !== false
+) {
+  throw new Error("Gebauter Healthcheck verletzt App-Identität oder DEV-/Productiongrenze.");
+}
+
+const metadata = JSON.parse(await readFile(new URL("../dist/app-metadata.json", import.meta.url), "utf8"));
+if (
+  metadata.devUrl !== "https://drmilos33.github.io/MilosApps-Irgendwo/" ||
+  metadata.healthcheck !== "https://drmilos33.github.io/MilosApps-Irgendwo/health/somewhere-now.json" ||
+  metadata.productionApproved !== false
+) {
+  throw new Error("Gebautes App-Metadatum verletzt den GitHub-Pages-DEV-Vertrag.");
+}
+
+const serviceWorker = await readFile(new URL("../dist/sw.js", import.meta.url), "utf8");
+const shellDefinition = serviceWorker.slice(
+  serviceWorker.indexOf("const SHELL = ["),
+  serviceWorker.indexOf("].map((relativePath) => appUrl(relativePath));") + 2,
+);
+for (const forbidden of ["health.json", "health/somewhere-now.json", "app-metadata.json", "deployment.json"]) {
+  if (shellDefinition.includes(`"${forbidden}"`)) {
+    throw new Error(`Service-Worker darf aktuelle Readiness-/Deploymentdaten nicht precachen: ${forbidden}`);
+  }
+}
+for (const expected of [
+  'new URL("./", self.registration.scope)',
+  "const LIVE_METADATA_PATHS = new Set([",
+  'new URL("health/somewhere-now.json", APP_BASE_URL).pathname',
+  'new URL("deployment.json", APP_BASE_URL).pathname',
+  "LIVE_METADATA_PATHS.has(url.pathname)",
+  'fetch(request, { cache: "no-store" })',
+  '"src/entry.js"',
+  '"vendor/milosapps-shell/v2/bootstrap.js"',
+  '"vendor/milosapps-essentials/v1/bootstrap.js"',
+]) {
+  if (!serviceWorker.includes(expected)) throw new Error(`Service-Worker-Precache fehlt oder ist nicht basisbewusst: ${expected}`);
+}
+
+console.log(`Build-Vendor-/Pagesprüfung: PASS (${mode}, ${repositoryRoot})`);

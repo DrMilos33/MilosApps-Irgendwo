@@ -353,14 +353,46 @@ aktuellen Eintrag; Smartphone-Reflow und Build sind danach erneut grün.
   Domain und keine HTTPS-DEV-/Health-URL. Portal und Production blieben
   unverändert.
 
+### GitHub-Pages-DEV-Releasekandidat vom 2026-08-03
+
+- Die Architekturkorrektur ordnet die statische Vite/PWA einem app-eigenen
+  GitHub-Pages-Lifecycle statt Railway zu. Das leere Railway-Projekt bleibt
+  unverändert erhalten und ist nicht mehr das Hostingziel.
+- Root- und Pages-Build sind getrennt. Die Root-Matrix bestand beide
+  Vertragsverifier, 32/32 Logiktests, Buildgate sowie 59 Browserfälle bei 22
+  absichtlichen Profilskips und 0 Fehlern. Die vollständige Pages-Matrix am
+  lokalen Unterpfad `/MilosApps-Irgendwo/` bestand ebenfalls mit 59/22/0.
+- Die erste Pages-Offlineregression fand einen echten Browserunterschied:
+  Vites Preview-Antworten mit `Vary: Origin` wurden trotz vollständig gefülltem
+  Cache beim Reload nicht gefunden. Für ausschließlich app-eigene,
+  bytegelockte Same-Origin-Shellressourcen verwendet der Cache-Lookup deshalb
+  zusätzlich `ignoreVary`; der fokussierte Fall und danach die Vollmatrix sind
+  grün.
+- Der Release-Crosscheck fand außerdem einen veraltbaren Healthzustand:
+  `health.json` und `health/somewhere-now.json` lagen im langlebigen
+  Offline-Precache. Health, App-Metadaten und `deployment.json` sind nun aus dem
+  Precache ausgeschlossen und network-only. Der E2E beweist gemeinsam, dass
+  die App-Hülle offline lädt und der Healthcheck offline bewusst fehlschlägt.
+- `build:pages:release` prüft nach dem Stempel alle drei vorhandenen
+  Health-/Metadatendateien und das neu erzeugte `deployment.json` auf denselben
+  vollständigen Source-SHA, DEV-Identität und `productionApproved=false`.
+  Externe E2E akzeptieren nur eine credential-freie HTTPS-URL plus explizit
+  erwarteten vollständigen SHA.
+- Die externe GitHub-Pages-Abnahme ist absichtlich nachgelagert: Zuerst wird
+  dieser exakte Quell-SHA committed und per Source-CI geprüft. URL, Artefakt-SHA
+  und externe No-Login-Matrix werden anschließend im DEV-Handoff festgehalten,
+  ohne die geprüfte Source↔Artefakt-Bindung durch einen Doku-Folgecommit zu
+  verändern.
+
 ## Noch nicht testbar
 
 - Reale Audioausgabequalität auf physischem iOS-/Android-Gerät; automatisiert
   sind Aktivierung, Blockade und Zustand prüfbar, nicht der gehörte Klang.
 - Echte OS-Browserzoom-Tasten in der Headless-Laufzeit; Reflow wird zusätzlich
   mit 200 % Root-Textzoom bei 360 × 800 geprüft.
-- Externe HTTPS-DEV-URL und Portalredirect, weil noch kein eigenständiger
-  Hostingdienst verbunden ist.
+- Externe HTTPS-DEV-Matrix und Portalredirect sind releaseabhängig und werden
+  erst nach Commit, grünem Source-CI und Pages-Veröffentlichung geprüft. Der
+  Portalredirect bleibt bis zum separaten dev-verified Handoff inaktiv.
 - Screenreader-Sprachausgabe; DOM-Semantik und Accessibility-Tree sind
   automatisiert prüfbar, die tatsächliche Ausgabe benötigt ein physisches
   Assistenztechnik-Setup.

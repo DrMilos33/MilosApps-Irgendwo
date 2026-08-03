@@ -9,12 +9,17 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc --noEmit && vite build && node tools/verify-build-vendor.mjs",
+    "build:pages": "tsc --noEmit && vite build --mode pages && node tools/verify-build-vendor.mjs --mode pages",
+    "build:pages:release": "pnpm build:pages && node tools/stamp-pages-artifact.mjs && pnpm verify:pages:release",
+    "verify:pages:release": "node tools/verify-pages-release.mjs",
     "test:shell": "node vendor/milosapps-shell/v2/verify.mjs --app-root . --manifest milos-app.json",
     "test:essentials": "node vendor/milosapps-essentials/v1/verify.mjs --app-root . --manifest milos-essentials.json",
     "preview": "vite preview --host 127.0.0.1",
+    "preview:pages": "vite preview --host 127.0.0.1 --mode pages --base /MilosApps-Irgendwo/",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:external": "node tools/run-external-e2e.mjs",
     "test:e2e:update": "playwright test --update-snapshots",
     "test:all": "pnpm test:shell && pnpm test:essentials && pnpm test && pnpm build && pnpm test:e2e"
   },

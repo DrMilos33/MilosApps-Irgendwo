@@ -182,12 +182,13 @@ export class SomewhereNowApp {
   }
 
   start(): void {
+    const appUrl = new URL(import.meta.env.BASE_URL, window.location.origin).href;
     this.elements.shareButton.setPayloadProvider(() => {
       if (!this.currentPlace || !this.currentMoment) {
         return {
           title: t(this.language, "shareTitle"),
           text: t(this.language, "initialDetail"),
-          url: new URL("/", window.location.origin).href,
+          url: appUrl,
         };
       }
       const place = localizePlace(this.currentPlace, this.language);
@@ -196,7 +197,7 @@ export class SomewhereNowApp {
         this.currentMoment,
         formatPlaceTime(place, new Date(), this.language),
         this.language,
-        new URL("/", window.location.origin).href,
+        appUrl,
       );
     });
     this.elements.travelButton.addEventListener("click", () => void this.travel());

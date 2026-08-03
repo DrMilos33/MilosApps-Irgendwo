@@ -10,7 +10,7 @@ App-Key `somewhere-now`. Fachlogik anderer MilosApps gehört nicht hierher.
 - App-Klasse: `öffentlich`
 - Plattformen: `Web, mobil und Desktop`
 - Datenhaltung: `optionale Einstellungen lokal; keine App-Datenbank`
-- Deployment: `eigener DEV-Dienst; Production nicht freigegeben`
+- Deployment: `app-eigenes GitHub-Pages-DEV; Production nicht freigegeben`
 - Gemeinsame Laufzeitabhängigkeiten: `keine`; veröffentlichte Verträge werden
   ausschließlich fest gepinnt, vendort und lokal gelockt
 

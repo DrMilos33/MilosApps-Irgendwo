@@ -3,13 +3,14 @@
   "short_name": "Irgendwo",
   "description": "Ein stilles Fenster zu einem realen Moment irgendwo auf der Erde.",
   "lang": "de",
-  "start_url": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f4efe7",
   "theme_color": "#17283a",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "./favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
