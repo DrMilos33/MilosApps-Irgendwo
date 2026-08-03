@@ -1,0 +1,10 @@
+{
+  "status": "ok",
+  "appKey": "somewhere-now",
+  "environment": "DEV",
+  "readiness": true,
+  "shellContract": "public-app-shell/v2.0.3",
+  "essentialsContract": "public-app-essentials/v1.1.2",
+  "productionApproved": false,
+  "sourceCommit": "476ca03957c8d0b2b7cd1db54ae8ec6bf9855918"
+}

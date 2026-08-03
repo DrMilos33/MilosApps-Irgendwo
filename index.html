@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Ein stilles Fenster zu einem realen Moment irgendwo auf der Erde – aus Zeit, Tageslicht und Wetter."
+    />
+    <meta name="theme-color" content="#e8aa68" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link
+      rel="stylesheet"
+      
+      href="./vendor/milosapps-essentials/v1/milos-app-essentials.css"
+    />
+    <link
+      rel="stylesheet"
+      
+      href="./vendor/milosapps-essentials/v1/milos-app-essentials-theme.css"
+    />
+    <title>Irgendwo ist gerade … – MilosApps</title>
+    <script
+      type="module"
+      
+      src="./vendor/milosapps-essentials/v1/bootstrap.js"
+    ></script>
+    <script
+      type="module"
+      
+      src="./vendor/milosapps-shell/v2/bootstrap.js"
+    ></script>
+    <script type="module" crossorigin src="/MilosApps-Irgendwo/src/entry.js"></script>
+    <link rel="stylesheet" crossorigin href="/MilosApps-Irgendwo/assets/index-1tGnjun5.css">
+  </head>
+  <body>
+    <section data-milos-app-loading role="status" aria-live="polite">
+      <div data-milos-loading-card>
+        <img
+          data-milos-loading-icon
+          src="./favicon.svg"
+          
+          width="52"
+          height="52"
+          alt=""
+        />
+        <span data-milos-loading-brand>MilosApps</span>
+        <p data-milos-loading-title>Irgendwo ist gerade …</p>
+        <p data-milos-loading-message>App wird geöffnet …</p>
+        <span data-milos-loading-progress aria-hidden="true"></span>
+      </div>
+    </section>
+
+    <milos-app-shell>
+      <svg slot="app-icon" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <rect width="64" height="64" rx="20" fill="#17283a"></rect>
+        <circle cx="41" cy="22" r="9" fill="#f4c579"></circle>
+        <path d="M7 49c10-17 19-20 29-8 8-12 15-10 21 8H7Z" fill="#83a995"></path>
+        <path d="M7 52c15-13 28-12 50 0v5H7Z" fill="#e9a46d"></path>
+      </svg>
+
+      <main class="app-shell" id="app" slot="main">
+        <section class="moment-layout" aria-labelledby="app-title">
+          <div class="moment-copy">
+            <h1 class="app-title" id="app-title" data-app-text="appTitle">
+              Irgendwo ist gerade …
+            </h1>
+            <p class="product-promise" data-app-text="productPromise">
+              Entdecke einen realen Moment irgendwo auf der Erde – ausgewählt nach Ortszeit und Licht.
+            </p>
+            <p class="eyebrow" id="place-label" data-app-text="initialPlace">
+              Ein Punkt auf der Erde
+            </p>
+            <h2 class="moment-title" id="moment-title" data-app-text="initialMoment">
+              Hier öffnet sich gleich ein anderer Augenblick.
+            </h2>
+            <p class="moment-detail" id="moment-detail" data-app-text="initialDetail">
+              Zeit und Tageslicht sind sofort da. Das Wetter darf einen Moment brauchen.
+            </p>
+            <p class="selection-reason" id="selection-reason" data-app-text="selectionInitial">
+              Die App sucht nach einem besonderen lokalen Übergang.
+            </p>
+            <div class="primary-actions">
+              <button class="travel-button" id="travel-button" type="button">
+                <span data-app-text="travel">Nächsten Moment entdecken</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m8 5 7 7-7 7"></path>
+                </svg>
+              </button>
+              <milos-share-button id="share-button"></milos-share-button>
+            </div>
+            <p class="status-line" id="status-line" role="status" aria-live="polite" data-app-text="initialStatus">
+              Die Reise beginnt …
+            </p>
+            <p class="session-note" id="session-note" data-app-text="sessionInitial">
+              Der nächste Klick führt zu einem anderen Ort und Szenenbild.
+            </p>
+            <ol
+              class="journey-trail"
+              id="journey-trail"
+              aria-label="Letzte Entdeckungen"
+              data-app-aria-label="journeyTrailLabel"
+            ></ol>
+            <div class="app-actions">
+              <button
+                class="icon-button"
+                id="sound-toggle"
+                type="button"
+                aria-pressed="false"
+                aria-label="Klang einschalten"
+                data-app-aria-label="soundOn"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5 9v6h4l5 4V5L9 9H5Z"></path>
+                  <path class="sound-wave" d="M17 9.5c.8.7 1.2 1.5 1.2 2.5s-.4 1.8-1.2 2.5"></path>
+                </svg>
+              </button>
+              <button class="text-button" id="about-open" type="button" data-app-text="aboutOpen">
+                Über diese Reise
+              </button>
+              <a
+                class="text-button privacy-info-link"
+                href="https://dev.milos-apps.de/datenschutz"
+                data-milos-privacy-info
+                data-app-text="privacyInfo"
+              >
+                Datenschutz
+              </a>
+            </div>
+          </div>
+
+          <div class="scene-column">
+            <figure
+              class="scene"
+              id="scene"
+              role="img"
+              aria-label="Eine abstrakte Landschaft entsteht."
+              data-app-aria-label="sceneInitial"
+              data-phase="day"
+              data-weather="clear"
+            >
+              <div class="scene-sky" aria-hidden="true">
+                <span class="scene-orbit">
+                  <span class="scene-sun"></span>
+                  <span class="scene-moon"></span>
+                </span>
+                <span class="star-field star-field-a"></span>
+                <span class="star-field star-field-b"></span>
+                <span class="cloud cloud-a"></span>
+                <span class="cloud cloud-b"></span>
+                <span class="weather-particles" id="weather-particles"></span>
+                <span class="haze"></span>
+                <span class="aurora aurora-a"></span>
+                <span class="aurora aurora-b"></span>
+                <span class="hill hill-back"></span>
+                <span class="hill hill-mid"></span>
+                <span class="hill hill-front"></span>
+                <span class="terrain-detail terrain-detail-a"></span>
+                <span class="terrain-detail terrain-detail-b"></span>
+                <span class="water-line"></span>
+              </div>
+              <figcaption class="scene-caption">
+                <span id="scene-place" data-app-text="sceneTraveling">Unterwegs</span>
+                <span aria-hidden="true">·</span>
+                <time id="scene-time">–:–</time>
+              </figcaption>
+            </figure>
+
+            <section
+              class="fact-card"
+              aria-label="Details zu diesem Moment"
+              data-app-aria-label="factRegion"
+            >
+              <div class="fact-card-heading">
+                <div>
+                  <p class="fact-kicker" data-app-text="factKicker">Gerade vor Ort</p>
+                  <h2 id="fact-place" data-app-text="factTraveling">Noch unterwegs</h2>
+                </div>
+                <span class="data-state" id="data-state" data-state="loading" data-app-text="stateLoading">
+                  lädt
+                </span>
+              </div>
+              <dl class="facts">
+                <div>
+                  <dt data-app-text="factTime">Ortszeit</dt>
+                  <dd id="fact-time">–</dd>
+                </div>
+                <div>
+                  <dt data-app-text="factWeather">Wetter</dt>
+                  <dd id="fact-weather" data-app-text="weatherPending">wird angefragt</dd>
+                </div>
+                <div>
+                  <dt data-app-text="factDaylight">Tageslicht</dt>
+                  <dd id="fact-daylight" data-app-text="daylightPending">wird berechnet</dd>
+                </div>
+              </dl>
+              <p class="source-note" id="source-note" data-app-text="sourceInitial">
+                Ortszeit und Sonnenstand werden lokal berechnet.
+              </p>
+              <button
+                class="retry-button"
+                id="weather-retry"
+                type="button"
+                hidden
+                data-app-text="weatherRetry"
+              >
+                Wetter erneut laden
+              </button>
+            </section>
+          </div>
+        </section>
+
+        <dialog class="about-dialog" id="about-dialog" aria-labelledby="about-title">
+          <div class="dialog-header">
+            <p class="fact-kicker" data-app-text="aboutKicker">Ein Blick, keine Beobachtung</p>
+            <button
+              class="icon-button close-button"
+              id="about-close"
+              type="button"
+              aria-label="Schließen"
+              data-app-aria-label="close"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m6 6 12 12M18 6 6 18"></path>
+              </svg>
+            </button>
+          </div>
+          <h2 id="about-title" data-app-text="aboutTitle">So entsteht der Moment</h2>
+          <p data-app-text="aboutBody">
+            Die App wählt einen kuratierten Ort und verbindet dortige Uhrzeit,
+            Sonnenstand und – wenn erreichbar – aktuelle Modell-Wetterdaten. Die
+            Landschaft und der optionale Klang entstehen vollständig im Browser.
+          </p>
+          <ul>
+            <li data-app-text="aboutNoAccount">Kein Konto, kein Nutzerstandort und keine Analyse-Cookies.</li>
+            <li data-app-text="aboutNoCoordinates">Exakte Koordinaten werden weder angezeigt noch geteilt.</li>
+            <li data-app-text="aboutSafety">Gefährliche Wetterlagen werden bewusst nicht inszeniert.</li>
+            <li data-app-text="aboutAudio">Klang startet nur nach deiner ausdrücklichen Aktion.</li>
+          </ul>
+          <div class="source-links">
+            <a href="https://open-meteo.com/" target="_blank" rel="noreferrer" data-app-text="sourceWeather">
+              Wetter: Open-Meteo · CC BY 4.0
+            </a>
+            <a href="https://www.geonames.org/" target="_blank" rel="noreferrer" data-app-text="sourcePlaces">
+              Ortsdaten: GeoNames · CC BY 4.0
+            </a>
+            <a href="https://github.com/mourner/suncalc" target="_blank" rel="noreferrer" data-app-text="sourceSun">
+              Sonnenstand: SunCalc · BSD-2-Clause
+            </a>
+          </div>
+        </dialog>
+
+        <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+      </main>
+    </milos-app-shell>
+
+  </body>
+</html>

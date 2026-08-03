@@ -1,0 +1,7 @@
+{
+  "status": "ready",
+  "appKey": "somewhere-now",
+  "environment": "DEV",
+  "sourceCommit": "476ca03957c8d0b2b7cd1db54ae8ec6bf9855918",
+  "productionApproved": false
+}

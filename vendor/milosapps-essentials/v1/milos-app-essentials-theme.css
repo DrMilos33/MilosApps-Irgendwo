@@ -1,0 +1,10 @@
+body[data-milos-essentials-app="somewhere-now"] {
+  --milos-essential-accent: var(--accent-text);
+  --milos-essential-accent-contrast: #ffffff;
+  --milos-essential-surface: var(--paper);
+  --milos-essential-surface-soft: var(--card);
+  --milos-essential-text: var(--ink);
+  --milos-essential-muted: var(--ink-muted);
+  --milos-essential-border: var(--line);
+  --milos-essential-focus: var(--focus);
+}
