@@ -257,6 +257,181 @@ test("zeigt beim frischen und langsamen Start einen kleinen lokalisierten Loader
   ).toBeVisible();
 });
 
+test("begrenzt das Shell-Slot-Icon während des gesamten Komponentenübergangs", async ({
+  browser,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "smartphone", "Die responsive Übergangsmatrix läuft einmal.");
+
+  const baseUrl = String(testInfo.project.use.baseURL);
+  const scenarios = [
+    { name: "390 × 844", width: 390, height: 844, zoom200: false },
+    { name: "360 × 800 bei 200 %", width: 360, height: 800, zoom200: true },
+  ] as const;
+
+  for (const scenario of scenarios) {
+    const transitionContext = await browser.newContext({
+      baseURL: baseUrl,
+      locale: "de-DE",
+      timezoneId: "Europe/Berlin",
+      viewport: { width: scenario.width, height: scenario.height },
+      reducedMotion: scenario.zoom200 ? "reduce" : "no-preference",
+      serviceWorkers: "block",
+    });
+    const transitionPage = await transitionContext.newPage();
+    if (scenario.zoom200) {
+      await transitionPage.addInitScript(() => {
+        document.documentElement.style.fontSize = "200%";
+      });
+    }
+
+    const createGate = () => {
+      let released = false;
+      let resolveGate!: () => void;
+      const promise = new Promise<void>((resolve) => {
+        resolveGate = resolve;
+      });
+      return {
+        promise,
+        release: () => {
+          if (released) return;
+          released = true;
+          resolveGate();
+        },
+      };
+    };
+    const bootstrapGate = createGate();
+    const componentCssGate = createGate();
+    const appModuleGate = createGate();
+    let signalComponentCssRequest!: () => void;
+    const componentCssRequested = new Promise<void>((resolve) => {
+      signalComponentCssRequest = resolve;
+    });
+
+    await transitionPage.route("**/vendor/milosapps-shell/v2/bootstrap.js", async (route) => {
+      await bootstrapGate.promise;
+      await route.continue();
+    });
+    await transitionPage.route(
+      "**/vendor/milosapps-shell/v2/milos-app-shell.css",
+      async (route) => {
+        signalComponentCssRequest();
+        await componentCssGate.promise;
+        await route.continue();
+      },
+    );
+    await transitionPage.route("**/src/entry.js", async (route) => {
+      await appModuleGate.promise;
+      await route.continue();
+    });
+    await mockWeather(transitionPage);
+
+    const navigation = transitionPage.goto(
+      new URL(appPath("?place=reykjavik"), baseUrl).href,
+    );
+    const shellIcon = transitionPage.locator('milos-app-shell > svg[slot="app-icon"]');
+    const loaderIcon = transitionPage.locator("[data-milos-loading-icon]");
+    const readState = () =>
+      transitionPage.evaluate(() => {
+        const shellIconElement = document.querySelector<SVGSVGElement>(
+          'milos-app-shell > svg[slot="app-icon"]',
+        );
+        const loaderIconElement = document.querySelector<HTMLElement>(
+          "[data-milos-loading-icon]",
+        );
+        const componentLink = document
+          .querySelector("milos-app-shell")
+          ?.shadowRoot?.querySelector<HTMLLinkElement>(
+            'link[data-milos-app-shell-component="2.0.3"]',
+          );
+        const essentialsLink = document.querySelector<HTMLLinkElement>(
+          'link[href*="milos-app-essentials.css"]',
+        );
+        const shellRect = shellIconElement?.getBoundingClientRect();
+        const loaderRect = loaderIconElement?.getBoundingClientRect();
+        return {
+          shellWidth: shellRect?.width ?? 0,
+          shellHeight: shellRect?.height ?? 0,
+          shellVisibility: shellIconElement
+            ? getComputedStyle(shellIconElement).visibility
+            : "missing",
+          loaderWidth: loaderRect?.width ?? 0,
+          loaderHeight: loaderRect?.height ?? 0,
+          clientWidth: document.documentElement.clientWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+          essentialsCssLoaded: Boolean(essentialsLink?.sheet),
+          shellDefined: Boolean(customElements.get("milos-app-shell")),
+          componentCssLoaded: Boolean(componentLink?.sheet),
+        };
+      });
+
+    try {
+      await expect(shellIcon, scenario.name).toBeAttached();
+      await expect(loaderIcon, scenario.name).toBeVisible();
+
+      const beforeUpgrade = await readState();
+      expect(beforeUpgrade.essentialsCssLoaded, scenario.name).toBe(true);
+      expect(beforeUpgrade.shellDefined, scenario.name).toBe(false);
+      expect(beforeUpgrade.shellVisibility, scenario.name).toBe("hidden");
+      expect.soft(beforeUpgrade.shellWidth, scenario.name).toBeLessThanOrEqual(38.01);
+      expect.soft(beforeUpgrade.shellHeight, scenario.name).toBeLessThanOrEqual(38.01);
+      expect(beforeUpgrade.loaderWidth, scenario.name).toBeCloseTo(32, 0);
+      expect(beforeUpgrade.loaderHeight, scenario.name).toBeCloseTo(32, 0);
+      expect(beforeUpgrade.scrollWidth - beforeUpgrade.clientWidth, scenario.name).toBeLessThanOrEqual(
+        1,
+      );
+
+      bootstrapGate.release();
+      await componentCssRequested;
+      await transitionPage.waitForFunction(() => customElements.get("milos-app-shell"));
+
+      const duringDelayedCss = await readState();
+      expect(duringDelayedCss.shellDefined, scenario.name).toBe(true);
+      expect(duringDelayedCss.componentCssLoaded, scenario.name).toBe(false);
+      expect(duringDelayedCss.shellVisibility, scenario.name).toBe("visible");
+      expect(duringDelayedCss.shellWidth, scenario.name).toBeLessThanOrEqual(38.01);
+      expect(duringDelayedCss.shellHeight, scenario.name).toBeLessThanOrEqual(38.01);
+      expect(duringDelayedCss.loaderWidth, scenario.name).toBeCloseTo(32, 0);
+      expect(duringDelayedCss.loaderHeight, scenario.name).toBeCloseTo(32, 0);
+      expect(
+        duringDelayedCss.scrollWidth - duringDelayedCss.clientWidth,
+        scenario.name,
+      ).toBeLessThanOrEqual(1);
+
+      componentCssGate.release();
+      await transitionPage.waitForFunction(() => {
+        const componentLink = document
+          .querySelector("milos-app-shell")
+          ?.shadowRoot?.querySelector<HTMLLinkElement>(
+            'link[data-milos-app-shell-component="2.0.3"]',
+          );
+        return Boolean(componentLink?.sheet);
+      });
+
+      const afterCss = await readState();
+      expect(afterCss.componentCssLoaded, scenario.name).toBe(true);
+      expect(afterCss.shellVisibility, scenario.name).toBe("visible");
+      expect(afterCss.shellWidth, scenario.name).toBeCloseTo(38, 0);
+      expect(afterCss.shellHeight, scenario.name).toBeCloseTo(38, 0);
+      expect(afterCss.loaderWidth, scenario.name).toBeCloseTo(32, 0);
+      expect(afterCss.loaderHeight, scenario.name).toBeCloseTo(32, 0);
+      expect(afterCss.scrollWidth - afterCss.clientWidth, scenario.name).toBeLessThanOrEqual(1);
+      await expect(shellIcon, scenario.name).toHaveAttribute("width", "38");
+      await expect(shellIcon, scenario.name).toHaveAttribute("height", "38");
+
+      appModuleGate.release();
+      await navigation;
+      await expect(transitionPage.locator("[data-milos-app-loading]"), scenario.name).toBeHidden();
+      await expect(transitionPage.locator("#place-label"), scenario.name).toContainText("Reykjavík");
+    } finally {
+      bootstrapGate.release();
+      componentCssGate.release();
+      appModuleGate.release();
+      await navigation.catch(() => undefined);
+      await transitionContext.close();
+    }
+  }
+});
+
 test("zeigt ohne Schein-Einwilligung eine dauerhafte Datenschutzinformation", async ({
   page,
 }, testInfo) => {

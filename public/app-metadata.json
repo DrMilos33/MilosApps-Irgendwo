@@ -9,7 +9,7 @@
   "devUrl": "https://drmilos33.github.io/MilosApps-Irgendwo/",
   "healthcheck": "https://drmilos33.github.io/MilosApps-Irgendwo/health/somewhere-now.json",
   "shellContract": "public-app-shell/v2.0.3",
-  "essentialsContract": "public-app-essentials/v1.1.3",
+  "essentialsContract": "public-app-essentials/v1.1.5",
   "productionApproved": false,
   "previewImage": {
     "path": "/MilosApps-Irgendwo/preview.png",

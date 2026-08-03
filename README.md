@@ -14,7 +14,7 @@ eigene abstrakte Szene mit optionalem prozeduralem Klang.
 - keine Shared-Laufzeitabhängigkeit; die öffentliche Shell ist als feste,
   gelockte Kopie aus `public-app-shell/v2.0.3` im Repository enthalten;
 - Ladebildschirm, wahrheitsgemäßer Datenschutzhinweis und Teilen-Funktion sind
-  als feste, gelockte Kopie aus `public-app-essentials/v1.1.3` integriert;
+  als feste, gelockte Kopie aus `public-app-essentials/v1.1.5` integriert;
 - Portal-DEV bindet nur über dokumentierte Metadaten und URL an.
 
 Siehe [Produktbrief](docs/PRODUCT_BRIEF.md), [QA-Plan](docs/QA_PLAN.md) und
@@ -109,8 +109,8 @@ Same-Origin-Styles auch unter `style-src 'self'` ohne Nonce, Hash oder
 ## Öffentliche App-Essentials
 
 Die Essentials sind aus `DrMilos33/MilosApps-Shared`, Tag
-`public-app-essentials-v1.1.3`, Commit
-`babe74a0e62e1a7f9095648195e54b322a837726` vendort. Maßgeblich sind
+`public-app-essentials-v1.1.5`, Commit
+`2942132ad3bf6cf39edc9f52ed918de6a230be23` vendort. Maßgeblich sind
 [`milos-essentials.json`](milos-essentials.json) und
 [`vendor/milosapps-essentials/v1/essentials-lock.json`](vendor/milosapps-essentials/v1/essentials-lock.json).
 Die App aktiviert den CSS-first Ladebildschirm, eine dauerhaft erreichbare

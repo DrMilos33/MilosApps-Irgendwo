@@ -6,7 +6,7 @@ Letzte Aktualisierung: 2026-08-03.
 
 | Ebene | Abdeckung |
 |---|---|
-| Shared-Verträge | portable Validatoren für Shell v2.0.3 mit fünf sowie Essentials v1.1.3 mit sechs gelockten Verbraucherartefakten, Manifesthash und SHA-256-Prüfung |
+| Shared-Verträge | portable Validatoren für Shell v2.0.3 mit fünf sowie Essentials v1.1.5 mit sechs gelockten Verbraucherartefakten, Manifesthash und SHA-256-Prüfung |
 | Logik | 32 Tests: vollständige DE/EN-Texte, Auswahlranking, zwölf Szenenprofile, Orts-/Datumsdarstellung, Gefahrfilter sowie Teilpayload ohne Query oder Koordinaten |
 | Smartphone | Pixel-7-Touchprofil mit exakt 390 × 844 CSS-Pixeln |
 | Tablet | iPad-Abmessungen und Touch in Chromium |
@@ -434,3 +434,24 @@ aktuellen Eintrag; Smartphone-Reflow und Build sind danach erneut grün.
 - Screenreader-Sprachausgabe; DOM-Semantik und Accessibility-Tree sind
   automatisiert prüfbar, die tatsächliche Ausgabe benötigt ein physisches
   Assistenztechnik-Setup.
+
+### Shell-Icon-Übergang mit Essentials v1.1.5
+
+- `public-app-essentials/v1.1.5` ist exakt auf Shared-Commit
+  `2942132ad3bf6cf39edc9f52ed918de6a230be23` gepinnt. Der app-eigene
+  Essentials-Verifier bestätigt Manifest, sechs Lockartefakte und LF-Regel;
+  der unveränderte Shell-Verifier bestätigt weiterhin v2.0.3.
+- Der fokussierte Browserfall reproduzierte mit dem vorherigen Pin vor dem
+  Custom-Element-Upgrade in beiden Zielansichten 40 × 40 px. Nach dem atomaren
+  Sync bleibt dasselbe SVG bei geladener Essentials-CSS und noch undefinierter
+  Shell verborgen und höchstens 38 × 38 px. Nach dem Upgrade bei bewusst
+  verzögerter Komponenten-CSS ist es sichtbar und weiterhin höchstens 38 px;
+  der Endzustand misst exakt 38 × 38 px.
+- Die identische Drei-Zustands-Prüfung bestand lokal am Root und am
+  Pages-Unterpfad jeweils als 1/1 Browserfall für 390 × 844 sowie
+  360 × 800 bei 200 % Textzoom. Der getrennte Loader blieb 32 × 32 px,
+  `scrollWidth` überschritt `clientWidth` nie, und der App-Start schloss ab.
+- Root- und Pages-Buildgate sowie beide Vertragsverifier sind grün. Der
+  Service-Worker-Cache ist wegen der stabilen Vendor-URLs auf
+  `somewhere-now-shell-v12` angehoben, damit keine alte 40-px-Critical-CSS
+  aus einer vorhandenen Sitzung weiterverwendet wird.

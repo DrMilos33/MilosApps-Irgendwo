@@ -83,9 +83,9 @@ Stand der Prüfung: 2026-08-03.
 
 - Kanonische Quelle:
   [DrMilos33/MilosApps-Shared](https://github.com/DrMilos33/MilosApps-Shared)
-- Vertrag/Tag: `public-app-essentials/v1.1.3`.
+- Vertrag/Tag: `public-app-essentials/v1.1.5`.
 - Exakter Shared-Commit:
-  `babe74a0e62e1a7f9095648195e54b322a837726`.
+  `2942132ad3bf6cf39edc9f52ed918de6a230be23`.
 - Übernahme: feste lokale Kopie mit sechs SHA-256-gelockten
   Verbraucherartefakten einschließlich Manifest-Schema; kein
   CDN und kein Runtimeimport aus einem anderen Repository.
