@@ -153,8 +153,8 @@ a {
   grid-template-columns: auto minmax(0, 1fr);
   align-items: baseline;
   gap: 0.25rem 0.7rem;
-  margin-bottom: 0.5rem;
-  padding-bottom: 0.4rem;
+  margin-bottom: 0.35rem;
+  padding-bottom: 0.25rem;
   border-bottom: 1px solid var(--line);
 }
 
@@ -191,7 +191,7 @@ a {
     auto
     minmax(3.9rem, auto)
     minmax(2.6rem, auto)
-    minmax(3.15rem, auto);
+    minmax(3.35rem, auto);
   align-content: start;
 }
 
@@ -1276,6 +1276,11 @@ a {
   .scene-sky {
     aspect-ratio: 16 / 10;
     min-height: 20rem;
+  }
+
+  .product-promise {
+    font-size: 0.68rem;
+    line-height: 1.25;
   }
 }
 
