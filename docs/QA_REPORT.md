@@ -6,7 +6,7 @@ Letzte Aktualisierung: 2026-08-03.
 
 | Ebene | Abdeckung |
 |---|---|
-| Shared-Verträge | portable Validatoren für Shell v2.0.3 mit fünf sowie Essentials v1.1.2 mit sechs gelockten Verbraucherartefakten, Manifesthash und SHA-256-Prüfung |
+| Shared-Verträge | portable Validatoren für Shell v2.0.3 mit fünf sowie Essentials v1.1.3 mit sechs gelockten Verbraucherartefakten, Manifesthash und SHA-256-Prüfung |
 | Logik | 32 Tests: vollständige DE/EN-Texte, Auswahlranking, zwölf Szenenprofile, Orts-/Datumsdarstellung, Gefahrfilter sowie Teilpayload ohne Query oder Koordinaten |
 | Smartphone | Pixel-7-Touchprofil mit exakt 390 × 844 CSS-Pixeln |
 | Tablet | iPad-Abmessungen und Touch in Chromium |
@@ -392,6 +392,35 @@ aktuellen Eintrag; Smartphone-Reflow und Build sind danach erneut grün.
   beiden standardkonformen JavaScript-Typen und bleibt für falsche Typen
   fail-closed. Der externe Abschluss wird nach dem dazugehörigen neuen
   Source-CI-/Artefakt-SHA wiederholt.
+
+### Essentials-v1.1.3- und 32-px-Loader-Abschluss
+
+- `public-app-essentials/v1.1.3` ist exakt auf Shared-Commit
+  `babe74a0e62e1a7f9095648195e54b322a837726` gepinnt. Shared-CI
+  `30799732282` und alle vier Vertrags-Suites waren vor der Übernahme grün;
+  der app-eigene Verifier bestätigt anschließend Manifest, sechs
+  Lockartefakte und den engen LF-Vertrag.
+- Das Loader-SVG trägt bereits im HTML-Fallback `width="32" height="32"`.
+  Die fokussierte Browsermatrix prüft zusätzlich `width`, `height`,
+  `max-width` und `max-height` jeweils auf exakt 32 px bei 1440 × 900,
+  390 × 844 sowie 360 × 800 mit 200 % Root-Textzoom. Zehn fokussierte Fälle
+  bestanden; acht profilspezifische Fälle wurden planmäßig übersprungen.
+- Wegen der unveränderten Asset-URLs wurde der Service-Worker-Cache bewusst
+  auf `somewhere-now-shell-v11` angehoben. So können bestehende v1.1.2-Sitzungen
+  keine alte Loader-CSS aus einem langlebigen Cache übernehmen; Health und
+  Deploymentmetadaten bleiben weiterhin network-only.
+- Ein erster paralleler Root-Abschlusslauf erreichte 58 bestandene Fälle und
+  scheiterte ausschließlich einmal an `read ECONNRESET` beim direkten lokalen
+  Preview-Request. Die betroffene strikte CSP-/MIME-Prüfung bestand danach
+  dreimal seriell; die vollständige serielle Root-Matrix schloss mit 59
+  bestandenen Fällen, 22 Profilskips und 0 Fehlern ab. Damit ist die
+  Socket-Kante als lokaler Testharness-/Lastbefund und nicht als App-Defekt
+  eingegrenzt.
+- Die vollständige serielle Pages-Unterpfadmatrix schloss ebenfalls mit
+  59 bestandenen Fällen, 22 Profilskips und 0 Fehlern ab. Root- und
+  Pages-Buildgate sowie Shell-/Essentials-Verifier sind grün. Externe
+  HTTPS-Evidenz wird nach SHA-genau grüner Source-CI und dem getrennten
+  gestempelten `gh-pages`-Artefakt ergänzt.
 
 ## Noch nicht testbar
 

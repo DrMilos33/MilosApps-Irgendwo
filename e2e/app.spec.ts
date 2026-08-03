@@ -224,6 +224,9 @@ test("zeigt beim frischen und langsamen Start einen kleinen lokalisierten Loader
     const icon = element.querySelector<HTMLElement>("[data-milos-loading-icon]");
     return {
       iconWidth: icon?.getBoundingClientRect().width ?? 0,
+      iconHeight: icon?.getBoundingClientRect().height ?? 0,
+      iconMaxWidth: icon ? getComputedStyle(icon).maxWidth : "",
+      iconMaxHeight: icon ? getComputedStyle(icon).maxHeight : "",
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       visible: getComputedStyle(element).display !== "none",
       progressExists: Boolean(element.querySelector("[data-milos-loading-progress]")),
@@ -236,9 +239,10 @@ test("zeigt beim frischen und langsamen Start einen kleinen lokalisierten Loader
   expect(loaderState.visible).toBe(true);
   expect(loaderState.progressExists).toBe(true);
   expect(loaderState.overflow).toBeLessThanOrEqual(1);
-  expect(loaderState.iconWidth).toBeLessThanOrEqual(
-    testInfo.project.name === "smartphone" ? 48.5 : 56.5,
-  );
+  expect(loaderState.iconWidth).toBeCloseTo(32, 0);
+  expect(loaderState.iconHeight).toBeCloseTo(32, 0);
+  expect(loaderState.iconMaxWidth).toBe("32px");
+  expect(loaderState.iconMaxHeight).toBe("32px");
   if (testInfo.project.name === "smartphone") {
     expect(Number.parseFloat(loaderState.progressAnimation)).toBeLessThanOrEqual(0.001);
   }

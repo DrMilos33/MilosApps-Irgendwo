@@ -1,7 +1,7 @@
 # DEV-Integrationsvertrag
 
 Vertragsstand: `public-app-shell/v2.0.3` plus
-`public-app-essentials/v1.1.2` vom 2026-08-03.
+`public-app-essentials/v1.1.3` vom 2026-08-03.
 
 ## Metadaten
 
@@ -36,7 +36,7 @@ Ein gültiger Readiness-Response enthält:
   "environment": "DEV",
   "readiness": true,
   "shellContract": "public-app-shell/v2.0.3",
-  "essentialsContract": "public-app-essentials/v1.1.2",
+  "essentialsContract": "public-app-essentials/v1.1.3",
   "productionApproved": false
 }
 ```

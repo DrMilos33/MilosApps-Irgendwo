@@ -1,4 +1,4 @@
-const CACHE_NAME = "somewhere-now-shell-v10";
+const CACHE_NAME = "somewhere-now-shell-v11";
 const APP_BASE_URL = new URL("./", self.registration.scope);
 const appUrl = (relativePath = "") => new URL(relativePath, APP_BASE_URL).href;
 const LIVE_METADATA_PATHS = new Set([

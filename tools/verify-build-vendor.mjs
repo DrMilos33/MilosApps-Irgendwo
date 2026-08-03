@@ -22,8 +22,8 @@ const contracts = [
     name: "Essentials",
     directory: "milosapps-essentials/v1",
     lockFile: "essentials-lock.json",
-    version: "1.1.2",
-    sharedCommit: "b14aac6107b75f03ff49e74160af7e7e30c29e59",
+    version: "1.1.3",
+    sharedCommit: "babe74a0e62e1a7f9095648195e54b322a837726",
   },
 ];
 
