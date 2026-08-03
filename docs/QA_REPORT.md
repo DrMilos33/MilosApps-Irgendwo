@@ -464,7 +464,7 @@ aktuellen Eintrag; Smartphone-Reflow und Build sind danach erneut grün.
   Hauptaktion und Szene, obwohl die App-H1 selbst bereits ruhig gesetzt war.
 - Zwei sichtbare Designrunden verdichteten Titel, Introabstände,
   Aktionsbereich, Szene und Faktenkarte als Einheit. Der finale Momenttitel
-  verwendet Desktop maximal 2,05 rem und mobil maximal 1,9 rem. App-Titel und
+  verwendet Desktop maximal 1,9 rem und mobil maximal 1,75 rem. App-Titel und
   Produktversprechen bilden eine einzige ruhige Introzeile; die Primäraktion
   bleibt mindestens 44 px hoch und im initialen Smartphone-Viewport sichtbar.
 - Das neue fail-closed Browsergate prüft Schriftbudgets, Titelhöhe,
@@ -475,6 +475,12 @@ aktuellen Eintrag; Smartphone-Reflow und Build sind danach erneut grün.
   Matrix aus Dichte, Steuerung, DE/EN, Tastaturfokus/44 px, Axe und
   Reduced-Motion/200-%-Reflow bestand auf Smartphone, Tablet und Desktop mit
   27/27 Fällen. Root- und Pages-Build sowie 35/35 Logiktests sind grün.
+- Die anschließende Nutzerabnahme verdichtete ausschließlich den Kontext von
+  Intro bis Auswahlüberschrift weiter. Der reale Suva-Fall misst nun bei
+  1440 × 900 rund 224 px und bei 390 × 844 rund 215 px; die Hauptaktion blieb
+  bei kurzen und langen Texten auf 1 px stabil. Das Regressiongate begrenzt
+  diesen Kontext dauerhaft auf 230 px und bestand als fokussierte
+  Smartphone-/Tablet-/Desktop-Matrix mit 9/9 Fällen.
 
 ### Stabile Hauptaktion, Suchfokus und prozedurales Live-Fenster
 

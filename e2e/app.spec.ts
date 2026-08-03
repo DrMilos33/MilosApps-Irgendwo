@@ -76,7 +76,7 @@ test("lädt ohne Login und zeigt einen vollständigen Moment", async ({ page }) 
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByText("Reykjavík · Island")).toBeVisible();
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
-  await expect(page.getByText(/Echte Ortszeit, Licht und Wetter/)).toBeVisible();
+  await expect(page.getByText(/Ortszeit, Licht und Wetter/)).toBeVisible();
   await expect(page.locator("#selection-reason")).toContainText("Ausgewählt");
   const travel = page.getByRole("button", { name: "Nächsten Moment entdecken" });
   await expect(travel).toBeEnabled();
@@ -108,6 +108,8 @@ test("hält die Einstiegshierarchie kompakt und die Hauptaktion im ersten Viewpo
     const copy = document.querySelector<HTMLElement>(".moment-copy")!;
     const scene = document.querySelector<HTMLElement>(".scene-column")!;
     const secondary = document.querySelector<HTMLElement>(".moment-secondary")!;
+    const intro = document.querySelector<HTMLElement>(".app-intro")!;
+    const focus = document.querySelector<HTMLElement>(".moment-focus")!;
     const titleRect = title.getBoundingClientRect();
     const travelRect = travel.getBoundingClientRect();
     const copyRect = copy.getBoundingClientRect();
@@ -126,15 +128,17 @@ test("hält die Einstiegshierarchie kompakt und die Hauptaktion im ersten Viewpo
       sceneWidth: sceneRect.width,
       sceneTop: sceneRect.top,
       secondaryTop: secondaryRect.top,
+      contextToFocusHeight: focus.getBoundingClientRect().top - intro.getBoundingClientRect().top,
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     };
   });
 
   const narrow = metrics.viewportWidth <= 768;
-  expect(metrics.titleFontSize).toBeLessThanOrEqual(narrow ? 31 : 34);
-  expect(metrics.titleHeight).toBeLessThanOrEqual(narrow ? 70 : 75);
+  expect(metrics.titleFontSize).toBeLessThanOrEqual(narrow ? 29 : 31);
+  expect(metrics.titleHeight).toBeLessThanOrEqual(narrow ? 62 : 64);
   expect(metrics.appTitleFontSize).toBeLessThanOrEqual(15);
   expect(metrics.detailFontSize).toBeLessThanOrEqual(15);
+  expect(metrics.contextToFocusHeight).toBeLessThanOrEqual(230);
   expect(metrics.travelTop).toBeLessThan(metrics.viewportHeight);
   expect(metrics.travelHeight).toBeGreaterThanOrEqual(44);
   expect(metrics.overflow).toBeLessThanOrEqual(1);
@@ -795,7 +799,7 @@ test("übersetzt die vollständige Fach-UI ins Englische und behält die Wahl na
   await expect(page.getByRole("heading", { level: 1, name: "Somewhere, right now …" })).toBeVisible();
   await expect(page.getByText("Reykjavík · Iceland")).toBeVisible();
   await expect(
-    page.getByText("Real local time, light and weather – somewhere on Earth."),
+    page.getByText("Local time, light and weather – right now."),
   ).toBeVisible();
   await expect(page.locator("#selection-reason")).toContainText(/^Selected /);
   await expect(page.getByRole("group", { name: "What would you like to see right now?" })).toBeVisible();

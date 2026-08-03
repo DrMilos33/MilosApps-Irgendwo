@@ -17,7 +17,8 @@ eigene abstrakte Szene mit optionalem prozeduralem Klang.
   als feste, gelockte Kopie aus `public-app-essentials/v1.1.5` integriert;
 - Portal-DEV bindet nur über dokumentierte Metadaten und URL an.
 
-Siehe [Produktbrief](docs/PRODUCT_BRIEF.md), [QA-Plan](docs/QA_PLAN.md) und
+Siehe [Produktbrief](docs/PRODUCT_BRIEF.md), [visuelle Richtung](docs/VISUAL_DIRECTION.md),
+[Kameraoptionen](docs/LIVE_CAMERA_OPTIONS.md), [QA-Plan](docs/QA_PLAN.md) und
 [Erkenntnisse](docs/LEARNINGS.md).
 
 ## Lokaler DEV-Stand

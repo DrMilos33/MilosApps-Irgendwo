@@ -8,7 +8,7 @@ const de = {
     "Ein stilles Fenster zu einem realen Moment irgendwo auf der Erde – aus Zeit, Tageslicht und Wetter.",
   appTitle: "Irgendwo ist gerade …",
   productPromise:
-    "Echte Ortszeit, Licht und Wetter – irgendwo auf der Erde.",
+    "Ortszeit, Licht und Wetter – genau jetzt.",
   initialPlace: "Ein Punkt auf der Erde",
   initialMoment: "Hier öffnet sich gleich ein anderer Augenblick.",
   initialDetail: "Zeit und Tageslicht sind sofort da. Das Wetter darf einen Moment brauchen.",
@@ -171,7 +171,7 @@ const en: Record<MessageKey, string> = {
     "A quiet window into a real moment somewhere on Earth – shaped by time, daylight and weather.",
   appTitle: "Somewhere, right now …",
   productPromise:
-    "Real local time, light and weather – somewhere on Earth.",
+    "Local time, light and weather – right now.",
   initialPlace: "A point on Earth",
   initialMoment: "Another moment is about to open here.",
   initialDetail: "Time and daylight are here at once. Weather may take a moment.",

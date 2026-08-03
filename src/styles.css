@@ -153,8 +153,8 @@ a {
   grid-template-columns: auto minmax(0, 1fr);
   align-items: baseline;
   gap: 0.25rem 0.7rem;
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.65rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.4rem;
   border-bottom: 1px solid var(--line);
 }
 
@@ -189,9 +189,9 @@ a {
   display: grid;
   grid-template-rows:
     auto
-    minmax(4.4rem, auto)
-    minmax(3.7rem, auto)
-    minmax(3.8rem, auto);
+    minmax(3.9rem, auto)
+    minmax(2.6rem, auto)
+    minmax(3.15rem, auto);
   align-content: start;
 }
 
@@ -200,7 +200,7 @@ a {
   align-content: start;
   margin: 0.35rem 0 0;
   font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-  font-size: clamp(1.65rem, 1.8vw, 2.05rem);
+  font-size: clamp(1.6rem, 1.7vw, 1.9rem);
   font-weight: 500;
   line-height: 1.02;
   letter-spacing: -0.035em;
@@ -230,13 +230,13 @@ a {
 
 .moment-focus {
   min-width: 0;
-  margin: 0.35rem 0 0;
+  margin: 0.2rem 0 0;
   padding: 0;
   border: 0;
 }
 
 .moment-focus legend {
-  margin: 0 0 0.4rem;
+  margin: 0 0 0.25rem;
   padding: 0;
   color: var(--ink-muted);
   font-size: 0.72rem;
@@ -302,7 +302,7 @@ a {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.6rem;
-  margin-top: 0.55rem;
+  margin-top: 0.4rem;
 }
 
 .travel-button {
@@ -1307,8 +1307,8 @@ a {
   .app-intro {
     grid-template-columns: minmax(0, 1fr);
     gap: 0.15rem;
-    margin-bottom: 0.6rem;
-    padding-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
+    padding-bottom: 0.35rem;
   }
 
   .app-title {
@@ -1325,15 +1325,15 @@ a {
   .moment-story {
     grid-template-rows:
       auto
-      minmax(3.9rem, auto)
-      minmax(2.7rem, auto)
-      minmax(3.5rem, auto);
-    margin-top: 0.45rem;
+      minmax(3.6rem, auto)
+      minmax(2.45rem, auto)
+      minmax(3.15rem, auto);
+    margin-top: 0.3rem;
   }
 
   .moment-title {
-    margin: 0.3rem 0 0;
-    font-size: clamp(1.55rem, 6.8vw, 1.9rem);
+    margin: 0.2rem 0 0;
+    font-size: clamp(1.5rem, 6.5vw, 1.75rem);
     line-height: 1.04;
   }
 
@@ -1342,12 +1342,12 @@ a {
   }
 
   .selection-reason {
-    margin-top: 0.25rem;
+    margin-top: 0.15rem;
     font-size: 0.74rem;
   }
 
   .moment-focus {
-    margin-top: 0.35rem;
+    margin-top: 0.2rem;
   }
 
   .primary-actions {
