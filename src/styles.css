@@ -173,8 +173,8 @@ a {
   grid-template-rows:
     auto
     minmax(6.25rem, auto)
-    minmax(3.1rem, auto)
-    minmax(4.25rem, auto);
+    minmax(4.5rem, auto)
+    minmax(4.5rem, auto);
   align-content: start;
 }
 
@@ -248,6 +248,8 @@ a {
 .focus-option span {
   display: flex;
   align-items: center;
+  min-width: 0;
+  max-width: 100%;
   min-height: 2.75rem;
   padding: 0.55rem 0.75rem;
   border: 1px solid var(--line);
@@ -256,6 +258,7 @@ a {
   background: rgba(255, 255, 255, 0.25);
   font-size: 0.8rem;
   font-weight: 650;
+  overflow-wrap: anywhere;
   transition:
     border-color 160ms ease,
     color 160ms ease,
@@ -1287,7 +1290,7 @@ a {
       auto
       minmax(4.75rem, auto)
       minmax(3rem, auto)
-      minmax(4rem, auto);
+      minmax(4.5rem, auto);
     margin-top: 0.65rem;
   }
 

@@ -495,3 +495,11 @@ aktuellen Eintrag; Smartphone-Reflow und Build sind danach erneut grün.
   mit dem bisherigen Cache-Namen noch altes Verhalten liefern konnte. Der
   Cache wurde deshalb auf `somewhere-now-shell-v13` angehoben und das
   Root-/Pages-Buildgate verlangt diese Revision fail-closed.
+- Der erste Linux-Source-CI-Lauf machte zwei plattformabhängige Reflowkanten
+  sichtbar: Die breitere Systemschrift ließ ein Fokuslabel bei 200 % um 25 px
+  aus seinem Grid ragen, und das längste Detail benötigte im schmalen
+  Tablet-Textbereich eine weitere reservierte Zeile. Die Fokuslabels dürfen
+  nun innerhalb ihrer Spalte umbrechen; Detail und Auswahlgrund besitzen ein
+  vollständiges Textbudget. Danach bestand die komplette lokale Root-Matrix
+  mit vier parallelen Workern: 35/35 Logiktests sowie 69 Browserfälle bei 24
+  planmäßigen Profilauslassungen, ohne Fehler.
