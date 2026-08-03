@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta
       name="description"
-      content="Ein stilles Fenster zu einem realen Moment irgendwo auf der Erde – aus Zeit, Tageslicht und Wetter."
+      content="Ein atmosphärisches Fenster zu einem realen Moment irgendwo auf der Erde – aus Ortszeit, Tageslicht und Wetter."
     />
-    <meta name="theme-color" content="#e8aa68" />
+    <meta name="theme-color" content="#a94736" />
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="./manifest.webmanifest" />
@@ -22,16 +22,8 @@
       href="./vendor/milosapps-essentials/v1/milos-app-essentials-theme.css"
     />
     <title>Irgendwo ist gerade … – MilosApps</title>
-    <script
-      type="module"
-      vite-ignore
-      src="./vendor/milosapps-essentials/v1/bootstrap.js"
-    ></script>
-    <script
-      type="module"
-      vite-ignore
-      src="./vendor/milosapps-shell/v2/bootstrap.js"
-    ></script>
+    <script type="module" vite-ignore src="./vendor/milosapps-essentials/v1/bootstrap.js"></script>
+    <script type="module" vite-ignore src="./vendor/milosapps-shell/v2/bootstrap.js"></script>
   </head>
   <body>
     <section data-milos-app-loading role="status" aria-live="polite">
@@ -68,67 +60,54 @@
 
       <main class="app-shell" id="app" slot="main">
         <section class="moment-layout" aria-labelledby="app-title">
-          <div class="moment-copy">
-            <div class="moment-primary">
-              <div class="app-intro">
-                <h1 class="app-title" id="app-title" data-app-text="appTitle">
-                  Irgendwo ist gerade …
-                </h1>
-                <p class="product-promise" data-app-text="productPromise">
-                  Ortszeit, Licht und Wetter &ndash; genau jetzt.
-                </p>
-              </div>
-              <div class="moment-story">
-                <p class="eyebrow" id="place-label" data-app-text="initialPlace">
-                  Ein Punkt auf der Erde
-                </p>
-                <h2 class="moment-title" id="moment-title" data-app-text="initialMoment">
-                  Hier öffnet sich gleich ein anderer Augenblick.
-                </h2>
-                <p class="moment-detail" id="moment-detail" data-app-text="initialDetail">
-                  Zeit und Tageslicht sind sofort da. Das Wetter darf einen Moment brauchen.
-                </p>
-                <p class="selection-reason" id="selection-reason" data-app-text="selectionInitial">
-                  Die App sucht nach einem besonderen lokalen Übergang.
-                </p>
-              </div>
-              <fieldset class="moment-focus">
-                <legend data-app-text="focusLegend">Was möchtest du gerade sehen?</legend>
-                <div class="focus-options">
-                  <label class="focus-option">
-                    <input type="radio" name="moment-focus" value="surprise" checked>
-                    <span data-app-text="focusSurprise">Überrasch mich</span>
-                  </label>
-                  <label class="focus-option">
-                    <input type="radio" name="moment-focus" value="sunrise">
-                    <span data-app-text="focusSunrise">Morgenlicht</span>
-                  </label>
-                  <label class="focus-option">
-                    <input type="radio" name="moment-focus" value="sunset">
-                    <span data-app-text="focusSunset">Abendlicht</span>
-                  </label>
-                  <label class="focus-option">
-                    <input type="radio" name="moment-focus" value="night">
-                    <span data-app-text="focusNight">Nachtseite</span>
-                  </label>
-                </div>
-              </fieldset>
-              <div class="primary-actions">
-                <button class="travel-button" id="travel-button" type="button">
-                  <span id="travel-label" data-app-text="travel">Nächsten Moment entdecken</span>
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="m8 5 7 7-7 7"></path>
-                  </svg>
-                </button>
-                <milos-share-button id="share-button"></milos-share-button>
-              </div>
+          <aside class="moment-copy" aria-label="Moment wählen" data-app-aria-label="menuRegion">
+            <div class="intro-kicker">
+              <span class="live-dot" aria-hidden="true"></span>
+              <span data-app-text="liveWindow">MOMENT-FENSTER</span>
             </div>
-            <div class="moment-secondary">
-              <p class="status-line" id="status-line" role="status" aria-live="polite" data-app-text="initialStatus">
-                Die Reise beginnt …
-              </p>
+
+            <div class="app-intro">
+              <h1 class="app-title" id="app-title">
+                <span data-app-text="heroLineOne">Gerade jetzt</span>
+                <strong data-app-text="heroLineAccent">irgendwo</strong>
+                <span data-app-text="heroLineThree">auf der Erde.</span>
+              </h1>
+              <p class="product-promise" data-app-text="productPromise">Entdecke den Moment.</p>
+            </div>
+
+            <fieldset class="moment-focus">
+              <legend data-app-text="focusLegend">Wohin als Nächstes?</legend>
+              <div class="focus-options">
+                <label class="focus-option">
+                  <input type="radio" name="moment-focus" value="surprise" checked />
+                  <span data-app-text="focusSurprise">Überrasch mich</span>
+                </label>
+                <label class="focus-option">
+                  <input type="radio" name="moment-focus" value="sunrise" />
+                  <span data-app-text="focusSunrise">Morgenlicht</span>
+                </label>
+                <label class="focus-option">
+                  <input type="radio" name="moment-focus" value="sunset" />
+                  <span data-app-text="focusSunset">Abendlicht</span>
+                </label>
+                <label class="focus-option">
+                  <input type="radio" name="moment-focus" value="night" />
+                  <span data-app-text="focusNight">Nachtseite</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <div class="primary-actions">
+              <button class="travel-button" id="travel-button" type="button">
+                <span id="travel-label" data-app-text="travel">Moment finden</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 7 7-7 7"></path></svg>
+              </button>
+              <milos-share-button id="share-button"></milos-share-button>
+            </div>
+
+            <div class="session-block">
               <p class="session-note" id="session-note" data-app-text="sessionInitial">
-                Der nächste Klick führt zu einem anderen Ort und Szenenbild.
+                Der nächste Klick bleibt neu.
               </p>
               <ol
                 class="journey-trail"
@@ -136,209 +115,126 @@
                 aria-label="Letzte Entdeckungen"
                 data-app-aria-label="journeyTrailLabel"
               ></ol>
-              <div class="app-actions">
-                <button
-                  class="icon-button"
-                  id="sound-toggle"
-                  type="button"
-                  aria-pressed="false"
-                  aria-label="Klang einschalten"
-                  data-app-aria-label="soundOn"
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M5 9v6h4l5 4V5L9 9H5Z"></path>
-                    <path class="sound-wave" d="M17 9.5c.8.7 1.2 1.5 1.2 2.5s-.4 1.8-1.2 2.5"></path>
-                  </svg>
-                </button>
-                <button class="text-button" id="about-open" type="button" data-app-text="aboutOpen">
-                  Über diese Reise
-                </button>
-                <a
-                  class="text-button privacy-info-link"
-                  href="https://dev.milos-apps.de/datenschutz"
-                  data-milos-privacy-info
-                  data-app-text="privacyInfo"
-                >
-                  Datenschutz
-                </a>
-              </div>
             </div>
-          </div>
+
+            <div class="app-actions">
+              <button
+                class="icon-button"
+                id="sound-toggle"
+                type="button"
+                aria-pressed="false"
+                aria-label="Klang einschalten"
+                data-app-aria-label="soundOn"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5 9v6h4l5 4V5L9 9H5Z"></path>
+                  <path class="sound-wave" d="M17 9.5c.8.7 1.2 1.5 1.2 2.5s-.4 1.8-1.2 2.5"></path>
+                </svg>
+              </button>
+              <button class="text-button" id="about-open" type="button" data-app-text="aboutOpen">
+                Über diese Reise
+              </button>
+              <a
+                class="text-button privacy-info-link"
+                href="https://dev.milos-apps.de/datenschutz"
+                data-milos-privacy-info
+                data-app-text="privacyInfo"
+              >Datenschutz</a>
+            </div>
+          </aside>
 
           <div class="scene-column">
-            <div class="experience-bar">
-              <div class="light-route-summary">
-                <span class="light-route-kicker" data-app-text="lightRouteKicker">Dem Licht folgen</span>
-                <strong id="light-route-status" data-app-text="lightRouteReady">
-                  Wähle eine Lichtspur und reise mit ihr weiter.
-                </strong>
-              </div>
-              <div
-                class="view-switcher"
-                role="group"
-                aria-label="Ansicht wählen"
-                data-app-aria-label="viewSwitcherLabel"
-              >
-                <button class="view-button" id="scene-mode-data" type="button" aria-pressed="true">
-                  <span data-app-text="viewData">Datenszene</span>
-                </button>
-                <button class="view-button" id="scene-mode-satellite" type="button" aria-pressed="false">
-                  <span data-app-text="viewSatellite">Satellit</span>
-                </button>
-                <button class="view-button" id="scene-mode-webcam" type="button" aria-pressed="false" hidden>
-                  <span data-app-text="viewWebcam">Webcam</span>
-                </button>
-              </div>
-            </div>
-
-            <div class="experience-stage">
-              <figure
-                class="scene"
-                id="scene"
-                role="img"
-                aria-label="Eine abstrakte Landschaft entsteht."
-                data-app-aria-label="sceneInitial"
-                data-phase="day"
-                data-weather="clear"
-                data-cloud="unknown"
-                data-humidity="unknown"
-                data-light="unknown"
-                data-visibility="unknown"
-                data-wind="still"
-                data-wind-direction="n"
-              >
-                <div class="scene-sky" aria-hidden="true">
-                  <div class="live-hud">
-                    <span class="live-indicator">
-                      <span class="live-dot"></span>
-                      <span data-app-text="liveWindow">LIVE-DATENSZENE</span>
-                    </span>
-                    <span class="live-generated" data-app-text="liveGenerated">
-                      Ortszeit · Sonne · Wettermodell
-                    </span>
-                  </div>
-                  <ul class="scene-signals">
-                    <li><span data-app-text="signalCloud">Wolken</span><strong id="signal-cloud">–</strong></li>
-                    <li><span data-app-text="signalWind">Wind</span><strong id="signal-wind">–</strong></li>
-                    <li><span data-app-text="signalVisibility">Sicht</span><strong id="signal-visibility">–</strong></li>
-                  </ul>
-                  <span class="camera-grid"></span>
-                  <span class="camera-corner camera-corner-tl"></span>
-                  <span class="camera-corner camera-corner-tr"></span>
-                  <span class="camera-corner camera-corner-bl"></span>
-                  <span class="camera-corner camera-corner-br"></span>
-                  <span class="scene-orbit">
-                    <span class="scene-sun"></span>
-                    <span class="scene-moon"></span>
-                  </span>
-                  <span class="light-beam light-beam-a"></span>
-                  <span class="light-beam light-beam-b"></span>
-                  <span class="star-field star-field-a"></span>
-                  <span class="star-field star-field-b"></span>
-                  <span class="wind-streams"></span>
-                  <span class="cloud cloud-a"></span>
-                  <span class="cloud cloud-b"></span>
-                  <span class="cloud cloud-c"></span>
-                  <span class="weather-particles" id="weather-particles"></span>
-                  <span class="haze"></span>
-                  <span class="aurora aurora-a"></span>
-                  <span class="aurora aurora-b"></span>
-                  <span class="hill hill-back"></span>
-                  <span class="hill hill-mid"></span>
-                  <span class="hill hill-front"></span>
-                  <span class="terrain-detail terrain-detail-a"></span>
-                  <span class="terrain-detail terrain-detail-b"></span>
-                  <span class="water-line"></span>
-                  <span class="surface-shimmer"></span>
-                </div>
-                <figcaption class="scene-caption">
-                  <span id="scene-place" data-app-text="sceneTraveling">Unterwegs</span>
-                  <span aria-hidden="true">·</span>
-                  <time id="scene-time">–:–</time>
-                </figcaption>
-              </figure>
-
-              <section class="external-view satellite-view" id="satellite-view" hidden aria-labelledby="satellite-title">
-                <div class="external-view-media">
-                  <div class="external-loading" id="satellite-loading" role="status" aria-live="polite">
-                    <span class="external-loader" aria-hidden="true"></span>
-                    <span data-app-text="satelliteLoading">NASA-Aufnahme wird erst jetzt geladen …</span>
-                  </div>
-                  <img id="satellite-image" alt="" referrerpolicy="no-referrer" hidden>
-                </div>
-                <div class="external-view-caption">
-                  <div>
-                    <p class="fact-kicker" data-app-text="satelliteKicker">Optionaler Satellitenblick</p>
-                    <h3 id="satellite-title" data-app-text="satelliteTitle">Erde aus dem All</h3>
-                    <p id="satellite-status" data-app-text="satelliteNearRealTime">
-                      Nahe-Echtzeit, nicht live. Die Aufnahme kann Wolken oder Datenlücken enthalten.
-                    </p>
-                  </div>
-                  <a id="satellite-source" href="https://worldview.earthdata.nasa.gov/" target="_blank" rel="noreferrer" data-app-text="satelliteSource">
-                    In NASA Worldview öffnen
-                  </a>
-                </div>
-              </section>
-
-              <section class="external-view webcam-view" id="webcam-view" hidden aria-labelledby="webcam-title">
-                <div class="external-view-media webcam-host" id="webcam-host"></div>
-                <div class="external-view-caption">
-                  <div>
-                    <p class="fact-kicker" data-app-text="webcamKicker">Seltenes Kamera-Extra</p>
-                    <h3 id="webcam-title" data-app-text="webcamTitle">Geprüfte Ortskamera</h3>
-                    <p id="webcam-status" data-app-text="webcamNotice">
-                      Der Windy-Player wurde erst nach deiner Aktion verbunden.
-                    </p>
-                  </div>
-                  <div class="external-links">
-                    <a id="webcam-detail" href="https://www.windy.com/webcams" target="_blank" rel="noreferrer" data-app-text="webcamWindyLink">Webcam bei Windy öffnen</a>
-                    <a id="webcam-operator" href="https://www.windy.com/webcams" target="_blank" rel="noreferrer" data-app-text="webcamOperatorLink">Betreiberseite</a>
-                  </div>
-                </div>
-              </section>
-            </div>
-
-            <section
-              class="fact-card"
-              id="fact-card"
-              aria-label="Details zu diesem Moment"
-              data-app-aria-label="factRegion"
+            <figure
+              class="photo-scene"
+              id="scene"
+              aria-label="Atmosphärisches Foto und aktuelle Ortsdaten"
+              data-app-aria-label="sceneInitial"
+              data-photo-phase="morning"
             >
+              <div class="photo-frame">
+                <img
+                  id="atmospheric-image"
+                  src="./media/atmosphere/morning-nanga-parbat.jpg"
+                  alt="Goldenes Morgenlicht am Nanga Parbat"
+                  width="1280"
+                  height="853"
+                  decoding="async"
+                />
+                <div class="photo-shade" aria-hidden="true"></div>
+                <div class="photo-hud">
+                  <span class="data-label">
+                    <span class="live-dot" aria-hidden="true"></span>
+                    <span data-app-text="photoLiveData">LIVE-DATEN</span>
+                  </span>
+                  <span class="photo-boundary" data-app-text="photoBoundary">ATMOSPHÄRENFOTO · NICHT LIVE</span>
+                </div>
+
+                <div class="moment-overlay">
+                  <p class="eyebrow" id="place-label" data-app-text="initialPlace">Ein Punkt auf der Erde</p>
+                  <h2 class="moment-title" id="moment-title" data-app-text="initialMoment">
+                    Hier öffnet sich gleich ein anderer Augenblick.
+                  </h2>
+                  <p class="moment-detail" id="moment-detail" data-app-text="initialDetail">
+                    Zeit und Tageslicht sind sofort da. Das Wetter darf einen Moment brauchen.
+                  </p>
+                </div>
+
+                <figcaption class="scene-caption">
+                  <span id="photo-place" data-app-text="sceneTraveling">Unterwegs</span>
+                  <span aria-hidden="true">·</span>
+                  <time id="photo-time">–:–</time>
+                </figcaption>
+              </div>
+
+              <div class="photo-credit-panel">
+                <div>
+                  <p class="fact-kicker" data-app-text="photoKicker">Atmosphärische Aufnahme</p>
+                  <h3 id="photo-title">Morgenlicht am Nanga Parbat</h3>
+                  <p id="photo-description">Golden beleuchtete Bergspitzen über einem noch dunklen Tal.</p>
+                </div>
+                <div class="photo-rights">
+                  <p id="photo-notice" data-app-text="photoRepresentative">
+                    Dieses Foto zeigt die Lichtstimmung, nicht den ausgewählten Ort.
+                  </p>
+                  <p>
+                    <a id="photo-attribution" href="https://commons.wikimedia.org/" target="_blank" rel="noreferrer">Fotoquelle</a>
+                    <span aria-hidden="true">·</span>
+                    <a id="photo-license" href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">CC BY-SA 4.0</a>
+                  </p>
+                </div>
+              </div>
+            </figure>
+
+            <section class="fact-card" id="fact-card" aria-label="Details zu diesem Moment" data-app-aria-label="factRegion">
               <div class="fact-card-heading">
                 <div>
                   <p class="fact-kicker" data-app-text="factKicker">Gerade vor Ort</p>
                   <h2 id="fact-place" data-app-text="factTraveling">Noch unterwegs</h2>
                 </div>
-                <span class="data-state" id="data-state" data-state="loading" data-app-text="stateLoading">
-                  lädt
-                </span>
+                <span class="data-state" id="data-state" data-state="loading" data-app-text="stateLoading">lädt</span>
               </div>
-              <dl class="facts">
-                <div>
-                  <dt data-app-text="factTime">Ortszeit</dt>
-                  <dd id="fact-time">–</dd>
-                </div>
-                <div>
-                  <dt data-app-text="factWeather">Wetter</dt>
-                  <dd id="fact-weather" data-app-text="weatherPending">wird angefragt</dd>
-                </div>
-                <div>
-                  <dt data-app-text="factDaylight">Tageslicht</dt>
-                  <dd id="fact-daylight" data-app-text="daylightPending">wird berechnet</dd>
-                </div>
-              </dl>
-              <p class="source-note" id="source-note" data-app-text="sourceInitial">
-                Ortszeit und Sonnenstand werden lokal berechnet.
+              <p class="selection-reason" id="selection-reason" data-app-text="selectionInitial">
+                Die App sucht nach einem besonderen lokalen Übergang.
               </p>
-              <button
-                class="retry-button"
-                id="weather-retry"
-                type="button"
-                hidden
-                data-app-text="weatherRetry"
-              >
-                Wetter erneut laden
-              </button>
+              <p class="light-route-status" id="light-route-status" data-app-text="lightRouteReady">
+                Wähle eine Lichtspur und reise mit ihr weiter.
+              </p>
+              <dl class="facts">
+                <div><dt data-app-text="factTime">Ortszeit</dt><dd id="fact-time">–</dd></div>
+                <div><dt data-app-text="factWeather">Wetter</dt><dd id="fact-weather" data-app-text="weatherPending">wird angefragt</dd></div>
+                <div><dt data-app-text="factDaylight">Tageslicht</dt><dd id="fact-daylight" data-app-text="daylightPending">wird berechnet</dd></div>
+              </dl>
+              <div class="fact-footer">
+                <p class="source-note" id="source-note" data-app-text="sourceInitial">
+                  Ortszeit und Sonnenstand werden lokal berechnet.
+                </p>
+                <p class="status-line" id="status-line" role="status" aria-live="polite" data-app-text="initialStatus">
+                  Die Reise beginnt …
+                </p>
+                <button class="retry-button" id="weather-retry" type="button" hidden data-app-text="weatherRetry">
+                  Wetter erneut laden
+                </button>
+              </div>
             </section>
           </div>
         </section>
@@ -346,47 +242,26 @@
         <dialog class="about-dialog" id="about-dialog" aria-labelledby="about-title">
           <div class="dialog-header">
             <p class="fact-kicker" data-app-text="aboutKicker">Ein Blick, keine Beobachtung</p>
-            <button
-              class="icon-button close-button"
-              id="about-close"
-              type="button"
-              aria-label="Schließen"
-              data-app-aria-label="close"
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="m6 6 12 12M18 6 6 18"></path>
-              </svg>
+            <button class="icon-button close-button" id="about-close" type="button" aria-label="Schließen" data-app-aria-label="close">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
             </button>
           </div>
           <h2 id="about-title" data-app-text="aboutTitle">So entsteht der Moment</h2>
           <p data-app-text="aboutBody">
-            Die App wählt einen kuratierten Ort und verbindet dortige Uhrzeit,
-            Sonnenstand und – wenn erreichbar – aktuelle Modell-Wetterdaten. Die
-            Landschaft und der optionale Klang entstehen vollständig im Browser.
+            Die App verbindet eine kuratierte Ortsauswahl mit Ortszeit, Sonnenstand, Wetter und einem passend gewählten atmosphärischen Foto.
           </p>
           <ul>
             <li data-app-text="aboutNoAccount">Kein Konto, kein Nutzerstandort und keine Analyse-Cookies.</li>
             <li data-app-text="aboutNoCoordinates">Exakte Koordinaten werden weder angezeigt noch geteilt.</li>
             <li data-app-text="aboutSafety">Gefährliche Wetterlagen werden bewusst nicht inszeniert.</li>
             <li data-app-text="aboutAudio">Klang startet nur nach deiner ausdrücklichen Aktion.</li>
-            <li data-app-text="aboutExternalMedia">NASA-Bilder und seltene Webcams werden nur nach deiner ausdrücklichen Aktion geladen.</li>
+            <li data-app-text="aboutPhotos">Die Fotos liegen lokal in der App und sind mit Quelle und Lizenz gekennzeichnet.</li>
           </ul>
           <div class="source-links">
-            <a href="https://open-meteo.com/" target="_blank" rel="noreferrer" data-app-text="sourceWeather">
-              Wetter: Open-Meteo · CC BY 4.0
-            </a>
-            <a href="https://www.geonames.org/" target="_blank" rel="noreferrer" data-app-text="sourcePlaces">
-              Ortsdaten: GeoNames · CC BY 4.0
-            </a>
-            <a href="https://github.com/mourner/suncalc" target="_blank" rel="noreferrer" data-app-text="sourceSun">
-              Sonnenstand: SunCalc · BSD-2-Clause
-            </a>
-            <a href="https://nasa-gibs.github.io/gibs-api-docs/" target="_blank" rel="noreferrer" data-app-text="sourceSatellite">
-              Satellitenbilder: NASA GIBS · Quellenhinweis in der Ansicht
-            </a>
-            <a href="https://embed.windy.com/config/webcam" target="_blank" rel="noreferrer" data-app-text="sourceWebcams">
-              Webcams: Windy-Embed · Betreiberhinweis in der Ansicht
-            </a>
+            <a href="https://open-meteo.com/" target="_blank" rel="noreferrer" data-app-text="sourceWeather">Wetter: Open-Meteo · CC BY 4.0</a>
+            <a href="https://www.geonames.org/" target="_blank" rel="noreferrer" data-app-text="sourcePlaces">Ortsdaten: GeoNames · CC BY 4.0</a>
+            <a href="https://github.com/mourner/suncalc" target="_blank" rel="noreferrer" data-app-text="sourceSun">Sonnenstand: SunCalc · BSD-2-Clause</a>
+            <a href="https://commons.wikimedia.org/" target="_blank" rel="noreferrer" data-app-text="sourcePhotos">Fotos: Wikimedia Commons · Einzellizenz am Motiv</a>
           </div>
         </dialog>
 

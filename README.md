@@ -3,16 +3,18 @@
 Eigenständige öffentliche MilosApps-Web-App mit dem App-Key `somewhere-now`.
 
 Ein Klick führt zu einem realen Ort, an dem gerade ein verständlicher,
-interessanter Moment stattfindet. Zeit, Tageslicht und Wetter erzeugen eine
-große eigene Datenszene. Morgen- und Abendlicht lassen sich als fortlaufende
-Etappen rund um die Erde verfolgen; NASA-Satellitenbilder und drei manuell
-geprüfte Webcams sind optionale, erst nach Nutzeraktion geladene Ansichten.
+interessanter Moment stattfindet. Eine kompakte Auswahl links steuert
+Überraschung, Morgenlicht, Abendlicht oder Nachtseite; rechts verbindet ein
+großes atmosphärisches Foto die Lichtstimmung mit Ortszeit, Tageslicht und
+Wetter. Morgen- und Abendlicht lassen sich als fortlaufende Etappen rund um die
+Erde verfolgen.
 
 ## Feste Grenzen
 
 - kein Konto und keine App-Datenbank;
-- keine automatisch geladenen fremden Medien; NASA GIBS und drei kuratierte
-  Windy-Webcams verbinden sich ausschließlich nach ausdrücklicher Aktion;
+- drei lokal ausgelieferte, lizenzierte Atmosphärenfotos mit sichtbarer Quelle,
+  Lizenz und ehrlicher Nicht-live-/Nicht-Ortsfoto-Grenze;
+- keine fremden Runtime-Medien, Webcams, Satellitenbilder oder Videoplayer;
 - eigener DEV-Lifecycle, Production nicht freigegeben;
 - keine Shared-Laufzeitabhängigkeit; die öffentliche Shell ist als feste,
   gelockte Kopie aus `public-app-shell/v2.0.3` im Repository enthalten;
@@ -21,8 +23,8 @@ geprüfte Webcams sind optionale, erst nach Nutzeraktion geladene Ansichten.
 - Portal-DEV bindet nur über dokumentierte Metadaten und URL an.
 
 Siehe [Produktbrief](docs/PRODUCT_BRIEF.md), [visuelle Richtung](docs/VISUAL_DIRECTION.md),
-[Kameraoptionen](docs/LIVE_CAMERA_OPTIONS.md), [QA-Plan](docs/QA_PLAN.md) und
-[Erkenntnisse](docs/LEARNINGS.md).
+[Quellen und Lizenzen](docs/SOURCES_AND_LICENSES.md), [QA-Plan](docs/QA_PLAN.md)
+und [Erkenntnisse](docs/LEARNINGS.md).
 
 ## Lokaler DEV-Stand
 
@@ -127,9 +129,8 @@ ausgeliefert, beide CSS-Dateien bleiben externe Same-Origin-Ressourcen.
 
 - Der Browser sendet nur die Koordinaten des von der App gewählten Orts an
   Open-Meteo; ein Nutzerstandort wird weder angefragt noch übertragen.
-- NASA GIBS und der Windy-Webcamplayer erhalten erst nach der jeweiligen
-  Nutzeraktion eine Netzwerkanfrage. Die App kopiert oder cached deren Medien
-  nicht.
+- Die drei Fotos liegen lokal im App-Repository und im Offlinecache. Beim
+  Anzeigen entsteht keine Anfrage an Wikimedia Commons oder Fotografen.
 - Ortszeit und Sonnenstand werden lokal berechnet.
 - Es gibt keine Analyse, Cookies, Konten oder App-Datenbank.
 - Exakte Ortskoordinaten erscheinen weder in der Oberfläche noch in der

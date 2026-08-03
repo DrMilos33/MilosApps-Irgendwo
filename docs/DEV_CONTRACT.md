@@ -9,7 +9,7 @@ Vertragsstand: `public-app-shell/v2.0.3` plus
 |---|---|
 | App-Key | `somewhere-now` |
 | Titel | `Irgendwo ist gerade …` |
-| Kurzbeschreibung | `Ein stilles Fenster zu einem realen Moment irgendwo auf der Erde.` |
+| Kurzbeschreibung | `Atmosphärische Morgen-, Abend- und Nachtmomente mit echter Ortszeit, Licht und Wetter.` |
 | Sprachen | `de`, `en` (vollständige Fach-UI, lokal persistiert) |
 | Status | `DEV` |
 | Authentifizierung | keine |
@@ -20,7 +20,7 @@ Vertragsstand: `public-app-shell/v2.0.3` plus
 | Lokaler Readiness-Pfad | `/health/somewhere-now.json` |
 | Metadaten | `/app-metadata.json` |
 | Vorschaubild | `/preview.png` |
-| Vorschaubildrechte | eigener App-Screenshot der standardmäßigen Datenszene; keine NASA-/Webcammedien im Vorschaubild |
+| Vorschaubildrechte | eigener App-Screenshot; Abendfoto Eduardo Pereira, Public Domain Mark 1.0, mit Attribution in App und Metadaten |
 
 Die maschinenlesbare Fassung liegt in
 [`public/app-metadata.json`](../public/app-metadata.json).
@@ -58,10 +58,9 @@ ungeprüft weiter.
 - Ein Portal-Ausfall verhindert den direkten App-Aufruf nicht.
 - Portaländerungen gehören ausschließlich dem Portal-Task.
 
-NASA- und Webcamansichten ändern weder Portalroute noch Readiness. Sie sind
-app-eigene optionale Cross-Origin-Ansichten und werden erst nach bewusster
-Nutzeraktion geladen. Die lokale Datenszene und der Offline-Kern bleiben ohne
-diese Dienste vollständig funktionsfähig.
+Die drei Atmosphärenfotos liegen lokal im App-Artefakt. Es existieren keine
+Cross-Origin-Bild-, Webcam- oder Videomodi. Die Live-Grenze wird direkt im
+Fotofenster benannt; Readiness und Portalroute bleiben davon unabhängig.
 
 ## Noch nicht freigegeben
 
@@ -86,11 +85,10 @@ Same-Origin-Vendorassets sind unterpfadfähig. Health, App-Metadaten und
 werden network-only beantwortet, damit sie stets die aktuelle Revision
 belegen.
 
-Auch Cross-Origin-NASA-/Windy-Ressourcen liegen außerhalb des Service-Worker-
-Scopes und werden weder abgefangen noch gecacht. Die strikte lokale
-CSP-Regression erlaubt Bilder ausschließlich zusätzlich von
-`gibs.earthdata.nasa.gov` und Frames ausschließlich von
-`webcams.windy.com`; Script- und Stylequellen bleiben Same-Origin.
+Die drei JPEGs sind Teil des basisbewussten Offline-Precaches. Die strikte
+CSP-Regression erlaubt Bilder, Skripte und Styles ausschließlich von
+Same-Origin (zuzüglich des bestehenden `data:`-Iconpfads); Frames sind nicht
+erforderlich.
 
 Das leere Railway-Projekt `8f67be1c-9824-4750-838e-bf3bc639bf2c` bleibt als
 historische, durch die Free-Plan-Ressourcengrenze blockierte Ressource

@@ -81,7 +81,10 @@ if (mode === "pages") {
   }
 }
 
-await readFile(new URL("../dist/src/entry.js", import.meta.url));
+const entry = await readFile(new URL("../dist/src/entry.js", import.meta.url), "utf8");
+if (/gibs\.earthdata\.nasa\.gov|webcams\.windy\.com/i.test(`${index}\n${entry}`)) {
+  throw new Error("Verworfene Satelliten-/Webcam-Runtime ist im Build verblieben.");
+}
 await readFile(new URL("../dist/.nojekyll", import.meta.url));
 
 const manifest = JSON.parse(await readFile(new URL("../dist/manifest.webmanifest", import.meta.url), "utf8"));
@@ -119,7 +122,7 @@ for (const forbidden of ["health.json", "health/somewhere-now.json", "app-metada
   }
 }
 for (const expected of [
-  'const CACHE_NAME = "somewhere-now-shell-v15"',
+  'const CACHE_NAME = "somewhere-now-shell-v16"',
   'new URL("./", self.registration.scope)',
   "const LIVE_METADATA_PATHS = new Set([",
   'new URL("health/somewhere-now.json", APP_BASE_URL).pathname',
@@ -129,8 +132,21 @@ for (const expected of [
   '"src/entry.js"',
   '"vendor/milosapps-shell/v2/bootstrap.js"',
   '"vendor/milosapps-essentials/v1/bootstrap.js"',
+  '"media/atmosphere/morning-nanga-parbat.jpg"',
+  '"media/atmosphere/evening-lisbon.jpg"',
+  '"media/atmosphere/night-tromso.jpg"',
 ]) {
   if (!serviceWorker.includes(expected)) throw new Error(`Service-Worker-Precache fehlt oder ist nicht basisbewusst: ${expected}`);
+}
+
+for (const [photo, expectedHash] of Object.entries({
+  "morning-nanga-parbat.jpg": "b5ac8793a49f3c40336fc7e8cfbef2924fae0a8da2ca4ec6e4a42c5aa0a8d661",
+  "evening-lisbon.jpg": "8b95f66670031e6b710852c6e4041a7608f36800bd0bf0bb28df3c30e4d2d554",
+  "night-tromso.jpg": "68e691e4622c197c41a1d22bc2e28b0b5a68574737f5981c984b5723e378fd15",
+})) {
+  const bytes = await readFile(new URL(`../dist/media/atmosphere/${photo}`, import.meta.url));
+  const actualHash = createHash("sha256").update(bytes).digest("hex");
+  if (actualHash !== expectedHash) throw new Error(`Atmosphärenfoto fehlt oder weicht bytegenau ab: ${photo}`);
 }
 
 console.log(`Build-Vendor-/Pagesprüfung: PASS (${mode}, ${repositoryRoot})`);

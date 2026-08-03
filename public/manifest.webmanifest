@@ -1,13 +1,13 @@
 {
   "name": "Irgendwo ist gerade …",
   "short_name": "Irgendwo",
-  "description": "Ein stilles Fenster zu einem realen Moment irgendwo auf der Erde.",
+  "description": "Atmosphärische Morgen-, Abend- und Nachtmomente mit echter Ortszeit, Licht und Wetter.",
   "lang": "de",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f4efe7",
-  "theme_color": "#17283a",
+  "background_color": "#0b1721",
+  "theme_color": "#a94736",
   "icons": [
     {
       "src": "./favicon.svg",

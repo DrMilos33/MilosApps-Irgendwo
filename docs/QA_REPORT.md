@@ -551,3 +551,32 @@ aktuellen Eintrag; Smartphone-Reflow und Build sind danach erneut grün.
 - Punkt 5 der Ideensammlung wurde ausdrücklich nicht umgesetzt. Die bereits
   vorhandene optionale, nutzeraktivierte Klangfunktion blieb fachlich und
   technisch unverändert.
+
+### Finale Fotofenster-Revision – verwirft die Außenmedienrunde
+
+Die vorstehende NASA-/Webcamrunde beschreibt einen historischen Zwischenstand
+und ist nicht mehr Produktvertrag. Auf ausdrückliche Nutzerentscheidung wurden
+Satellit, Ereignisbilder, Zeitraffer und Webcams vollständig aus Runtime,
+Navigation, CSP, Datenschutzinventar und aktiver Produktdokumentation entfernt.
+
+- **Runde 1 – Hierarchie und Realaufgabe:** Der linke Bereich wurde nach dem
+  freigegebenen Mockup zu einem festen Menü aus Kicker, dreizeiliger
+  Markenüberschrift, vier Suchrichtungen, Hauptaktion, Teilen und kompaktem
+  Sitzungsstand umgebaut. Ort, Momenttext und Begründung liegen rechts; ein
+  künstlicher Kurz-/Langtexttest belegt dadurch 0–1 px Bewegung der linken
+  Hauptaktion. Das rechte Fotofenster verwendet drei lokale JPEGs für Morgen,
+  Abend und Nacht. Fokus, Ortsauswahl, Momenttext und Bildphase wurden in einer
+  realen Sieben-Orte-Reise geprüft. Autor, Quelle, Lizenz und die Grenze
+  „Atmosphärenfoto · nicht live“ sind sichtbar. Keine Wikimedia-, NASA- oder
+  Windy-Anfrage entsteht beim Anzeigen.
+- **Runde 2 – Unterpfad und Robustheit:** Root und echter Pages-Unterpfad
+  bestanden jeweils 71 Browserfälle bei 28 planmäßigen Profilauslassungen auf
+  Smartphone, Tablet und Desktop. Enthalten sind echte JPEG-Dekodierung und
+  MIME, 1440×900, 390×844, 360×800 bei 200 %, DE/EN plus Reload, Tastatur,
+  Fokus, 44 px, Axe, Dark Mode, Reduced Motion, strikte Same-Origin-CSP,
+  schnelle Wiederholungen, Wetterfehler/Timeout, Polartag/-nacht,
+  Datumsgrenze, Audio blockiert/App-Resume sowie Offline-Reload. 41 Logiktests,
+  Shell- und Essentials-Verifier und beide Buildgates sind grün.
+- Der Service-Worker-Cache ist auf `somewhere-now-shell-v16` angehoben und
+  precacht alle drei lokalen Bilder basisbewusst. Health, Metadaten und
+  Deploymentidentität bleiben network-only.

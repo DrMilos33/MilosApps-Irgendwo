@@ -351,3 +351,39 @@ Browsertests belegen Reihenfolge, Wrap-around und schnelle Wiederholungen.
 Zeitbeziehungen eine verständliche Fortsetzung erzeugen. Der Fortschritt kann
 flüchtig bleiben; entscheidend sind eine sichtbare Regel und deterministische
 Auswahlgrenzen statt künstlicher Punkte oder Belohnungen.
+
+## 2026-08-03 – Dynamischer Inhalt gehört aus dem stabilen Bedienpfad heraus
+
+**Beobachtung und Evidenz:** Ortsname, poetischer Moment, Detail und Begründung
+standen links direkt vor der Hauptaktion. Selbst reservierte Zeilen machten den
+Bereich hoch und ließen das Produkt kleiner wirken als seine Erklärung. Ein
+Bildfenster ohne dokumentarische Tiefe konnte das nicht ausgleichen.
+
+**Änderung und Regression:** Die linke Spalte enthält nur noch Markenversprechen,
+vier Suchrichtungen, Hauptaktion, Teilen und einen kleinen Sitzungsstand.
+Dynamische Texte liegen im großen rechten Fotofenster beziehungsweise in der
+Datenleiste. Ein Kurz-/Langtext-Browsertest misst höchstens 1 px Bewegung der
+Hauptaktion. Desktop, 390 px und 360 px bei 200 % bleiben ohne Überlauf.
+
+**Übertragbarkeit:** Bei Apps mit dominanter Karte, Vorschau oder Szene sollte
+der stabile Bedienpfad nur Entscheidungen enthalten. Variable Ergebnisse
+gehören in die Ergebnisfläche; so bleibt das Menü ruhig, ohne Texte künstlich
+abschneiden zu müssen. Die genaue Richtung ist in `docs/VISUAL_DIRECTION.md`
+als appübergreifend lesbare Referenz dokumentiert.
+
+## 2026-08-03 – Repräsentative Bilder brauchen eine doppelte Wahrheitsgrenze
+
+**Beobachtung und Evidenz:** Atmosphärische Fotos vermitteln Morgen, Abend und
+Nacht stärker als abstrakte Grafik. Sie zeigen aber nicht automatisch den
+gerade ausgewählten Datenort und sind keine Livekamera.
+
+**Änderung und Regression:** Das Fenster zeigt gleichzeitig „Live-Daten“ und
+„Atmosphärenfoto · nicht live“. Ein zweiter Satz erklärt, dass das Motiv die
+Lichtstimmung statt den gewählten Ort repräsentiert. Autor, Quelle und Lizenz
+bleiben am Bild. Die Dateien werden lokal und offline ausgeliefert; beim
+Anzeigen entsteht keine Drittanbieteranfrage. Unit- und Browsertests binden
+Morgen/Abend/Nacht deterministisch und prüfen echte JPEG-Dekodierung.
+
+**Übertragbarkeit:** Daten und Illustration dürfen kombiniert werden, wenn
+Zeitstatus, Ortsbezug und Medienherkunft getrennt benannt sind. Ein Quellenlink
+allein verhindert noch keine falsche Live- oder Ortsassoziation.

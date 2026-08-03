@@ -1,53 +1,38 @@
 # Datenschutz- und Endgeräteinventar
 
-Stand: 2026-08-03. Gültig für den lokalen DEV-Stand von `somewhere-now`.
+Stand: 2026-08-03. Gültig für `somewhere-now`.
 
 ## Zugriff nach Zweck
 
 | Technik | Schlüssel/Inhalt | Zweck | Laufzeit | Erforderlich |
 |---|---|---|---|---|
-| `localStorage` | `milosapps.somewhere-now.language` | ausdrücklich gewählte DE-/EN-Sprache über Seitenaufrufe beibehalten | bis der Nutzer Browserdaten löscht | ja, für die gewählte Sprache |
-| Cache Storage | `somewhere-now-shell-v*` mit eigenen HTML-, JS-, CSS-, Icon- und vendorten Vertragsartefakten | App-Hülle nach dem ersten Laden auch bei Netzausfall öffnen | versionsgebunden; alter Cache wird beim nächsten Service-Worker-Aktivieren entfernt | ja, für den zugesagten Offline-Kern |
-| Arbeitsspeicher | letzte Orts- und Szenenprofile der aktuellen Reise | Direktwiederholungen vermeiden und die letzten drei Entdeckungen zeigen | nur bis Tab/Seite geschlossen wird | ja, für Sitzungsneuheit; nicht persistent |
-| Arbeitsspeicher/Web Audio | Ein/Aus-Zustand des optionalen Klangs | Klang nur nach ausdrücklicher Nutzeraktion steuern | nur bis Tab/Seite geschlossen wird | nein; keine Speicherung |
-| Arbeitsspeicher | gewählte Datenszene-/Satellit-/Webcamansicht | externe Ansicht nur für den aktuellen Ort und nach ausdrücklicher Aktion anzeigen | bis Ansichts- oder Ortswechsel beziehungsweise Tabende | nein; keine Speicherung |
+| `localStorage` | `milosapps.somewhere-now.language` | gewählte DE-/EN-Sprache beibehalten | bis Browserdaten gelöscht werden | ja |
+| Cache Storage | `somewhere-now-shell-v16` mit eigenen HTML-, JS-, CSS-, Icon-, Foto- und Vendorartefakten | App nach dem ersten Laden offline öffnen | versionsgebunden | ja |
+| Arbeitsspeicher | letzte Orte und aktuelle Suchrichtung | Direktwiederholungen vermeiden und Reise erklären | bis Tabende | ja |
+| Arbeitsspeicher/Web Audio | Ein/Aus des optionalen Klangs | Klang nur nach Nutzeraktion | bis Tabende | nein |
 
 Es werden keine Cookies, kein `sessionStorage`, keine IndexedDB, keine
-Analysekennung und kein optionales Tracking verwendet. Der frühere
-`milosapps.somewhere-now.privacyNotice.v1`-Schlüssel wird bei der Migration nur
-entfernt und danach weder gelesen noch geschrieben. Weil kein
-einwilligungspflichtiger Zugriff stattfindet, zeigt die App keinen
-Schein-Einwilligungsbanner. Eine dauerhafte Datenschutzverknüpfung bleibt
+Analysekennung und kein optionales Tracking verwendet. Daher gibt es keinen
+Schein-Einwilligungsbanner; die dauerhafte Datenschutzverknüpfung bleibt
 sichtbar.
 
 ## Netzwerk und Datenweitergabe
 
-- Open-Meteo erhält ausschließlich die Koordinaten des von der App kuratiert
-  ausgewählten Orts. Die App fragt keinen Nutzerstandort ab.
-- NASA GIBS erhält erst nach einem Klick auf `Satellit` den regionalen
-  WMS-Bildausschnitt, das Aufnahmedatum sowie übliche technische
-  Verbindungsdaten wie IP-Adresse und User-Agent. Der Bild-Referrer ist
-  deaktiviert. Es werden keine Nutzerkoordinaten übertragen.
-- `webcams.windy.com` erhält erst nach einem Klick auf `Webcam` die fest
-  kuratierte Webcam-ID sowie übliche technische Verbindungsdaten. Laut
-  offizieller Windy-Embed-Dokumentation verwendet der Embed keine Cookies oder
-  andere Trackingverfahren. Betreiber- und Windy-Links werden erst bei
-  tatsächlichem Anklicken als Navigation geöffnet.
-- Wetterantworten werden nicht im Service Worker oder in Browser-Speichern
-  persistiert.
-- NASA-Bilder, Windy-Frames und sonstige Cross-Origin-Antworten werden vom
-  Service Worker weder abgefangen noch gespeichert. Beim Zurückwechseln zur
-  Datenszene werden Bildquelle beziehungsweise Iframe aus dem Dokument
-  entfernt.
-- Geteilte Texte enthalten Ortsname, verständlichen Moment und Ortszeit, aber
-  keine Koordinaten, GeoName-ID oder Orts-Query in der URL.
+- Open-Meteo erhält ausschließlich die Koordinaten des von der App gewählten
+  Orts. Ein Nutzerstandort wird nicht angefragt.
+- Die drei Atmosphärenfotos werden lokal von derselben App-Domain ausgeliefert.
+  Wikimedia Commons, Fotografen oder Lizenzseiten erhalten beim Anzeigen keine
+  Anfrage. Erst ein bewusster Klick auf Quelle oder Lizenz öffnet deren Seite.
+- Wetterantworten werden weder im Service Worker noch in persistenten
+  Browser-Speichern abgelegt.
+- Geteilte Texte enthalten Ortsname, Moment und Ortszeit, aber keine
+  Koordinaten, GeoName-ID oder Orts-Query.
 - Es gibt kein Konto, keine App-Datenbank und keine app-eigene Werbe- oder
   Analyseschnittstelle.
 
 ## Prüfnachweis
 
-Unit- und Browsertests inventarisieren die sichtbaren Datenschutzpfade,
-verwerfen den alten Hinweis-Schlüssel, prüfen die DE-/EN-Sprachpersistenz und
-belegen den Offline-Cache. `rg`-Audits auf `localStorage`, `sessionStorage`,
-`document.cookie`, `indexedDB` und Cache-Nutzung gehören zum
-Abschlussreview.
+Unit- und Browsertests prüfen DE/EN-Persistenz, den dauerhaften
+Datenschutzpfad, lokale Bild-URLs, ausbleibende Drittmedien-Anfragen und den
+Offline-Cache. `rg`-Audits auf `localStorage`, `sessionStorage`, Cookies,
+IndexedDB und Cache-Nutzung gehören zum Abschlussreview.

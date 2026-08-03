@@ -2,157 +2,87 @@
 
 Stand der Prüfung: 2026-08-03.
 
+## Atmosphärenfotos
+
+Die drei Motive liegen als lokale 1280-px-JPEG-Kopien im Repository. Die App
+lädt sie von derselben Origin, verwendet keine Wikimedia-Hotlinks und sendet
+beim Anzeigen keine Daten an Fotografen oder Plattformen. CSS darf das Bild je
+nach Viewport sichtbar beschneiden; die Dateien selbst wurden nicht kreativ
+bearbeitet. Die Oberfläche nennt Autor, Lizenz und Quellseite direkt am Motiv
+und erklärt, dass das Foto die Lichtstimmung statt den ausgewählten Datenort
+zeigt.
+
+### Morgen
+
+- Werk: [The Golden hour – Sunrise at the Killer Mountain, the mighty Nanga Parbat](https://commons.wikimedia.org/wiki/File:The_Golden_hour_-_Sunrise_at_the_Killer_Mountain,_the_mighty_Nanga_Parbat.jpg)
+- Urheber: Mohammad Yaseen
+- Aufnahmedatum: 30. April 2018
+- Lizenz: [Creative Commons Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- lokale Datei: `public/media/atmosphere/morning-nanga-parbat.jpg`
+- SHA-256: `b5ac8793a49f3c40336fc7e8cfbef2924fae0a8da2ca4ec6e4a42c5aa0a8d661`
+
+### Abend
+
+- Werk: [Lisbon, Tagus river, fog, mist, sea, golden hour, light, sun, sunset, bridge](https://commons.wikimedia.org/wiki/File:Lisbon,_Tagus_river,_fog,_mist,_sea,golden_hour,_light,_sun,_sunset,_bridge_(50706209197).jpg)
+- Urheber: Eduardo Pereira
+- Aufnahmedatum: 15. September 2020
+- Status: [Public Domain Mark 1.0](https://creativecommons.org/publicdomain/mark/1.0/), von Wikimedia nach dem Flickr-Import geprüft
+- lokale Datei: `public/media/atmosphere/evening-lisbon.jpg`
+- SHA-256: `8b95f66670031e6b710852c6e4041a7608f36800bd0bf0bb28df3c30e4d2d554`
+
+### Nacht
+
+- Werk: [Northern lights in Tromso](https://commons.wikimedia.org/wiki/File:Northern_lights_in_Tromso.jpg)
+- Urheber: Ddgfoto
+- Aufnahmedatum: 25. Februar 2014
+- Lizenz: [Creative Commons Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+- lokale Datei: `public/media/atmosphere/night-tromso.jpg`
+- SHA-256: `68e691e4622c197c41a1d22bc2e28b0b5a68574737f5981c984b5723e378fd15`
+
 ## Wetter: Open-Meteo
 
-- Primärquelle:
-  [Forecast API](https://open-meteo.com/en/docs)
-- Nutzungsbedingungen:
-  [Terms](https://open-meteo.com/en/terms)
+- Primärquelle: [Forecast API](https://open-meteo.com/en/docs)
+- Bedingungen: [Terms](https://open-meteo.com/en/terms)
 - Datenlizenz: CC BY 4.0.
-- Verwendeter Dienst:
-  `https://api.open-meteo.com/v1/forecast`
-- Verwendete aktuelle Modellwerte: Temperatur, gefühlte Temperatur,
-  Niederschlag, Regen, Schauer, Schnee, WMO-Wettercode, Wolkenbedeckung,
-  relative Luftfeuchte, Sichtweite, Windgeschwindigkeit, Windrichtung, Böen
-  und kurzwellige Strahlung.
-- Zeitformat: `GMT`, damit der Zeitstempel als UTC-Instant eindeutig
-  ausgewertet werden kann.
-- Laufzeitgrenze des freien Endpunkts: ausschließlich nichtkommerzieller DEV
-  unter den veröffentlichten Rate-Limits. Vor einer kommerziellen oder
-  werbefinanzierten Veröffentlichung ist ein passender Open-Meteo-Tarif
-  erforderlich.
-- Attribution in der App: `Wetter: Open-Meteo · CC BY 4.0`.
-- Änderungen: Modellwerte werden gerundet, auf Aktualität geprüft und in eine
-  eigene deutschsprachige Momentbeschreibung übersetzt.
-- Haftungsgrenze: Modellwerte können unvollständig, ungenau, verspätet oder
-  nicht erreichbar sein. Die App kennzeichnet diese Zustände und verwendet
-  Wetter nicht für sicherheitskritische Entscheidungen.
-
-## Satellitenbilder: NASA GIBS
-
-- Primärquelle und Zugriffsvertrag:
-  [NASA GIBS Access Basics](https://nasa-gibs.github.io/gibs-api-docs/access-basics/)
-- Bilddienst: öffentlicher OGC-WMS-GetMap-Endpunkt unter
-  `https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi`.
-- Ebene: `MODIS_Terra_CorrectedReflectance_TrueColor`.
-- NASA-Medienrichtlinie:
-  [NASA Images and Media Usage Guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/).
-- Verwendung: informativer regionaler Ausschnitt des UTC-Vortags; bei
-  Bildfehler genau ein Rückfall auf zwei Tage zuvor. Das Aufnahmedatum und die
-  Grenze „Nahe-Echtzeit, nicht live“ bleiben sichtbar.
-- Attribution: `NASA GIBS` direkt an der Ansicht sowie Link zum entsprechenden
-  [NASA Worldview](https://worldview.earthdata.nasa.gov/)-Ausschnitt.
-- Grenze: kein NASA-Logo, keine NASA-Empfehlungsbehauptung, keine Übernahme
-  gekennzeichneter Drittinhalte. Das Bild wird erst nach Nutzeraktion geladen,
-  nicht verändert, nicht lokal kopiert und nicht vom Service Worker gecacht.
-
-Empfohlener Quellenhinweis: „We acknowledge the use of imagery provided by
-services from NASA's Global Imagery Browse Services (GIBS), part of NASA's
-Earth Science Data and Information System (ESDIS).“
-
-## Webcams: offizieller Windy-Embed
-
-- Primärquelle:
-  [Windy Webcam Embed](https://embed.windy.com/config/webcam)
-- Nutzungsgrenzen:
-  [Windy Webcams Terms](https://api.windy.com/webcams/terms) und
-  [Pricing](https://api.windy.com/webcams/pricing).
-- Verwendet werden ausschließlich die offiziellen Player-URLs für die drei in
-  [`LIVE_CAMERA_OPTIONS.md`](LIVE_CAMERA_OPTIONS.md) dokumentierten IDs.
-- Windy-Link und Betreiberquelle stehen sichtbar bei jedem Player. Bilder
-  werden nicht kopiert, vergrößert, überlagert oder zwischengespeichert.
-- Der Player lädt ausschließlich nach Nutzeraktion. Laut offizieller
-  Embed-Konfiguration verwendet Windy Embed keine Cookies oder andere
-  Trackingverfahren. Übliche technische Verbindungsdaten an den Drittanbieter
-  bleiben dennoch transparent im Datenschutzinventar dokumentiert.
-- Keine Webcams-API, kein Schlüssel und keine dynamische freie Suche.
+- Verwendeter Endpunkt: `https://api.open-meteo.com/v1/forecast`.
+- Übertragen werden nur die Koordinaten des app-seitig gewählten Orts, nie ein
+  Nutzerstandort.
+- Die App rundet Modellwerte, prüft Aktualität und blendet potenziell
+  gefährliche Wetterlagen als Unterhaltung aus.
+- Vor kommerzieller oder werbefinanzierter Veröffentlichung ist der passende
+  Open-Meteo-Tarif erneut zu prüfen.
 
 ## Orte: GeoNames
 
-- Primärquelle:
-  [GeoNames Gazetteer Downloads](https://download.geonames.org/export/dump/)
+- Primärquelle: [GeoNames Gazetteer Downloads](https://download.geonames.org/export/dump/)
 - Datensatz: `cities5000.zip`, Snapshot vom 2026-07-29.
-- Datenlizenz: CC BY 4.0.
-- Verwendete Felder: GeoName-ID, Ortsname, WGS84-Koordinaten und
-  IANA-Zeitzonen-ID.
-- Änderungen: kleiner kuratierter Ausschnitt, deutsche Schreibweisen einzelner
-  Orts- und Ländernamen, eigene Landschaftskategorie und eigener Szenen-Seed.
-- Attribution in der App: `Ortsdaten: GeoNames · CC BY 4.0`.
-- Datenschutzgrenze: Die Koordinaten gehören ausschließlich zum kuratierten
-  Ort. Die App fragt keinen Nutzerstandort ab.
+- Lizenz: CC BY 4.0.
+- Verwendet werden GeoName-ID, Ortsname, grobe WGS84-Koordinaten und
+  IANA-Zeitzone; einzelne deutsche Bezeichnungen und Kategorien sind app-eigen.
 
-## Zeitzonen: IANA-Daten über `Intl`
+## Zeit und Sonnenstand
 
-- Primärquelle:
-  [IANA Time Zone Database](https://www.iana.org/time-zones)
-- Laufzeit: `Intl.DateTimeFormat` des jeweiligen Browsers.
-- Zweck: lokale Uhrzeit, lokales Datum, Sommerzeit und Datumsgrenzen.
-- Grenze: Der Browser oder das Betriebssystem liefert seine installierte
-  IANA-Version. Die IANA-Seite wies bei der Prüfung Version `2026c` als aktuell
-  aus; die App behauptet nicht, dass jeder Client bereits diese Version nutzt.
+- Zeitzonen: [IANA Time Zone Database](https://www.iana.org/time-zones) über
+  `Intl.DateTimeFormat` des Browsers.
+- Sonnenstand: [SunCalc 2.0.1](https://github.com/mourner/suncalc),
+  BSD-2-Clause. Der vollständige Lizenztext steht in
+  [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md).
 
-## Sonnenstand: SunCalc
+## MilosApps-Verträge
 
-- Primärquelle und Dokumentation:
-  [SunCalc](https://github.com/mourner/suncalc)
-- Eingesetzte Version: `2.0.1`.
-- Lizenz: BSD-2-Clause.
-- Zweck: Sonnenhöhe, Sonnenrichtung, Sonnenaufgang, Sonnenuntergang, Polartag
-  und Polarnacht.
-- Attribution in der App: `Sonnenstand: SunCalc · BSD-2-Clause`.
-- Der vollständige Lizenzhinweis steht in
-[THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
+- `public-app-shell/v2.0.3` @
+  `ed898412306e22c6ae1b10ee8953df29f8acd627`;
+- `public-app-essentials/v1.1.5` @
+  `2942132ad3bf6cf39edc9f52ed918de6a230be23`;
+- feste lokale Vendor-Kopien mit SHA-256-Locks, kein CDN und kein
+  Runtimeimport aus einem anderen Repository.
 
-## MilosApps Public App Shell
+## Eigene Inhalte und Grenzen
 
-- Kanonische Quelle:
-  [DrMilos33/MilosApps-Shared](https://github.com/DrMilos33/MilosApps-Shared)
-- Vertrag/Tag: `public-app-shell/v2.0.3`.
-- Exakter Shared-Commit:
-  `ed898412306e22c6ae1b10ee8953df29f8acd627`.
-- Übernahme: feste lokale Kopie mit fünf SHA-256-gelockten Artefakten; kein
-  CDN und kein Runtimeimport aus einem anderen Repository.
-- Release-Hash `milos-app-shell.js`:
-  `bff9c09ae64e453d186508a4372a1cacc17b4dcd30b770046c7f4efee53731b3`.
-- Release-Hash `milos-app-shell.css`:
-  `662093d5dce4147b7e962a882b570b478a437a78c77d92242eb3c96191a019a9`.
-- Das App-Icon, Theme-Tokens und sämtliche sichtbaren DE/EN-Fachtexte gehören
-  weiterhin dieser App; die Shell liefert nur den gemeinsamen Rahmen.
-
-## MilosApps Public App Essentials
-
-- Kanonische Quelle:
-  [DrMilos33/MilosApps-Shared](https://github.com/DrMilos33/MilosApps-Shared)
-- Vertrag/Tag: `public-app-essentials/v1.1.5`.
-- Exakter Shared-Commit:
-  `2942132ad3bf6cf39edc9f52ed918de6a230be23`.
-- Übernahme: feste lokale Kopie mit sechs SHA-256-gelockten
-  Verbraucherartefakten einschließlich Manifest-Schema; kein
-  CDN und kein Runtimeimport aus einem anderen Repository.
-- App-spezifische Module: Ladebildschirm, dauerhafter `no-cookies`-
-  Datenschutzlink und Teilen; Datum und Ortssuche sind deaktiviert.
-- Der Build erhält beide CSS-Verweise als externe Same-Origin-Ressourcen und
-  liefert alle sechs Vendorartefakte bytegleich zum Lock aus.
-- Texte, Theme-Tokens und das Inline-SVG-App-Icon bleiben Eigentum dieser App.
-
-## Eigene Inhalte
-
-- Datenszene: ausschließlich HTML und CSS aus diesem Repository; keine
-  übernommenen Bilder, Karten, Kameraaufnahmen oder fremden Designs.
-- Externe Satelliten-/Webcamansichten sind getrennte Opt-in-Modi und werden
-  nicht Bestandteil der eigenen prozeduralen Szene.
-- Klang: prozedurale Oszillator- und Rauschsignale über Web Audio; keine
+- Texte, Auswahl-, Zeit-, Wetter- und Darstellungslogik sind app-eigen.
+- Klang entsteht erst nach Nutzeraktion per Web Audio; es gibt keine
   Audiodateien.
-- Texte: für diese App neu geschrieben.
-- Vorschaubild: Screenshot ausschließlich der standardmäßigen eigenen
-  Datenszene. NASA-/Webcaminhalte dürfen nicht in ein app-eigenes Portalbild
-  übernommen werden.
-
-## Schutzregel
-
-Die App importiert keine Nachrichten-, Katastrophen- oder Warnmeldungen.
-Wettercodes und Windwerte, die auf schwere oder potenziell gefährliche
-Bedingungen hindeuten, werden nicht als unterhaltsamer Moment verwendet. Die
-Oberfläche zeigt in diesem Fall nur Zeit und Tageslicht und erklärt die
-bewusste Auslassung. Diese Filterung ist keine Wetterwarnung und ersetzt keine
-offizielle Warnquelle.
+- Satelliten-, Event-, Zeitraffer-, Webcam- und Livevideo-Ideen wurden
+  verworfen und sind weder Runtimefunktion noch Netzwerkabhängigkeit.
+- Die Schutzregel gegen akute Katastrophen und gefährliche Wetterinszenierung
+  bleibt bestehen und ersetzt keine offizielle Warnquelle.

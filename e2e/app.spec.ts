@@ -84,9 +84,10 @@ test("lädt ohne Login und zeigt einen vollständigen Moment", async ({ page }) 
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByText("Reykjavík · Island")).toBeVisible();
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
-  await expect(page.getByText(/Ortszeit, Licht und Wetter/)).toBeVisible();
+  await expect.poll(() => page.locator("#atmospheric-image").evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
+  await expect(page.getByText("Entdecke den Moment.")).toBeVisible();
   await expect(page.locator("#selection-reason")).toContainText("Ausgewählt");
-  const travel = page.getByRole("button", { name: "Nächsten Moment entdecken" });
+  const travel = page.getByRole("button", { name: "Moment finden" });
   await expect(travel).toBeEnabled();
   const travelIsInInitialViewport = await travel.evaluate(
     (element) => element.getBoundingClientRect().top < window.innerHeight,
@@ -115,14 +116,12 @@ test("hält die Einstiegshierarchie kompakt und die Hauptaktion im ersten Viewpo
     const travel = document.querySelector<HTMLElement>("#travel-button")!;
     const copy = document.querySelector<HTMLElement>(".moment-copy")!;
     const scene = document.querySelector<HTMLElement>(".scene-column")!;
-    const secondary = document.querySelector<HTMLElement>(".moment-secondary")!;
     const intro = document.querySelector<HTMLElement>(".app-intro")!;
     const focus = document.querySelector<HTMLElement>(".moment-focus")!;
     const titleRect = title.getBoundingClientRect();
     const travelRect = travel.getBoundingClientRect();
     const copyRect = copy.getBoundingClientRect();
     const sceneRect = scene.getBoundingClientRect();
-    const secondaryRect = secondary.getBoundingClientRect();
     return {
       viewportWidth: window.innerWidth,
       viewportHeight: window.innerHeight,
@@ -135,24 +134,21 @@ test("hält die Einstiegshierarchie kompakt und die Hauptaktion im ersten Viewpo
       copyWidth: copyRect.width,
       sceneWidth: sceneRect.width,
       sceneTop: sceneRect.top,
-      secondaryTop: secondaryRect.top,
       contextToFocusHeight: focus.getBoundingClientRect().top - intro.getBoundingClientRect().top,
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     };
   });
 
   const narrow = metrics.viewportWidth <= 768;
-  expect(metrics.titleFontSize).toBeLessThanOrEqual(narrow ? 29 : 31);
-  expect(metrics.titleHeight).toBeLessThanOrEqual(narrow ? 62 : 64);
-  expect(metrics.appTitleFontSize).toBeLessThanOrEqual(15);
-  expect(metrics.detailFontSize).toBeLessThanOrEqual(15);
-  expect(metrics.contextToFocusHeight).toBeLessThanOrEqual(230);
+  expect(metrics.titleFontSize).toBeLessThanOrEqual(narrow ? 36 : 53);
+  expect(metrics.titleHeight).toBeLessThanOrEqual(narrow ? 78 : 108);
+  expect(metrics.appTitleFontSize).toBeLessThanOrEqual(38);
+  expect(metrics.detailFontSize).toBeLessThanOrEqual(16);
+  expect(metrics.contextToFocusHeight).toBeLessThanOrEqual(180);
   expect(metrics.travelTop).toBeLessThan(metrics.viewportHeight);
   expect(metrics.travelHeight).toBeGreaterThanOrEqual(44);
   expect(metrics.overflow).toBeLessThanOrEqual(1);
-  if (narrow) {
-    expect(metrics.sceneTop).toBeLessThan(metrics.secondaryTop);
-  } else {
+  if (!narrow) {
     const minimumSceneRatio = metrics.viewportWidth >= 1200 ? 1.75 : 1.5;
     expect(metrics.sceneWidth / metrics.copyWidth).toBeGreaterThanOrEqual(minimumSceneRatio);
   }
@@ -207,8 +203,8 @@ test("lässt die gesuchte Momentart wählen und zeigt ein ehrliches Live-Fenster
   const sunrise = page.getByRole("radio", { name: "Morgenlicht" });
   await sunrise.check();
   await expect(sunrise).toBeChecked();
-  await expect(page.getByRole("button", { name: "Dem Morgenlicht folgen" })).toBeVisible();
-  await page.getByRole("button", { name: "Dem Morgenlicht folgen" }).click();
+  await expect(page.getByRole("button", { name: "Morgenlicht finden" })).toBeVisible();
+  await page.getByRole("button", { name: "Morgenlicht finden" }).click();
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
   await expect(page.locator("#selection-reason")).toContainText(/Sonnenaufgang|Morgenlicht/);
   await expect(page.locator("#light-route-status")).toContainText("Etappe 1");
@@ -220,10 +216,11 @@ test("lässt die gesuchte Momentart wählen und zeigt ein ehrliches Live-Fenster
   await expect(page.getByRole("radio", { name: "Morning light" })).toBeChecked();
   await shell.locator('button[data-locale="de"]').click();
 
-  await expect(page.locator("#scene")).toContainText("LIVE-DATENSZENE");
-  await expect(page.locator("#scene")).toContainText("Ortszeit · Sonne · Wettermodell");
-  await expect(page.locator("#signal-cloud")).toHaveText("18 %");
-  await expect(page.locator("#signal-wind")).toContainText("12 km/h");
+  await expect(page.locator("#scene")).toContainText("LIVE-DATEN");
+  await expect(page.locator("#scene")).toContainText("ATMOSPHÄRENFOTO · NICHT LIVE");
+  await expect(page.locator("#atmospheric-image")).toHaveAttribute("src", /morning-nanga-parbat\.jpg$/);
+  await expect(page.locator("#photo-notice")).toContainText("nicht den ausgewählten Ort");
+  await expect(page.locator("#photo-attribution")).toContainText("Mohammad Yaseen");
   await expect(page.locator(".fact-card")).toHaveCSS("margin-left", "0px");
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -238,7 +235,7 @@ test("folgt einer Lichtspur chronologisch statt nur neu zu würfeln", async ({ p
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
   await page.getByRole("radio", { name: "Morgenlicht" }).check();
-  await page.getByRole("button", { name: "Dem Morgenlicht folgen" }).click();
+  await page.getByRole("button", { name: "Morgenlicht finden" }).click();
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
   const firstPlace = await page.locator("#place-label").innerText();
   const firstRoute = await page.locator("#light-route-status").innerText();
@@ -255,66 +252,41 @@ test("folgt einer Lichtspur chronologisch statt nur neu zu würfeln", async ({ p
   );
 });
 
-test("lädt NASA und seltene Webcams erst nach einer ausdrücklichen Aktion", async ({
+test("wechselt zwischen drei lokalen Atmosphärenfotos und wahrt die Bildgrenze", async ({
   page,
+  request,
 }, testInfo) => {
-  test.skip(testInfo.project.name !== "desktop", "Das Opt-in-Netzwerkgate reicht einmal.");
-  let nasaRequests = 0;
-  let webcamRequests = 0;
-  await page.route("https://gibs.earthdata.nasa.gov/**", async (route) => {
-    nasaRequests += 1;
-    await route.fulfill({
-      status: 200,
-      contentType: "image/png",
-      body: Buffer.from(
-        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAF/gL+X9ebWQAAAABJRU5ErkJggg==",
-        "base64",
-      ),
-    });
-  });
-  await page.route("https://webcams.windy.com/**", async (route) => {
-    webcamRequests += 1;
-    await route.fulfill({
-      status: 200,
-      contentType: "text/html",
-      body: "<!doctype html><html><body>Windy webcam player</body></html>",
-    });
+  test.skip(testInfo.project.name !== "desktop", "Das Bildquellen-Gate reicht einmal.");
+  const foreignMediaRequests: string[] = [];
+  page.on("request", (request) => {
+    if (/gibs\.earthdata\.nasa\.gov|webcams\.windy\.com|commons\.wikimedia\.org/.test(request.url())) {
+      foreignMediaRequests.push(request.url());
+    }
   });
   await mockWeather(page);
   await page.goto(appPath("?place=tromso"));
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
-  expect(nasaRequests).toBe(0);
-  expect(webcamRequests).toBe(0);
-  await expect(page.getByRole("button", { name: "Webcam" })).toBeVisible();
+  await page.getByRole("radio", { name: "Morgenlicht" }).check();
+  await page.getByRole("button", { name: "Morgenlicht finden" }).click();
+  await expect(page.locator("#atmospheric-image")).toHaveAttribute("src", /morning-nanga-parbat\.jpg$/);
 
-  await page.getByRole("button", { name: "Satellit" }).click();
-  await expect(page.locator("#satellite-image")).toBeVisible();
-  await expect(page.locator("#satellite-status")).toContainText("Nahe-Echtzeit, nicht live");
-  expect(nasaRequests).toBe(1);
-  expect(webcamRequests).toBe(0);
+  await page.getByRole("radio", { name: "Abendlicht" }).check();
+  await page.getByRole("button", { name: "Abendlicht finden" }).click();
+  await expect(page.locator("#atmospheric-image")).toHaveAttribute("src", /evening-lisbon\.jpg$/);
 
-  await page.getByRole("button", { name: "Datenszene" }).click();
-  await expect(page.locator("#scene")).toBeVisible();
-  await page.getByRole("button", { name: "Webcam" }).click();
-  await expect(page.locator("#webcam-host iframe")).toBeVisible();
-  await expect(page.locator("#webcam-title")).toContainText("Fjellheisen");
-  await expect(page.locator("#webcam-detail")).toHaveAttribute(
-    "href",
-    "https://www.windy.com/webcams/1345854014",
-  );
-  expect(webcamRequests).toBe(1);
-
-  await page.getByRole("button", { name: "Datenszene" }).click();
-  await expect(page.locator("#webcam-host iframe")).toHaveCount(0);
-});
-
-test("zeigt die Webcam-Option nur an manuell kuratierten Orten", async ({ page }) => {
-  await mockWeather(page);
-  await page.goto(appPath("?place=tokyo"));
-  await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Webcam" })).toBeHidden();
-  await expect(page.getByRole("button", { name: "Satellit" })).toBeVisible();
+  await page.getByRole("radio", { name: "Nachtseite" }).check();
+  await page.getByRole("button", { name: "Nachtblick finden" }).click();
+  await expect(page.locator("#atmospheric-image")).toHaveAttribute("src", /night-tromso\.jpg$/);
+  await expect(page.locator("#photo-license")).toContainText("CC BY-SA 4.0");
+  await expect.poll(() => page.locator("#atmospheric-image").evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
+  for (const file of ["morning-nanga-parbat.jpg", "evening-lisbon.jpg", "night-tromso.jpg"]) {
+    const response = await request.get(appPath(`media/atmosphere/${file}`));
+    expect(response.ok()).toBe(true);
+    expect(response.headers()["content-type"]).toMatch(/^image\/jpeg(?:;|$)/i);
+  }
+  expect(foreignMediaRequests).toEqual([]);
+  await expect(page.getByRole("button", { name: /Satellit|Webcam|Datenszene/ })).toHaveCount(0);
 });
 
 test("hält die Warum-jetzt-Aussage stabil, während Wetter ergänzt wird", async ({ page }) => {
@@ -343,7 +315,7 @@ test("hält die Warum-jetzt-Aussage stabil, während Wetter ergänzt wird", asyn
   await expect(page.locator("#fact-weather")).toContainText("bedeckt");
 });
 
-test("zeigt in einer realen Reise neue Orte, Szenenprofile und Fortschritt", async ({
+test("zeigt in einer realen Reise neue Orte, lokale Bildmedien und Fortschritt", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "Die deterministische Sitzungsregel reicht einmal.");
@@ -352,18 +324,18 @@ test("zeigt in einer realen Reise neue Orte, Szenenprofile und Fortschritt", asy
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 
   const seen: string[] = [await page.locator("#place-label").innerText()];
-  const variants: string[] = [await page.locator("#scene").getAttribute("data-scene-variant") ?? ""];
+  const images: string[] = [await page.locator("#atmospheric-image").getAttribute("src") ?? ""];
   await expect(page.locator("#session-note")).toContainText("Ein Ort entdeckt");
-  const travel = page.getByRole("button", { name: "Nächsten Moment entdecken" });
+  const travel = page.getByRole("button", { name: "Moment finden" });
   for (let index = 0; index < 6; index += 1) {
     await travel.click();
     await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
     seen.push(await page.locator("#place-label").innerText());
-    variants.push(await page.locator("#scene").getAttribute("data-scene-variant") ?? "");
+    images.push(await page.locator("#atmospheric-image").getAttribute("src") ?? "");
   }
 
   expect(new Set(seen).size).toBe(seen.length);
-  expect(new Set(variants).size).toBeGreaterThanOrEqual(6);
+  expect(images.every((src) => /^\.\/media\/atmosphere\/(?:morning|evening|night)-/.test(src))).toBe(true);
   await expect(page.locator("#session-note")).toContainText("7 verschiedene Orte");
   await expect(page.locator("#session-note")).toContainText("Landschaften in dieser Reise");
   await expect(page.locator("#journey-trail li")).toHaveCount(3);
@@ -816,29 +788,11 @@ test("bleibt unter strikter Same-Origin-CSP vollständig gestaltet", async ({
           "script-src 'self'",
           "style-src 'self'",
           "connect-src 'self' https://api.open-meteo.com",
-          "img-src 'self' data: https://gibs.earthdata.nasa.gov",
-          "frame-src https://webcams.windy.com",
+          "img-src 'self' data:",
           "manifest-src 'self'",
           "worker-src 'self'",
         ].join("; "),
       },
-    });
-  });
-  await page.route("https://gibs.earthdata.nasa.gov/**", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "image/png",
-      body: Buffer.from(
-        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAF/gL+X9ebWQAAAABJRU5ErkJggg==",
-        "base64",
-      ),
-    });
-  });
-  await page.route("https://webcams.windy.com/**", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "text/html",
-      body: "<!doctype html><html><body>Windy webcam player</body></html>",
     });
   });
   await mockWeather(page);
@@ -898,11 +852,8 @@ test("bleibt unter strikter Same-Origin-CSP vollständig gestaltet", async ({
     expect(response.headers()["content-type"]).toMatch(expectedType);
   }
 
-  await page.getByRole("button", { name: "Satellit" }).click();
-  await expect(page.locator("#satellite-image")).toBeVisible();
-  await page.getByRole("button", { name: "Datenszene" }).click();
-  await page.getByRole("button", { name: "Webcam" }).click();
-  await expect(page.locator("#webcam-host iframe")).toBeVisible();
+  await expect(page.locator("#atmospheric-image")).toBeVisible();
+  await expect(page.locator("#atmospheric-image")).toHaveAttribute("src", /^\.\/media\/atmosphere\//);
   expect(cspMessages).toEqual([]);
 });
 
@@ -919,16 +870,15 @@ test("übersetzt die vollständige Fach-UI ins Englische und behält die Wahl na
 
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page).toHaveTitle("Somewhere, right now … – MilosApps");
-  await expect(page.getByRole("heading", { level: 1, name: "Somewhere, right now …" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Right now somewhere on Earth." })).toBeVisible();
   await expect(page.getByText("Reykjavík · Iceland")).toBeVisible();
-  await expect(
-    page.getByText("Local time, light and weather – right now."),
-  ).toBeVisible();
+  await expect(page.getByText("Discover the moment.")).toBeVisible();
   await expect(page.locator("#selection-reason")).toContainText(/^Selected /);
-  await expect(page.getByRole("group", { name: "What would you like to see right now?" })).toBeVisible();
+  await expect(page.getByRole("group", { name: "Where to next?" })).toBeVisible();
   await expect(page.getByRole("radio", { name: "Morning light" })).toBeVisible();
-  await expect(page.locator("#scene")).toContainText("LIVE DATA SCENE");
-  await expect(page.locator("#scene")).toContainText("Local time · sun · weather model");
+  await expect(page.locator("#scene")).toContainText("LIVE DATA");
+  await expect(page.locator("#scene")).toContainText("ATMOSPHERIC PHOTO · NOT LIVE");
+  await expect(page.locator("#photo-notice")).toContainText("not the selected place");
   await expect(page.locator("#session-note")).toContainText("One place discovered");
   await expect(page.locator("#journey-trail")).toHaveAttribute(
     "aria-label",
@@ -936,7 +886,7 @@ test("übersetzt die vollständige Fach-UI ins Englische und behält die Wahl na
   );
   await expect(page.locator("#journey-trail li[aria-current='true']")).toHaveText("Reykjavík");
   await expect(page.getByText("current", { exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Discover another moment" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Find a moment" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Share" })).toBeEnabled();
   await expect(page.getByRole("button", { name: "Turn sound on" })).toBeVisible();
   await expect(shell.getByRole("link", { name: /All apps/ })).toBeVisible();
@@ -957,11 +907,11 @@ test("übersetzt die vollständige Fach-UI ins Englische und behält die Wahl na
 
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByText("current", { exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Discover another moment" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Find a moment" })).toBeVisible();
   await expect(page.locator("#session-note")).toContainText("One place discovered");
   await expect(english).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("#app")).not.toContainText(
-    /Nächsten Moment entdecken|Moment teilen|Über diese Reise|Ortszeit|Wetter erneut laden/,
+    /Moment finden|Moment teilen|Über diese Reise|Ortszeit|Wetter erneut laden/,
   );
   const skip = shell.locator(".skip");
   await skip.focus();
@@ -1058,8 +1008,8 @@ test("bleibt auch im dunklen Systemdesign kontrastreich", async ({ page }) => {
       shareSurface: share.backgroundColor,
     };
   });
-  expect(adaptiveTheme.shareColor).toBe("rgb(237, 240, 233)");
-  expect(adaptiveTheme.shareSurface).toBe("rgb(19, 33, 43)");
+  expect(adaptiveTheme.shareColor).toBe(adaptiveTheme.appColor);
+  expect(adaptiveTheme.shareSurface).toBe(adaptiveTheme.appSurface);
 
   const results = await new AxeBuilder({ page }).analyze();
   const knownShadowBoundary = results.violations.filter(
@@ -1100,7 +1050,7 @@ test("Dialog und Hauptaktion funktionieren vollständig per Tastatur", async ({ 
   await expect(page.getByRole("dialog")).toBeHidden();
   await expect(about).toBeFocused();
 
-  await page.getByRole("button", { name: "Nächsten Moment entdecken" }).focus();
+  await page.getByRole("button", { name: "Moment finden" }).focus();
   await page.keyboard.press("Enter");
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
 });
@@ -1118,7 +1068,7 @@ test("schnelle Wiederholungen lassen nur die letzte Anfrage gewinnen", async ({ 
   });
   await page.goto(appPath("?place=reykjavik"));
 
-  const travel = page.getByRole("button", { name: "Nächsten Moment entdecken" });
+  const travel = page.getByRole("button", { name: "Moment finden" });
   await expect(travel).toBeVisible();
   await travel.click({ clickCount: 8, delay: 15 });
 
@@ -1134,7 +1084,7 @@ test("bleibt bei fehlendem Wetter nutzbar und kann erneut versuchen", async ({ p
   await expect(page.getByText("ohne Wetter", { exact: true })).toBeVisible();
   await expect(page.getByText(/Zeit und Tageslicht bleiben aktuell/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Wetter erneut laden" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Nächsten Moment entdecken" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Moment finden" })).toBeEnabled();
 });
 
 test("erholt sich nach einem Wetterfehler über den sichtbaren Retry", async ({
@@ -1193,7 +1143,7 @@ test("inszeniert gefährliche Wettercodes nicht", async ({ page }) => {
 
   await expect(page.getByText("bewusst ruhig", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Heute nur Zeit und Licht." })).toBeVisible();
-  await expect(page.locator("#scene")).toHaveAttribute("data-weather", "clear");
+  await expect(page.locator("#fact-weather")).toHaveText("Wetter nicht inszeniert");
 });
 
 test("bleibt bei blockiertem Audio still und erklärt den Zustand", async ({ page }) => {
@@ -1257,11 +1207,11 @@ test("respektiert reduzierte Bewegung und bleibt bei 200 Prozent Zoom reflow-fä
   });
   expect(layout.overflow).toBeLessThanOrEqual(1);
   expect(Math.abs(layout.footerGap)).toBeLessThanOrEqual(1);
-  const animationDuration = await page.locator(".cloud-a").evaluate(
+  const animationDuration = await page.locator("#atmospheric-image").evaluate(
     (element) => getComputedStyle(element).animationDuration,
   );
   expect(Number.parseFloat(animationDuration)).toBeLessThanOrEqual(0.001);
-  await expect(page.getByRole("button", { name: "Webcam" })).toBeVisible();
+  await expect(page.locator("#atmospheric-image")).toBeVisible();
 });
 
 test("zeigt Polartag, Polarnacht und eine Datumsgrenze korrekt", async ({
@@ -1281,7 +1231,7 @@ test("zeigt Polartag, Polarnacht und eine Datumsgrenze korrekt", async ({
   await page.clock.setFixedTime(new Date("2026-01-01T10:30:00Z"));
   await page.goto(appPath("?place=waitangi"));
   await expect(page.locator("#fact-time")).toContainText("Freitag, 2. Januar");
-  await expect(page.locator("#scene-time")).toHaveText("00:15 Uhr");
+  await expect(page.locator("#photo-time")).toHaveText("00:15 Uhr");
 });
 
 test("funktioniert nach erstem Laden auch ohne Netz als App-Hülle", async ({

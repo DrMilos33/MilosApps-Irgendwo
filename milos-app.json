@@ -14,8 +14,8 @@
   },
   "environment": "dev",
   "description": {
-    "de": "Ein stilles Fenster zu einem realen Moment irgendwo auf der Erde.",
-    "en": "A quiet window into a real moment somewhere on Earth."
+    "de": "Atmosphärische Morgen-, Abend- und Nachtmomente mit echter Ortszeit, Licht und Wetter.",
+    "en": "Atmospheric morning, evening and night moments with real local time, light and weather."
   },
   "theme": {
     "accent": "var(--accent-text)",

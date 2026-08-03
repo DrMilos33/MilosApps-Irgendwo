@@ -1,7 +1,7 @@
 {
   "appKey": "somewhere-now",
   "title": "Irgendwo ist gerade …",
-  "shortDescription": "Ein stilles Fenster zu einem realen Moment irgendwo auf der Erde.",
+  "shortDescription": "Atmosphärische Morgen-, Abend- und Nachtmomente mit echter Ortszeit, Licht und Wetter.",
   "language": "de",
   "languages": ["de", "en"],
   "status": "DEV",
@@ -13,7 +13,7 @@
   "productionApproved": false,
   "previewImage": {
     "path": "/MilosApps-Irgendwo/preview.png",
-    "rights": "Eigener Screenshot der standardmäßigen prozeduralen Datenszene; keine NASA- oder Webcammedien enthalten."
+    "rights": "Eigener App-Screenshot; enthaltenes Abendfoto von Eduardo Pereira, Public Domain Mark 1.0, Attribution und Lizenz in der App sichtbar."
   },
   "authentication": "none"
 }

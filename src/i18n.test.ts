@@ -16,8 +16,8 @@ describe("vollständige App-Lokalisierung", () => {
     expect(t("en", "statusWeatherLoading", { place: "Reykjavík" })).toBe(
       "Loading weather for Reykjavík …",
     );
-    expect(t("en", "sceneLabel", { place: "Tokyo", title: "Day.", detail: "Clear." })).toBe(
-      "Procedural abstract scene for Tokyo: Day. Clear.",
+    expect(t("en", "photoSceneLabel", { place: "Tokyo", title: "Day", photo: "Morning light" })).toBe(
+      "Current moment in Tokyo: Day. Atmospheric photograph: Morning light.",
     );
   });
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = "somewhere-now-shell-v15";
+const CACHE_NAME = "somewhere-now-shell-v16";
 const APP_BASE_URL = new URL("./", self.registration.scope);
 const appUrl = (relativePath = "") => new URL(relativePath, APP_BASE_URL).href;
 const LIVE_METADATA_PATHS = new Set([
@@ -10,6 +10,9 @@ const LIVE_METADATA_PATHS = new Set([
 const SHELL = [
   "favicon.svg",
   "manifest.webmanifest",
+  "media/atmosphere/morning-nanga-parbat.jpg",
+  "media/atmosphere/evening-lisbon.jpg",
+  "media/atmosphere/night-tromso.jpg",
   "src/entry.js",
   "vendor/milosapps-shell/v2/bootstrap.js",
   "vendor/milosapps-shell/v2/milos-app-shell.js",

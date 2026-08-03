@@ -2,54 +2,44 @@
 
 ## Produktversprechen
 
-Ein einziger Tipp öffnet ein kurzes Fenster zu einem realen, gerade
-stattfindenden Moment irgendwo auf der Erde. Die Auswahl erklärt sichtbar,
-warum Ortszeit oder Licht genau jetzt interessant sind.
+Ein einziger Tipp öffnet ein atmosphärisches Fenster zu einem realen, gerade
+stattfindenden Moment irgendwo auf der Erde. Die App erklärt sichtbar, warum
+Ortszeit oder Licht genau jetzt interessant sind.
 
-## MVP
+## Produktkern
 
-- sofort nutzbarer Zufallsstart ohne Standortfreigabe;
-- kuratierter, lizenzklarer Ortsbestand mit Zeitzone und groben Koordinaten;
-- Auswahl interessanter, sachlich formulierter Momente aus Tageslicht und
-  Wetter;
-- wählbarer Suchfokus für Überraschung, Morgenlicht, Abendlicht oder
+- sofort nutzbarer Start ohne Konto oder Standortfreigabe;
+- kuratierter Ortsbestand mit Zeitzone und groben Koordinaten;
+- vier echte Suchrichtungen: Überraschung, Morgenlicht, Abendlicht und
   Nachtseite;
-- große eigene, prozedurale Live-Datenszene aus Ortszeit, Sonnenstand,
-  Wolkendichte, Luftfeuchte, Sichtweite, Strahlung und Wind;
-- „Dem Licht folgen“ als chronologische Morgen-/Abendlichtreise statt bloßer
-  Zufallsauswahl;
-- optionaler, klar als nahe-echtzeitlich und nicht live beschrifteter
-  NASA-GIBS-Satellitenausschnitt, ausschließlich nach Nutzeraktion;
-- drei seltene, manuell geprüfte Windy-Webcameinbettungen mit sichtbarer
-  Windy-/Betreiberherkunft, ausschließlich nach Nutzeraktion und ohne Kopie;
-- optionaler, erst nach Nutzeraktion startender Klang;
-- verständliche Orts-, Zeit-, Wetter- und Quellenkarte;
-- nach Interesse gerankte „Nächster Moment“-Interaktion ohne unmittelbare
-  Orts- oder Szenenwiederholung;
-- zwölf deterministische Szenenprofile mit landschafts- und
-  tageszeitabhängigen Details;
-- rein sitzungsgebundener Fortschritt und die letzten drei Entdeckungen;
-- verständlicher Teiltext mit Ortszeit und App-Kontext, aber ohne Koordinaten;
+- chronologische Morgen-/Abendlichtreise statt bloßer Zufallsauswahl;
+- drei lokal ausgelieferte, lizenzklare Atmosphärenfotos für Morgen, Abend und
+  Nacht;
+- jedes Foto nennt Autor, Quelle und Lizenz und ist ausdrücklich als
+  repräsentative Lichtstimmung statt als Livebild des ausgewählten Orts
+  gekennzeichnet;
+- Ortszeit, Tageslicht und – wenn erreichbar – aktuelle Modell-Wetterdaten;
+- kein unmittelbarer Ortsrepeat, flüchtiger Sitzungsfortschritt und die letzten
+  drei Entdeckungen;
+- verständlicher Teiltext ohne Koordinaten;
+- optionaler, erst nach Nutzeraktion startender prozeduraler Klang;
 - ehrlicher Zustand bei fehlenden oder veralteten Wetterdaten.
+
+Satellitenbilder, Ereignisbilder, Zeitraffer und Webcam-/Videoplayer sind kein
+Teil des Produkts. Es gibt keine fremden Runtime-Medien oder versteckte
+Drittanbieter-Verbindung.
 
 ## Ton und Auswahlregeln
 
 Ruhige und neugierig machende Situationen haben Vorrang: Sonnenaufgang,
-Mitternacht, erster Schnee, Nebel, klarer Sternenhimmel oder ungewöhnliche
-Temperatur. Erdbeben, Brände, Überschwemmungen, Krieg und akute
-Unwettergefahren werden nicht als überraschender Unterhaltungsmoment verwendet.
+Mitternacht, Nebel, klarer Sternenhimmel oder besondere Lichtlagen. Erdbeben,
+Brände, Überschwemmungen, Krieg und akute Unwettergefahren werden nicht als
+Unterhaltungsmoment verwendet.
 
 ## Datenschutz und Daten
 
 Die App benötigt keinen Nutzerstandort. Nur die ausdrücklich gewählte Sprache
-wird lokal persistiert; Klang, Reiseverlauf und Szenenfolge bleiben im
-Arbeitsspeicher. Der Service Worker speichert ausschließlich eigene statische
-App-Artefakte für den Offline-Kern. Externe Daten werden mit Quelle und
-Zeitstempel angezeigt. NASA- und Webcammedien werden weder vorab geladen noch
-im App-Cache gespeichert. Das vollständige Inventar steht in
-[`PRIVACY_INVENTORY.md`](PRIVACY_INVENTORY.md).
-
-## Portalvertrag
-
-Später werden App-Key, Kurzbeschreibung, DEV-URL, Sprache, Status,
-Vorschaubildrechte und Healthcheck an den Portal-Task übergeben.
+wird lokal persistiert; Klang und Reiseverlauf bleiben im Arbeitsspeicher. Der
+Service Worker speichert eigene App-Artefakte einschließlich der drei lokalen
+Fotos. Wetterantworten und Readiness bleiben ungecacht. Das vollständige
+Inventar steht in [`PRIVACY_INVENTORY.md`](PRIVACY_INVENTORY.md).
