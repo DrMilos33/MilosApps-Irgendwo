@@ -93,6 +93,43 @@ test("lädt ohne Login und zeigt einen vollständigen Moment", async ({ page }) 
   expect(consoleErrors).toEqual([]);
 });
 
+test("hält die Einstiegshierarchie kompakt und die Hauptaktion im ersten Viewport", async ({
+  page,
+}) => {
+  await mockWeather(page);
+  await page.goto(appPath("?place=reykjavik"));
+  await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
+
+  const metrics = await page.evaluate(() => {
+    const title = document.querySelector<HTMLElement>("#moment-title")!;
+    const appTitle = document.querySelector<HTMLElement>(".app-title")!;
+    const detail = document.querySelector<HTMLElement>("#moment-detail")!;
+    const travel = document.querySelector<HTMLElement>("#travel-button")!;
+    const titleRect = title.getBoundingClientRect();
+    const travelRect = travel.getBoundingClientRect();
+    return {
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+      titleFontSize: Number.parseFloat(getComputedStyle(title).fontSize),
+      appTitleFontSize: Number.parseFloat(getComputedStyle(appTitle).fontSize),
+      detailFontSize: Number.parseFloat(getComputedStyle(detail).fontSize),
+      titleHeight: titleRect.height,
+      travelTop: travelRect.top,
+      travelHeight: travelRect.height,
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    };
+  });
+
+  const narrow = metrics.viewportWidth <= 768;
+  expect(metrics.titleFontSize).toBeLessThanOrEqual(narrow ? 48 : 61);
+  expect(metrics.titleHeight).toBeLessThanOrEqual(narrow ? 155 : 135);
+  expect(metrics.appTitleFontSize).toBeLessThanOrEqual(17);
+  expect(metrics.detailFontSize).toBeLessThanOrEqual(17);
+  expect(metrics.travelTop).toBeLessThan(metrics.viewportHeight);
+  expect(metrics.travelHeight).toBeGreaterThanOrEqual(44);
+  expect(metrics.overflow).toBeLessThanOrEqual(1);
+});
+
 test("hält die Warum-jetzt-Aussage stabil, während Wetter ergänzt wird", async ({ page }) => {
   let releaseWeather!: () => void;
   const weatherGate = new Promise<void>((resolve) => {

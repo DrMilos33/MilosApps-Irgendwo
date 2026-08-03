@@ -455,3 +455,19 @@ aktuellen Eintrag; Smartphone-Reflow und Build sind danach erneut grün.
   Service-Worker-Cache ist wegen der stabilen Vendor-URLs auf
   `somewhere-now-shell-v12` angehoben, damit keine alte 40-px-Critical-CSS
   aus einer vorhandenen Sitzung weiterverwendet wird.
+
+### Kompaktere Einstiegshierarchie
+
+- Der visuelle Iststand belegte einen unverhältnismäßig dominanten
+  Momenttitel: Der Desktop-Viewport maß rund 89 px Schriftgröße und 166 px
+  Titelhöhe; die mobile CSS-Regel erlaubte 15 vw. Der Titel verdrängte damit
+  Hauptaktion und Szene, obwohl die App-H1 selbst bereits ruhig gesetzt war.
+- Zwei sichtbare Designrunden verdichteten Titel, Introabstände,
+  Aktionsbereich, Szene und Faktenkarte als Einheit. Der finale Momenttitel
+  verwendet Desktop maximal 3,2 rem und mobil 8,5 vw; die Primäraktion bleibt
+  mindestens 44 px hoch und im initialen Smartphone-Viewport sichtbar.
+- Das neue fail-closed Browsergate prüft Schriftbudgets, Titelhöhe,
+  Hauptaktion im ersten Viewport und horizontalen Reflow. Die fokussierte
+  Matrix aus Produktstart, Dichtegate, Tastaturfokus/44 px, Axe und
+  Reduced-Motion/200-%-Reflow bestand auf Smartphone, Tablet und Desktop mit
+  15/15 Fällen. Root- und Pages-Buildgate sind grün.

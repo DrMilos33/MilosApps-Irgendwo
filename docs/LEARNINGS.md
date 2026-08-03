@@ -262,3 +262,22 @@ vollständigen Source-SHA in allen vier Release-Metadaten.
 **Übertragbarkeit:** Source-CI, Unterpfad-Build und deploytes Artefakt sind drei
 eigene Nachweise. Readiness darf nicht aus demselben langlebigen Offline-Cache
 kommen wie die App-Shell, wenn sie eine aktuelle Deployrevision belegen soll.
+
+## 2026-08-03 – Bildstarke Apps brauchen ein eigenes Dichtebudget
+
+**Beobachtung und Evidenz:** Der Momenttitel durfte auf Desktop bis 6,8 rem und
+mobil 15 vw wachsen. Dadurch beanspruchte ein kurzer poetischer Satz mehr
+visuelles Gewicht als Hauptaktion und prozedurale Szene; Beschreibung und
+Bedienung rutschten unnötig nach unten.
+
+**Änderung und Regression:** Titel, Introabstände, Aktionsleiste, Szenenhöhe
+und Faktenkarte wurden als zusammenhängende Einstiegshierarchie verdichtet.
+Der Momenttitel ist auf Desktop auf höchstens 3,2 rem und mobil auf 8,5 vw
+begrenzt. Bedienziele bleiben mindestens 44 px hoch. Ein neues Browsergate
+prüft Titelbudgets, Hauptaktion im initialen Viewport und horizontalen Reflow;
+die fokussierte Desktop-/Tablet-/Smartphone-Matrix bestand 15 von 15 Fällen.
+
+**Übertragbarkeit:** Große expressive Typografie darf die eigentliche
+Produktaktion nicht verdrängen. Ein responsives Dichtebudget sollte Titel,
+Erklärung, Hauptaktion und erste Arbeits- oder Erlebnisfläche gemeinsam
+betrachten, statt nur einzelne Schriftgrößen zu verkleinern.
