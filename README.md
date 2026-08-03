@@ -4,12 +4,15 @@ Eigenständige öffentliche MilosApps-Web-App mit dem App-Key `somewhere-now`.
 
 Ein Klick führt zu einem realen Ort, an dem gerade ein verständlicher,
 interessanter Moment stattfindet. Zeit, Tageslicht und Wetter erzeugen eine
-eigene abstrakte Szene mit optionalem prozeduralem Klang.
+große eigene Datenszene. Morgen- und Abendlicht lassen sich als fortlaufende
+Etappen rund um die Erde verfolgen; NASA-Satellitenbilder und drei manuell
+geprüfte Webcams sind optionale, erst nach Nutzeraktion geladene Ansichten.
 
 ## Feste Grenzen
 
 - kein Konto und keine App-Datenbank;
-- keine fremden Webcams oder Medien;
+- keine automatisch geladenen fremden Medien; NASA GIBS und drei kuratierte
+  Windy-Webcams verbinden sich ausschließlich nach ausdrücklicher Aktion;
 - eigener DEV-Lifecycle, Production nicht freigegeben;
 - keine Shared-Laufzeitabhängigkeit; die öffentliche Shell ist als feste,
   gelockte Kopie aus `public-app-shell/v2.0.3` im Repository enthalten;
@@ -124,6 +127,9 @@ ausgeliefert, beide CSS-Dateien bleiben externe Same-Origin-Ressourcen.
 
 - Der Browser sendet nur die Koordinaten des von der App gewählten Orts an
   Open-Meteo; ein Nutzerstandort wird weder angefragt noch übertragen.
+- NASA GIBS und der Windy-Webcamplayer erhalten erst nach der jeweiligen
+  Nutzeraktion eine Netzwerkanfrage. Die App kopiert oder cached deren Medien
+  nicht.
 - Ortszeit und Sonnenstand werden lokal berechnet.
 - Es gibt keine Analyse, Cookies, Konten oder App-Datenbank.
 - Exakte Ortskoordinaten erscheinen weder in der Oberfläche noch in der

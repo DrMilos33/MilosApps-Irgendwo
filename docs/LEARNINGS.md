@@ -310,3 +310,44 @@ kurzen und langen Texten pixelstabil.
 vortäuschen. Sie wird glaubwürdig, wenn Datenherkunft sichtbar ist und der
 Nutzer eine fachlich wirksame Auswahl erhält. Bei stabilen Service-Worker-URLs
 muss eine solche JS-/CSS-Revision außerdem einen neuen Cache-Namen erhalten.
+
+## 2026-08-03 – Außenmedien sind eine seltene, explizite Vertiefung
+
+**Beobachtung und Evidenz:** Eine dauerhaft eingebettete Webcam würde eine
+fremde Verfügbarkeit, einen weiteren Netzwerkempfänger und wechselnde
+Bildrechte zum Kern der App machen. Gleichzeitig bietet ein ausschließlich
+prozedurales Fenster zu wenig dokumentarische Tiefe. Ein realer Browserlauf
+bestätigte, dass NASA GIBS und ein offizieller Windy-Player technisch
+funktionieren, ohne für den App-Start nötig zu sein.
+
+**Änderung und Regression:** Die eigene Datenszene bleibt Standard und zeigt
+quantisierte, lokal gerenderte Wetterzustände. Ein NASA-Satellitenbild und drei
+manuell kuratierte Webcam-Orte werden nur nach einer ausdrücklichen Aktion
+geladen; Quellen, Aufnahmezeit und Betreibergrenze bleiben sichtbar. Beim
+Ansichtswechsel werden externe Elemente entfernt, und der Service Worker
+speichert sie nicht. Tests prüfen Allowlist, Opt-in, CSP und das Entfernen der
+Elemente.
+
+**Übertragbarkeit:** Externe Medien eignen sich als bewusstes Extra, nicht als
+stille Grundabhängigkeit. Eine kleine Allowlist, sichtbare Herkunft, kein
+Vorabladen, kein Offlinecache und ein vollwertiger lokaler Fallback begrenzen
+Lizenz-, Datenschutz- und Verfügbarkeitsrisiken.
+
+## 2026-08-03 – „Live“ braucht eine zeitliche Aufgabe, nicht nur Zufall
+
+**Beobachtung und Evidenz:** Selbst eine abwechslungsreiche Szene verliert an
+Wiederholungswert, wenn jede Aktion nur einen neuen Zufallsort liefert. Für
+Morgen- und Abendlicht existiert dagegen eine natürliche Reihenfolge: das
+nächste lokale Sonnenereignis wandert über die Erde.
+
+**Änderung und Regression:** Die App merkt das zuletzt verfolgte
+Sonnenereignis innerhalb der Sitzung und wählt die nächste chronologische
+Etappe; erst am Ende wird auf den frühesten passenden Ort umgebrochen.
+Unmittelbare Orts- und Szenenrepeats bleiben ausgeschlossen. Etappenzähler,
+Zielort und Ortszeit erklären den Fortschritt. Deterministische Logik- und
+Browsertests belegen Reihenfolge, Wrap-around und schnelle Wiederholungen.
+
+**Übertragbarkeit:** Eine datengetriebene App wird spielerisch, wenn reale
+Zeitbeziehungen eine verständliche Fortsetzung erzeugen. Der Fortschritt kann
+flüchtig bleiben; entscheidend sind eine sichtbare Regel und deterministische
+Auswahlgrenzen statt künstlicher Punkte oder Belohnungen.

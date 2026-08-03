@@ -30,6 +30,7 @@ interface SelectionOptions {
   recentIds: readonly string[];
   now: Date;
   focus?: MomentFocus;
+  followAfterAt?: Date | null;
   random?: () => number;
   daylightForPlace?: (place: Place, now: Date) => Daylight;
 }
@@ -138,6 +139,7 @@ export function chooseNextPlace({
   recentIds,
   now,
   focus = "surprise",
+  followAfterAt = null,
   random = Math.random,
   daylightForPlace = getDaylight,
 }: SelectionOptions): PlaceSelection {
@@ -173,6 +175,32 @@ export function chooseNextPlace({
         sceneVariantForPlace(left.place) - sceneVariantForPlace(right.place) ||
         left.place.sceneSeed - right.place.sceneSeed,
     );
+
+  if (focus === "sunrise" || focus === "sunset") {
+    const matchingLight = ranked
+      .filter(
+        (selection) =>
+          selection.daylight.nextEvent === focus &&
+          selection.daylight.nextEventAt !== null &&
+          selection.daylight.nextEventAt.getTime() >= now.getTime(),
+      )
+      .sort(
+        (left, right) =>
+          left.daylight.nextEventAt!.getTime() - right.daylight.nextEventAt!.getTime() ||
+          right.score - left.score ||
+          left.place.sceneSeed - right.place.sceneSeed,
+      );
+    if (matchingLight.length > 0) {
+      const next = followAfterAt
+        ? matchingLight.find(
+            (selection) =>
+              selection.daylight.nextEventAt!.getTime() > followAfterAt.getTime(),
+          )
+        : matchingLight[0];
+      return next ?? matchingLight[0]!;
+    }
+  }
+
   const pool = ranked.slice(0, Math.min(INTERESTING_POOL_SIZE, ranked.length));
   const index = Math.min(pool.length - 1, Math.floor(random() * pool.length));
   const selection = pool[index];

@@ -13,7 +13,8 @@ Stand der Prüfung: 2026-08-03.
   `https://api.open-meteo.com/v1/forecast`
 - Verwendete aktuelle Modellwerte: Temperatur, gefühlte Temperatur,
   Niederschlag, Regen, Schauer, Schnee, WMO-Wettercode, Wolkenbedeckung,
-  Windgeschwindigkeit und Böen.
+  relative Luftfeuchte, Sichtweite, Windgeschwindigkeit, Windrichtung, Böen
+  und kurzwellige Strahlung.
 - Zeitformat: `GMT`, damit der Zeitstempel als UTC-Instant eindeutig
   ausgewertet werden kann.
 - Laufzeitgrenze des freien Endpunkts: ausschließlich nichtkommerzieller DEV
@@ -26,6 +27,45 @@ Stand der Prüfung: 2026-08-03.
 - Haftungsgrenze: Modellwerte können unvollständig, ungenau, verspätet oder
   nicht erreichbar sein. Die App kennzeichnet diese Zustände und verwendet
   Wetter nicht für sicherheitskritische Entscheidungen.
+
+## Satellitenbilder: NASA GIBS
+
+- Primärquelle und Zugriffsvertrag:
+  [NASA GIBS Access Basics](https://nasa-gibs.github.io/gibs-api-docs/access-basics/)
+- Bilddienst: öffentlicher OGC-WMS-GetMap-Endpunkt unter
+  `https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi`.
+- Ebene: `MODIS_Terra_CorrectedReflectance_TrueColor`.
+- NASA-Medienrichtlinie:
+  [NASA Images and Media Usage Guidelines](https://www.nasa.gov/nasa-brand-center/images-and-media/).
+- Verwendung: informativer regionaler Ausschnitt des UTC-Vortags; bei
+  Bildfehler genau ein Rückfall auf zwei Tage zuvor. Das Aufnahmedatum und die
+  Grenze „Nahe-Echtzeit, nicht live“ bleiben sichtbar.
+- Attribution: `NASA GIBS` direkt an der Ansicht sowie Link zum entsprechenden
+  [NASA Worldview](https://worldview.earthdata.nasa.gov/)-Ausschnitt.
+- Grenze: kein NASA-Logo, keine NASA-Empfehlungsbehauptung, keine Übernahme
+  gekennzeichneter Drittinhalte. Das Bild wird erst nach Nutzeraktion geladen,
+  nicht verändert, nicht lokal kopiert und nicht vom Service Worker gecacht.
+
+Empfohlener Quellenhinweis: „We acknowledge the use of imagery provided by
+services from NASA's Global Imagery Browse Services (GIBS), part of NASA's
+Earth Science Data and Information System (ESDIS).“
+
+## Webcams: offizieller Windy-Embed
+
+- Primärquelle:
+  [Windy Webcam Embed](https://embed.windy.com/config/webcam)
+- Nutzungsgrenzen:
+  [Windy Webcams Terms](https://api.windy.com/webcams/terms) und
+  [Pricing](https://api.windy.com/webcams/pricing).
+- Verwendet werden ausschließlich die offiziellen Player-URLs für die drei in
+  [`LIVE_CAMERA_OPTIONS.md`](LIVE_CAMERA_OPTIONS.md) dokumentierten IDs.
+- Windy-Link und Betreiberquelle stehen sichtbar bei jedem Player. Bilder
+  werden nicht kopiert, vergrößert, überlagert oder zwischengespeichert.
+- Der Player lädt ausschließlich nach Nutzeraktion. Laut offizieller
+  Embed-Konfiguration verwendet Windy Embed keine Cookies oder andere
+  Trackingverfahren. Übliche technische Verbindungsdaten an den Drittanbieter
+  bleiben dennoch transparent im Datenschutzinventar dokumentiert.
+- Keine Webcams-API, kein Schlüssel und keine dynamische freie Suche.
 
 ## Orte: GeoNames
 
@@ -97,13 +137,16 @@ Stand der Prüfung: 2026-08-03.
 
 ## Eigene Inhalte
 
-- Szene: ausschließlich HTML und CSS aus diesem Repository; keine Bilder,
-  Karten, Webcams oder fremden Designs.
+- Datenszene: ausschließlich HTML und CSS aus diesem Repository; keine
+  übernommenen Bilder, Karten, Kameraaufnahmen oder fremden Designs.
+- Externe Satelliten-/Webcamansichten sind getrennte Opt-in-Modi und werden
+  nicht Bestandteil der eigenen prozeduralen Szene.
 - Klang: prozedurale Oszillator- und Rauschsignale über Web Audio; keine
   Audiodateien.
 - Texte: für diese App neu geschrieben.
-- Vorschaubild: Screenshot der eigenen App. Alle sichtbaren Szenenelemente sind
-  prozedural erzeugt; die App darf diesen Screenshot für Portal-DEV verwenden.
+- Vorschaubild: Screenshot ausschließlich der standardmäßigen eigenen
+  Datenszene. NASA-/Webcaminhalte dürfen nicht in ein app-eigenes Portalbild
+  übernommen werden.
 
 ## Schutzregel
 

@@ -14,8 +14,14 @@ warum Ortszeit oder Licht genau jetzt interessant sind.
   Wetter;
 - wählbarer Suchfokus für Überraschung, Morgenlicht, Abendlicht oder
   Nachtseite;
-- vollständig eigenes, prozedurales Live-Fenster aus Ortszeit, Sonnenstand und
-  Wetterdaten; keine fremde Kamera und kein fremdes Bildmaterial;
+- große eigene, prozedurale Live-Datenszene aus Ortszeit, Sonnenstand,
+  Wolkendichte, Luftfeuchte, Sichtweite, Strahlung und Wind;
+- „Dem Licht folgen“ als chronologische Morgen-/Abendlichtreise statt bloßer
+  Zufallsauswahl;
+- optionaler, klar als nahe-echtzeitlich und nicht live beschrifteter
+  NASA-GIBS-Satellitenausschnitt, ausschließlich nach Nutzeraktion;
+- drei seltene, manuell geprüfte Windy-Webcameinbettungen mit sichtbarer
+  Windy-/Betreiberherkunft, ausschließlich nach Nutzeraktion und ohne Kopie;
 - optionaler, erst nach Nutzeraktion startender Klang;
 - verständliche Orts-, Zeit-, Wetter- und Quellenkarte;
 - nach Interesse gerankte „Nächster Moment“-Interaktion ohne unmittelbare
@@ -39,7 +45,8 @@ Die App benötigt keinen Nutzerstandort. Nur die ausdrücklich gewählte Sprache
 wird lokal persistiert; Klang, Reiseverlauf und Szenenfolge bleiben im
 Arbeitsspeicher. Der Service Worker speichert ausschließlich eigene statische
 App-Artefakte für den Offline-Kern. Externe Daten werden mit Quelle und
-Zeitstempel angezeigt. Das vollständige Inventar steht in
+Zeitstempel angezeigt. NASA- und Webcammedien werden weder vorab geladen noch
+im App-Cache gespeichert. Das vollständige Inventar steht in
 [`PRIVACY_INVENTORY.md`](PRIVACY_INVENTORY.md).
 
 ## Portalvertrag

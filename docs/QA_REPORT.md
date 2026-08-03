@@ -514,3 +514,40 @@ aktuellen Eintrag; Smartphone-Reflow und Build sind danach erneut grün.
   vollständiges Textbudget. Danach bestand die komplette lokale Root-Matrix
   mit vier parallelen Workern: 35/35 Logiktests sowie 69 Browserfälle bei 24
   planmäßigen Profilauslassungen, ohne Fehler.
+
+### Datengetriebene Live-Szene, Lichtreise und optionale Außenmedien
+
+- **Runde 1 – Produktlogik und Realaufgabe:** Die vier Sucharten wurden als
+  echte Auswahl beibehalten, Morgen- und Abendlicht aber zu einer
+  chronologischen Lichtreise weiterentwickelt. Der nächste Ort folgt dem
+  jeweils nächsten passenden Sonnenereignis, vermeidet den unmittelbaren
+  Orts-/Szenenrepeat und zeigt Etappe sowie Zielzeit. Wetterwerte werden in
+  wenige sichere visuelle Zustände für Wolken, Strahlung, Luftfeuchte,
+  Sichtweite und Wind quantisiert; die Moment-Aussage bleibt beim späteren
+  Wetterupdate stabil. 47/47 Logiktests einschließlich Datumsgrenze,
+  Atmosphärenquantisierung, NASA-URL/Retry und Webcam-Allowlist bestanden.
+- **Runde 2 – sichtbare Nutzung und externe Grenzen:** Die große Datenszene
+  wurde bei 1440 × 900, 390 × 844 und 360 × 800 mit 200 % Textzoom geprüft.
+  Auf Mobilgeräten stehen die drei Ansichtsmodi nun in einer kompakten Zeile;
+  Hauptaktion, 44-px-Ziele und Szene bleiben ohne horizontalen Überlauf.
+  Ein realer NASA-GIBS-Abruf zeigte die zeitmarkierte Terra-True-Color-Ebene;
+  die kuratierte Reykjavík-Kamera lud erst nach Klick mit sichtbarer
+  Windy-/Betreiberzuordnung. Beim Wechsel zurück zur Datenszene werden Bild
+  beziehungsweise Iframe entfernt. Vor der Nutzeraktion entsteht keine
+  Außenanfrage.
+- Die vollständige Browsermatrix schloss mit 74 bestandenen Fällen,
+  28 planmäßigen Profilskips und 0 Fehlern ab. Sie umfasst Smartphone,
+  Tablet und Desktop, Tastatur, sichtbaren Fokus, DE/EN plus Reload,
+  Reduced Motion, strikte CSP, Offline/App-Resume, schnelle Wiederholungen,
+  Wetterfehler/Timeout, Polartag/-nacht, Datumsgrenze sowie die neue
+  Lichtspur und beide Außenansichten. Der Root-Build und das fail-closed
+  Vendor-/Pages-Gate sind grün.
+- Die visuelle Revision verwendet wegen unveränderter App-Bundle- und
+  CSS-Pfade `somewhere-now-shell-v15`. Das Buildgate erwartete zunächst noch
+  v14 und brach korrekt ab; ausschließlich diese veraltete Harness-Assertion
+  wurde auf v15 angehoben. NASA-/Windy-Ressourcen sind Cross-Origin, werden
+  vom Service Worker weder abgefangen noch gespeichert. Health und
+  Deploymentmetadaten bleiben network-only.
+- Punkt 5 der Ideensammlung wurde ausdrücklich nicht umgesetzt. Die bereits
+  vorhandene optionale, nutzeraktivierte Klangfunktion blieb fachlich und
+  technisch unverändert.

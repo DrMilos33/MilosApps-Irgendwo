@@ -22,8 +22,12 @@ export interface Weather {
   snowfall: number;
   weatherCode: number;
   cloudCover: number;
+  relativeHumidity: number;
+  visibility: number;
   windSpeed: number;
+  windDirection: number;
   windGusts: number;
+  shortwaveRadiation: number;
   stale: boolean;
   severe: boolean;
 }

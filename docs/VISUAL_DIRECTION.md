@@ -33,8 +33,9 @@ müssen sie aber in ihrem eigenen Repository, Theme und Lifecycle umsetzen.
 ## Große, ehrliche Live-Fläche
 
 - Eine zusammenhängende Fläche verbindet Atmosphäre und belegbare Live-Daten.
-- Herkunft und Grenze werden direkt benannt: Eine prozedurale Datenszene wird
-  nicht als Kameraaufnahme ausgegeben.
+- Herkunft und Grenze werden direkt benannt: Datenszene, NASA-Satellitenbild
+  und kuratierte Webcam sind drei getrennte, beschriftete Modi. Nur die
+  Datenszene ist sofort aktiv; Fremdmedien brauchen eine bewusste Aktion.
 - Dateninformationen bleiben lesbar in derselben Fläche, bilden aber keine
   konkurrierende zweite Kartenlandschaft.
 - Wetter-, Zeit- oder Sprachupdates dürfen weder Hauptaktion noch

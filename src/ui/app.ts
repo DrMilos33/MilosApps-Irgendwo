@@ -1,4 +1,5 @@
 import { ProceduralAudio } from "../audio";
+import { atmosphereForWeather } from "../domain/atmosphere";
 import { getDaylight } from "../domain/daylight";
 import { getPlaceById } from "../domain/locations";
 import { sceneWeather, selectMoment, weatherDescription } from "../domain/moments";
@@ -8,6 +9,7 @@ import {
   type SelectionReason,
 } from "../domain/selection";
 import { sceneVariantForPlace } from "../domain/scene";
+import { buildSatelliteView, type SatelliteView } from "../domain/satellite";
 import { formatLocalDateTime, formatLocalTime, formatPlaceTime } from "../domain/time";
 import type {
   Daylight,
@@ -22,6 +24,7 @@ import {
   WeatherRequestError,
   weatherFailureMessage,
 } from "../domain/weather";
+import { webcamForPlace, type CuratedWebcam } from "../domain/webcams";
 import {
   localizePlace,
   t,
@@ -31,6 +34,7 @@ import {
 import { buildSharePayload, type SharePayload } from "../share";
 
 type DataState = "loading" | "live" | "stale" | "fallback" | "withheld";
+type SceneMode = "data" | "satellite" | "webcam";
 type StatusFactory = (language: Language) => string;
 
 interface Elements {
@@ -44,21 +48,39 @@ interface Elements {
   factWeather: HTMLElement;
   focusInputs: HTMLInputElement[];
   journeyTrail: HTMLOListElement;
+  lightRouteStatus: HTMLElement;
   momentDetail: HTMLElement;
   momentTitle: HTMLElement;
   placeLabel: HTMLElement;
   scene: HTMLElement;
+  sceneModeData: HTMLButtonElement;
+  sceneModeSatellite: HTMLButtonElement;
+  sceneModeWebcam: HTMLButtonElement;
   scenePlace: HTMLElement;
   sceneTime: HTMLTimeElement;
   selectionReason: HTMLElement;
   sessionNote: HTMLElement;
   shareButton: MilosShareButtonElement;
+  signalCloud: HTMLElement;
+  signalVisibility: HTMLElement;
+  signalWind: HTMLElement;
+  satelliteImage: HTMLImageElement;
+  satelliteLoading: HTMLElement;
+  satelliteSource: HTMLAnchorElement;
+  satelliteStatus: HTMLElement;
+  satelliteView: HTMLElement;
   soundToggle: HTMLButtonElement;
   sourceNote: HTMLElement;
   statusLine: HTMLElement;
   toast: HTMLElement;
   travelButton: HTMLButtonElement;
   travelLabel: HTMLElement;
+  webcamDetail: HTMLAnchorElement;
+  webcamHost: HTMLElement;
+  webcamOperator: HTMLAnchorElement;
+  webcamStatus: HTMLElement;
+  webcamTitle: HTMLElement;
+  webcamView: HTMLElement;
   weatherParticles: HTMLElement;
   weatherRetry: HTMLButtonElement;
 }
@@ -121,6 +143,16 @@ function particleCount(kind: ReturnType<typeof sceneWeather>): number {
   return 0;
 }
 
+function formatSatelliteDate(value: string, language: Language): string {
+  const date = new Date(`${value}T00:00:00Z`);
+  return new Intl.DateTimeFormat(language === "de" ? "de-DE" : "en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(date);
+}
+
 function selectionReasonText(
   reason: SelectionReason,
   place: Place,
@@ -174,6 +206,11 @@ export class SomewhereNowApp {
   private currentMomentRandom = 0;
   private currentFocus: MomentFocus = "surprise";
   private currentSelectionReason: SelectionReason = "day";
+  private currentSceneMode: SceneMode = "data";
+  private currentSatelliteView: SatelliteView | null = null;
+  private currentWebcam: CuratedWebcam | null = null;
+  private lightFollowAfterAt: Date | null = null;
+  private lightJourneyStep = 0;
   private readonly recentPlaceIds: string[] = [];
   private readonly visitedPlaceIds = new Set<string>();
   private readonly visitedLandscapes = new Set<Place["landscape"]>();
@@ -199,21 +236,39 @@ export class SomewhereNowApp {
       factWeather: required("#fact-weather"),
       focusInputs: requiredAll('input[name="moment-focus"]'),
       journeyTrail: required("#journey-trail"),
+      lightRouteStatus: required("#light-route-status"),
       momentDetail: required("#moment-detail"),
       momentTitle: required("#moment-title"),
       placeLabel: required("#place-label"),
       scene: required("#scene"),
+      sceneModeData: required("#scene-mode-data"),
+      sceneModeSatellite: required("#scene-mode-satellite"),
+      sceneModeWebcam: required("#scene-mode-webcam"),
       scenePlace: required("#scene-place"),
       sceneTime: required("#scene-time"),
       selectionReason: required("#selection-reason"),
       sessionNote: required("#session-note"),
       shareButton: required("#share-button"),
+      signalCloud: required("#signal-cloud"),
+      signalVisibility: required("#signal-visibility"),
+      signalWind: required("#signal-wind"),
+      satelliteImage: required("#satellite-image"),
+      satelliteLoading: required("#satellite-loading"),
+      satelliteSource: required("#satellite-source"),
+      satelliteStatus: required("#satellite-status"),
+      satelliteView: required("#satellite-view"),
       soundToggle: required("#sound-toggle"),
       sourceNote: required("#source-note"),
       statusLine: required("#status-line"),
       toast: required("#toast"),
       travelButton: required("#travel-button"),
       travelLabel: required("#travel-label"),
+      webcamDetail: required("#webcam-detail"),
+      webcamHost: required("#webcam-host"),
+      webcamOperator: required("#webcam-operator"),
+      webcamStatus: required("#webcam-status"),
+      webcamTitle: required("#webcam-title"),
+      webcamView: required("#webcam-view"),
       weatherParticles: required("#weather-particles"),
       weatherRetry: required("#weather-retry"),
     };
@@ -242,13 +297,19 @@ export class SomewhereNowApp {
       input.addEventListener("change", () => {
         if (!input.checked || !isMomentFocus(input.value)) return;
         this.currentFocus = input.value;
+        this.lightFollowAfterAt = null;
+        this.lightJourneyStep = 0;
         this.root.dataset.momentFocus = this.currentFocus;
         this.updateTravelLabel();
+        this.renderLightRoute();
       });
     });
     this.elements.travelButton.addEventListener("click", () => void this.travel());
     this.elements.weatherRetry.addEventListener("click", () => void this.retryWeather());
     this.elements.soundToggle.addEventListener("click", () => void this.toggleSound());
+    this.elements.sceneModeData.addEventListener("click", () => this.showDataScene());
+    this.elements.sceneModeSatellite.addEventListener("click", () => this.showSatelliteView());
+    this.elements.sceneModeWebcam.addEventListener("click", () => this.showWebcamView());
     this.elements.aboutOpen.addEventListener("click", () => this.elements.aboutDialog.showModal());
     this.elements.aboutClose.addEventListener("click", () => this.elements.aboutDialog.close());
     this.elements.aboutDialog.addEventListener("click", (event) => {
@@ -268,6 +329,7 @@ export class SomewhereNowApp {
     this.updateSoundLabel();
     this.root.dataset.momentFocus = this.currentFocus;
     this.updateTravelLabel();
+    this.renderLightRoute();
     this.clockTimer = window.setInterval(() => this.refreshClock(), 30_000);
     void this.travel();
   }
@@ -302,12 +364,15 @@ export class SomewhereNowApp {
     this.elements.statusLine.textContent = this.statusFactory(language);
     this.renderSessionNote();
     this.renderJourneyTrail();
+    this.renderLightRoute();
+    this.refreshExternalViewText();
   }
 
   destroy(): void {
     this.requestController?.abort();
     if (this.clockTimer !== null) window.clearInterval(this.clockTimer);
     if (this.toastTimer !== null) window.clearTimeout(this.toastTimer);
+    this.clearExternalMedia();
   }
 
   private async travel(): Promise<void> {
@@ -334,6 +399,7 @@ export class SomewhereNowApp {
           recentIds: this.recentPlaceIds,
           now,
           focus: this.currentFocus,
+          followAfterAt: this.lightFollowAfterAt,
         });
     const { place, daylight, reason } = selection;
     const displayPlace = localizePlace(place, this.language);
@@ -343,6 +409,9 @@ export class SomewhereNowApp {
     this.visitedPlaceIds.add(place.id);
     this.visitedLandscapes.add(place.landscape);
     this.currentPlace = place;
+    this.updateLightJourney(daylight);
+    this.updateTravelLabel();
+    this.showDataScene();
     this.currentDaylight = daylight;
     this.currentWeather = null;
     this.currentMomentAt = now;
@@ -495,6 +564,7 @@ export class SomewhereNowApp {
     );
     this.renderSessionNote();
     this.renderJourneyTrail();
+    this.renderLightRoute();
     this.elements.factPlace.textContent = `${place.name}, ${place.country}`;
     this.elements.factTime.textContent = formatLocalDateTime(now, place.timeZone, this.language);
     this.elements.factWeather.textContent = weather
@@ -510,6 +580,7 @@ export class SomewhereNowApp {
       : t(this.language, "sourceNoWeather");
     this.setDataState(state);
     this.renderScene(place, daylight, weather, moment);
+    this.renderViewAvailability(place);
     this.audio.setPhase(daylight.phase);
   }
 
@@ -521,6 +592,7 @@ export class SomewhereNowApp {
   ): void {
     const scene = this.elements.scene;
     const weatherKind = sceneWeather(weather);
+    const atmosphere = atmosphereForWeather(weather);
     scene.dataset.phase = daylight.phase;
     scene.dataset.weather = weatherKind;
     scene.dataset.landscape = place.landscape;
@@ -530,6 +602,12 @@ export class SomewhereNowApp {
     scene.dataset.sunY = String(sunY);
     scene.dataset.sceneVariant = String(sceneVariantForPlace(place));
     scene.dataset.moment = moment.kind;
+    scene.dataset.cloud = atmosphere.cloud;
+    scene.dataset.humidity = atmosphere.humidity;
+    scene.dataset.light = atmosphere.light;
+    scene.dataset.visibility = atmosphere.visibility;
+    scene.dataset.wind = atmosphere.wind;
+    scene.dataset.windDirection = atmosphere.windDirection;
     scene.setAttribute(
       "aria-label",
       t(this.language, "sceneLabel", {
@@ -542,6 +620,20 @@ export class SomewhereNowApp {
     const count = particleCount(weatherKind);
     const particles = Array.from({ length: count }, () => document.createElement("span"));
     this.elements.weatherParticles.replaceChildren(...particles);
+    this.elements.signalCloud.textContent = weather && !weather.severe
+      ? t(this.language, "signalCloudValue", { value: String(Math.round(weather.cloudCover)) })
+      : t(this.language, "signalUnknown");
+    this.elements.signalWind.textContent = weather && !weather.severe
+      ? t(this.language, "signalWindValue", {
+          speed: String(Math.round(weather.windSpeed)),
+          direction: atmosphere.windDirection.toUpperCase(),
+        })
+      : t(this.language, "signalUnknown");
+    this.elements.signalVisibility.textContent = weather && !weather.severe
+      ? t(this.language, "signalVisibilityValue", {
+          distance: String(Math.max(1, Math.round(weather.visibility / 1_000))),
+        })
+      : t(this.language, "signalUnknown");
 
     const themeColor =
       daylight.phase === "night" || daylight.phase === "polar-night" ? "#15243a" : "#e3a66d";
@@ -597,6 +689,174 @@ export class SomewhereNowApp {
     );
   }
 
+  private updateLightJourney(daylight: Daylight): void {
+    if (this.currentFocus === "sunrise" || this.currentFocus === "sunset") {
+      if (daylight.nextEvent === this.currentFocus && daylight.nextEventAt) {
+        this.lightFollowAfterAt = daylight.nextEventAt;
+        this.lightJourneyStep += 1;
+      }
+      return;
+    }
+    if (this.currentFocus === "night") this.lightJourneyStep += 1;
+  }
+
+  private renderLightRoute(): void {
+    const place = this.currentPlace ? localizePlace(this.currentPlace, this.language) : null;
+    if (!place || this.lightJourneyStep === 0) {
+      this.elements.lightRouteStatus.textContent = t(this.language, "lightRouteReady");
+      return;
+    }
+    if (this.currentFocus === "sunrise" || this.currentFocus === "sunset") {
+      const eventAt = this.currentDaylight?.nextEventAt ?? this.lightFollowAfterAt;
+      const key: MessageKey =
+        this.currentFocus === "sunrise" ? "lightRouteSunrise" : "lightRouteSunset";
+      this.elements.lightRouteStatus.textContent = t(this.language, key, {
+        step: String(this.lightJourneyStep),
+        place: place.name,
+        time: eventAt ? formatLocalTime(eventAt, place.timeZone, this.language) : "–",
+      });
+      return;
+    }
+    if (this.currentFocus === "night") {
+      this.elements.lightRouteStatus.textContent = t(this.language, "lightRouteNight", {
+        step: String(this.lightJourneyStep),
+        place: place.name,
+      });
+      return;
+    }
+    this.elements.lightRouteStatus.textContent = t(this.language, "lightRouteFree");
+  }
+
+  private renderViewAvailability(place: Place): void {
+    this.currentWebcam = webcamForPlace(place.id);
+    this.elements.sceneModeWebcam.hidden = !this.currentWebcam;
+    if (!this.currentWebcam && this.currentSceneMode === "webcam") this.showDataScene();
+  }
+
+  private setSceneMode(mode: SceneMode): void {
+    this.currentSceneMode = mode;
+    const buttons: Array<[HTMLButtonElement, SceneMode]> = [
+      [this.elements.sceneModeData, "data"],
+      [this.elements.sceneModeSatellite, "satellite"],
+      [this.elements.sceneModeWebcam, "webcam"],
+    ];
+    for (const [button, buttonMode] of buttons) {
+      button.setAttribute("aria-pressed", String(mode === buttonMode));
+    }
+    this.elements.scene.hidden = mode !== "data";
+    this.elements.satelliteView.hidden = mode !== "satellite";
+    this.elements.webcamView.hidden = mode !== "webcam";
+  }
+
+  private clearExternalMedia(): void {
+    this.elements.satelliteImage.onload = null;
+    this.elements.satelliteImage.onerror = null;
+    this.elements.satelliteImage.removeAttribute("src");
+    this.elements.satelliteImage.hidden = true;
+    this.elements.webcamHost.replaceChildren();
+    this.currentSatelliteView = null;
+  }
+
+  private showDataScene(): void {
+    this.clearExternalMedia();
+    this.setSceneMode("data");
+  }
+
+  private showSatelliteView(): void {
+    const place = this.currentPlace;
+    if (!place) return;
+    this.elements.webcamHost.replaceChildren();
+    this.setSceneMode("satellite");
+    this.loadSatelliteImage(place, 1);
+  }
+
+  private loadSatelliteImage(place: Place, daysAgo: number): void {
+    const image = this.elements.satelliteImage;
+    const view = buildSatelliteView(place, new Date(), daysAgo);
+    this.currentSatelliteView = view;
+    image.hidden = true;
+    this.elements.satelliteLoading.hidden = false;
+    this.elements.satelliteStatus.textContent = t(this.language, "satelliteNearRealTime");
+    this.elements.satelliteSource.href = view.worldviewUrl;
+    image.alt = t(this.language, "satelliteImageAlt", {
+      place: localizePlace(place, this.language).name,
+      date: formatSatelliteDate(view.captureDate, this.language),
+    });
+    image.onload = () => {
+      if (this.currentPlace?.id !== place.id || this.currentSceneMode !== "satellite") return;
+      this.elements.satelliteLoading.hidden = true;
+      image.hidden = false;
+      this.elements.satelliteStatus.textContent = t(this.language, "satelliteLoaded", {
+        date: formatSatelliteDate(view.captureDate, this.language),
+      });
+    };
+    image.onerror = () => {
+      if (this.currentPlace?.id !== place.id || this.currentSceneMode !== "satellite") return;
+      if (daysAgo === 1) {
+        this.loadSatelliteImage(place, 2);
+        return;
+      }
+      this.elements.satelliteLoading.hidden = true;
+      image.hidden = true;
+      this.elements.satelliteStatus.textContent = t(this.language, "satelliteError");
+    };
+    image.src = view.imageUrl;
+  }
+
+  private showWebcamView(): void {
+    const camera = this.currentWebcam;
+    if (!camera) {
+      this.showDataScene();
+      return;
+    }
+    this.elements.satelliteImage.removeAttribute("src");
+    this.elements.satelliteImage.hidden = true;
+    this.setSceneMode("webcam");
+    const frame = document.createElement("iframe");
+    frame.src = camera.playerUrl;
+    frame.title = t(this.language, "webcamFrameTitle", { title: camera.title });
+    frame.loading = "lazy";
+    frame.referrerPolicy = "strict-origin-when-cross-origin";
+    frame.allow = "fullscreen";
+    frame.setAttribute("allowfullscreen", "");
+    frame.setAttribute(
+      "sandbox",
+      "allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation",
+    );
+    this.elements.webcamHost.replaceChildren(frame);
+    this.elements.webcamTitle.textContent = camera.title;
+    this.elements.webcamStatus.textContent = t(this.language, "webcamNotice");
+    this.elements.webcamDetail.href = camera.detailUrl;
+    this.elements.webcamOperator.href = camera.operatorUrl;
+    this.elements.webcamOperator.textContent = camera.operatorName;
+  }
+
+  private refreshExternalViewText(): void {
+    const place = this.currentPlace;
+    const satellite = this.currentSatelliteView;
+    if (place && satellite) {
+      this.elements.satelliteImage.alt = t(this.language, "satelliteImageAlt", {
+        place: localizePlace(place, this.language).name,
+        date: formatSatelliteDate(satellite.captureDate, this.language),
+      });
+      if (!this.elements.satelliteImage.hidden) {
+        this.elements.satelliteStatus.textContent = t(this.language, "satelliteLoaded", {
+          date: formatSatelliteDate(satellite.captureDate, this.language),
+        });
+      }
+    }
+    if (this.currentSceneMode === "webcam" && this.currentWebcam) {
+      this.elements.webcamStatus.textContent = t(this.language, "webcamNotice");
+      this.elements.webcamOperator.textContent = this.currentWebcam.operatorName;
+      const frame = this.elements.webcamHost.querySelector("iframe");
+      if (frame) {
+        frame.title = t(this.language, "webcamFrameTitle", {
+          title: this.currentWebcam.title,
+        });
+      }
+    }
+  }
+
   private setBusy(isBusy: boolean): void {
     this.root.setAttribute("aria-busy", String(isBusy));
     this.elements.travelButton.classList.toggle("is-loading", isBusy);
@@ -630,8 +890,8 @@ export class SomewhereNowApp {
   private updateTravelLabel(): void {
     const keys: Record<MomentFocus, MessageKey> = {
       surprise: "travel",
-      sunrise: "travelSunrise",
-      sunset: "travelSunset",
+      sunrise: this.lightJourneyStep > 0 ? "travelSunriseContinue" : "travelSunrise",
+      sunset: this.lightJourneyStep > 0 ? "travelSunsetContinue" : "travelSunset",
       night: "travelNight",
     };
     this.elements.travelLabel.textContent = t(this.language, keys[this.currentFocus]);

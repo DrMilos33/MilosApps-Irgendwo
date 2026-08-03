@@ -13,8 +13,12 @@ const base = {
     snowfall: 0,
     weather_code: 1,
     cloud_cover: 18,
+    relative_humidity_2m: 62,
+    visibility: 24_000,
     wind_speed_10m: 12,
+    wind_direction_10m: 245,
     wind_gusts_10m: 24,
+    shortwave_radiation: 430,
   },
 };
 
@@ -26,11 +30,21 @@ describe("Wetterdaten", () => {
     expect(url.searchParams.get("timezone")).toBe("GMT");
     expect(url.searchParams.get("forecast_days")).toBe("1");
     expect(url.searchParams.get("latitude")).toBe(String(place.latitude));
+    expect(url.searchParams.get("current")).toContain("visibility");
+    expect(url.searchParams.get("current")).toContain("shortwave_radiation");
   });
 
   it("markiert alte Daten ehrlich", () => {
     const weather = parseWeatherResponse(base, new Date("2026-07-30T14:00:00Z"));
     expect(weather.stale).toBe(true);
+  });
+
+  it("übernimmt die Atmosphärendaten für die prozedurale Live-Szene", () => {
+    const weather = parseWeatherResponse(base, new Date("2026-07-30T12:10:00Z"));
+    expect(weather.relativeHumidity).toBe(62);
+    expect(weather.visibility).toBe(24_000);
+    expect(weather.windDirection).toBe(245);
+    expect(weather.shortwaveRadiation).toBe(430);
   });
 
   it.each([

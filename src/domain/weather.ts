@@ -12,8 +12,12 @@ const CURRENT_FIELDS = [
   "snowfall",
   "weather_code",
   "cloud_cover",
+  "relative_humidity_2m",
+  "visibility",
   "wind_speed_10m",
+  "wind_direction_10m",
   "wind_gusts_10m",
+  "shortwave_radiation",
 ].join(",");
 
 const SEVERE_WEATHER_CODES = new Set([65, 67, 75, 77, 82, 86, 95, 96, 99]);
@@ -29,8 +33,12 @@ interface OpenMeteoResponse {
     snowfall?: number;
     weather_code?: number;
     cloud_cover?: number;
+    relative_humidity_2m?: number;
+    visibility?: number;
     wind_speed_10m?: number;
+    wind_direction_10m?: number;
     wind_gusts_10m?: number;
+    shortwave_radiation?: number;
   };
 }
 
@@ -71,8 +79,12 @@ export function parseWeatherResponse(data: OpenMeteoResponse, now: Date): Weathe
     !finiteNumber(current.snowfall) ||
     !finiteNumber(current.weather_code) ||
     !finiteNumber(current.cloud_cover) ||
+    !finiteNumber(current.relative_humidity_2m) ||
+    !finiteNumber(current.visibility) ||
     !finiteNumber(current.wind_speed_10m) ||
-    !finiteNumber(current.wind_gusts_10m)
+    !finiteNumber(current.wind_direction_10m) ||
+    !finiteNumber(current.wind_gusts_10m) ||
+    !finiteNumber(current.shortwave_radiation)
   ) {
     throw new WeatherRequestError({
       reason: "invalid",
@@ -104,8 +116,12 @@ export function parseWeatherResponse(data: OpenMeteoResponse, now: Date): Weathe
     snowfall: current.snowfall,
     weatherCode: current.weather_code,
     cloudCover: current.cloud_cover,
+    relativeHumidity: current.relative_humidity_2m,
+    visibility: current.visibility,
     windSpeed: current.wind_speed_10m,
+    windDirection: current.wind_direction_10m,
     windGusts: current.wind_gusts_10m,
+    shortwaveRadiation: current.shortwave_radiation,
     stale: ageMinutes > 90,
     severe,
   };

@@ -15,6 +15,12 @@
   Orte und Neuheit der letzten fünf Szenenprofile;
 - zwölf deterministische Szenenprofile und Sitzungsfortschritt ohne
   Persistenz;
+- chronologische Morgen-/Abendlichtspur nach dem jeweils vorherigen Ereignis,
+  einschließlich Rundlauf und Wiederholungsschutz;
+- begrenzte Atmosphärenzustände aus Wolken, Feuchte, Sicht, Strahlung und
+  Windrichtung/-stärke;
+- gültige, datums- und datumsgrenzensichere NASA-GIBS-WMS-URLs;
+- exakt drei kuratierte Windy-Player und keine Kameraoption an anderen Orten;
 
 ## Simulierte Nutzung
 
@@ -31,6 +37,11 @@
 - beide externen Essentials-CSS-Dateien im tatsächlich gebauten HTML.
 - Hauptreise mit sieben Ergebnissen, mindestens sechs Szenenprofilen und
   sichtbarem Drei-Orte-Verlauf;
+- keinerlei NASA-/Windy-Request vor Nutzeraktion; NASA-Erfolg und Zweitages-
+  Fehlerfallback; Webcam-Erstellung, Attribution und Entfernung beim
+  Ansichtswechsel;
+- Datenszene, Satellit und Webcam vollständig per Tastatur erreichbar; externe
+  Ansichten in DE/EN und ohne Layoutsprung;
 
 ## Verbesserungsrunden
 
@@ -48,6 +59,7 @@
 - Offline-Erstinstallation und Offline-Reload der App-Shell;
 - Health, App-Metadaten und `deployment.json` niemals aus dem Service-Worker-
   Cache beantworten;
+- NASA-/Windy-Ressourcen niemals precachen oder in den Runtimecache übernehmen;
 - gestempelten vollständigen Source-SHA in allen vier Release-Metadaten prüfen;
 - externe HTTPS-Matrix ohne Login auf Smartphone, Tablet und Desktop;
 - 360×800 bei 200 Prozent, 390×844 und 1440×900 ohne horizontalen Überlauf;

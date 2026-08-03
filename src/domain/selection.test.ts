@@ -103,6 +103,55 @@ describe("interessante Ortsauswahl", () => {
     expect(selection.reason).toBe("sunrise-soon");
   });
 
+  it("folgt dem Morgenlicht chronologisch zur nächsten noch nicht besuchten Etappe", () => {
+    const firstEvent = new Date(now.getTime() + 20 * 60_000);
+    const nextEvent = new Date(now.getTime() + 55 * 60_000);
+    const laterEvent = new Date(now.getTime() + 95 * 60_000);
+    const selection = chooseNextPlace({
+      currentId: "reykjavik",
+      recentIds: ["reykjavik"],
+      now,
+      focus: "sunrise",
+      followAfterAt: firstEvent,
+      random: () => 0.99,
+      daylightForPlace: (place) =>
+        daylight({
+          phase: "twilight",
+          nextEvent: "sunrise",
+          nextEventAt:
+            place.id === "tokyo"
+              ? nextEvent
+              : place.id === "suva"
+                ? laterEvent
+                : firstEvent,
+        }),
+    });
+
+    expect(selection.place.id).toBe("tokyo");
+    expect(selection.daylight.nextEventAt).toEqual(nextEvent);
+  });
+
+  it("beginnt die Lichtspur nach der letzten Etappe wieder beim frühesten verfügbaren Licht", () => {
+    const earlyEvent = new Date(now.getTime() + 25 * 60_000);
+    const lateEvent = new Date(now.getTime() + 90 * 60_000);
+    const selection = chooseNextPlace({
+      currentId: "reykjavik",
+      recentIds: [],
+      now,
+      focus: "sunrise",
+      followAfterAt: new Date(now.getTime() + 3 * 60 * 60_000),
+      daylightForPlace: (place) =>
+        daylight({
+          phase: "twilight",
+          nextEvent: "sunrise",
+          nextEventAt: place.id === "tokyo" ? earlyEvent : lateEvent,
+        }),
+    });
+
+    expect(selection.place.id).toBe("tokyo");
+    expect(selection.daylight.nextEventAt).toEqual(earlyEvent);
+  });
+
   it("findet für den Nachtfokus zuverlässig die dunkle Seite der Erde", () => {
     const nightPlace = getPlaceById("tokyo")!;
     const selection = chooseNextPlace({

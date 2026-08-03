@@ -166,55 +166,137 @@
           </div>
 
           <div class="scene-column">
-            <figure
-              class="scene"
-              id="scene"
-              role="img"
-              aria-label="Eine abstrakte Landschaft entsteht."
-              data-app-aria-label="sceneInitial"
-              data-phase="day"
-              data-weather="clear"
-            >
-              <div class="scene-sky" aria-hidden="true">
-                <div class="live-hud">
-                  <span class="live-indicator">
-                    <span class="live-dot"></span>
-                    <span data-app-text="liveWindow">LIVE-FENSTER</span>
-                  </span>
-                  <span class="live-generated" data-app-text="liveGenerated">
-                    Aus Live-Daten · keine Kamera
-                  </span>
-                </div>
-                <span class="camera-grid"></span>
-                <span class="camera-corner camera-corner-tl"></span>
-                <span class="camera-corner camera-corner-tr"></span>
-                <span class="camera-corner camera-corner-bl"></span>
-                <span class="camera-corner camera-corner-br"></span>
-                <span class="scene-orbit">
-                  <span class="scene-sun"></span>
-                  <span class="scene-moon"></span>
-                </span>
-                <span class="star-field star-field-a"></span>
-                <span class="star-field star-field-b"></span>
-                <span class="cloud cloud-a"></span>
-                <span class="cloud cloud-b"></span>
-                <span class="weather-particles" id="weather-particles"></span>
-                <span class="haze"></span>
-                <span class="aurora aurora-a"></span>
-                <span class="aurora aurora-b"></span>
-                <span class="hill hill-back"></span>
-                <span class="hill hill-mid"></span>
-                <span class="hill hill-front"></span>
-                <span class="terrain-detail terrain-detail-a"></span>
-                <span class="terrain-detail terrain-detail-b"></span>
-                <span class="water-line"></span>
+            <div class="experience-bar">
+              <div class="light-route-summary">
+                <span class="light-route-kicker" data-app-text="lightRouteKicker">Dem Licht folgen</span>
+                <strong id="light-route-status" data-app-text="lightRouteReady">
+                  Wähle eine Lichtspur und reise mit ihr weiter.
+                </strong>
               </div>
-              <figcaption class="scene-caption">
-                <span id="scene-place" data-app-text="sceneTraveling">Unterwegs</span>
-                <span aria-hidden="true">·</span>
-                <time id="scene-time">–:–</time>
-              </figcaption>
-            </figure>
+              <div
+                class="view-switcher"
+                role="group"
+                aria-label="Ansicht wählen"
+                data-app-aria-label="viewSwitcherLabel"
+              >
+                <button class="view-button" id="scene-mode-data" type="button" aria-pressed="true">
+                  <span data-app-text="viewData">Datenszene</span>
+                </button>
+                <button class="view-button" id="scene-mode-satellite" type="button" aria-pressed="false">
+                  <span data-app-text="viewSatellite">Satellit</span>
+                </button>
+                <button class="view-button" id="scene-mode-webcam" type="button" aria-pressed="false" hidden>
+                  <span data-app-text="viewWebcam">Webcam</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="experience-stage">
+              <figure
+                class="scene"
+                id="scene"
+                role="img"
+                aria-label="Eine abstrakte Landschaft entsteht."
+                data-app-aria-label="sceneInitial"
+                data-phase="day"
+                data-weather="clear"
+                data-cloud="unknown"
+                data-humidity="unknown"
+                data-light="unknown"
+                data-visibility="unknown"
+                data-wind="still"
+                data-wind-direction="n"
+              >
+                <div class="scene-sky" aria-hidden="true">
+                  <div class="live-hud">
+                    <span class="live-indicator">
+                      <span class="live-dot"></span>
+                      <span data-app-text="liveWindow">LIVE-DATENSZENE</span>
+                    </span>
+                    <span class="live-generated" data-app-text="liveGenerated">
+                      Ortszeit · Sonne · Wettermodell
+                    </span>
+                  </div>
+                  <ul class="scene-signals">
+                    <li><span data-app-text="signalCloud">Wolken</span><strong id="signal-cloud">–</strong></li>
+                    <li><span data-app-text="signalWind">Wind</span><strong id="signal-wind">–</strong></li>
+                    <li><span data-app-text="signalVisibility">Sicht</span><strong id="signal-visibility">–</strong></li>
+                  </ul>
+                  <span class="camera-grid"></span>
+                  <span class="camera-corner camera-corner-tl"></span>
+                  <span class="camera-corner camera-corner-tr"></span>
+                  <span class="camera-corner camera-corner-bl"></span>
+                  <span class="camera-corner camera-corner-br"></span>
+                  <span class="scene-orbit">
+                    <span class="scene-sun"></span>
+                    <span class="scene-moon"></span>
+                  </span>
+                  <span class="light-beam light-beam-a"></span>
+                  <span class="light-beam light-beam-b"></span>
+                  <span class="star-field star-field-a"></span>
+                  <span class="star-field star-field-b"></span>
+                  <span class="wind-streams"></span>
+                  <span class="cloud cloud-a"></span>
+                  <span class="cloud cloud-b"></span>
+                  <span class="cloud cloud-c"></span>
+                  <span class="weather-particles" id="weather-particles"></span>
+                  <span class="haze"></span>
+                  <span class="aurora aurora-a"></span>
+                  <span class="aurora aurora-b"></span>
+                  <span class="hill hill-back"></span>
+                  <span class="hill hill-mid"></span>
+                  <span class="hill hill-front"></span>
+                  <span class="terrain-detail terrain-detail-a"></span>
+                  <span class="terrain-detail terrain-detail-b"></span>
+                  <span class="water-line"></span>
+                  <span class="surface-shimmer"></span>
+                </div>
+                <figcaption class="scene-caption">
+                  <span id="scene-place" data-app-text="sceneTraveling">Unterwegs</span>
+                  <span aria-hidden="true">·</span>
+                  <time id="scene-time">–:–</time>
+                </figcaption>
+              </figure>
+
+              <section class="external-view satellite-view" id="satellite-view" hidden aria-labelledby="satellite-title">
+                <div class="external-view-media">
+                  <div class="external-loading" id="satellite-loading" role="status" aria-live="polite">
+                    <span class="external-loader" aria-hidden="true"></span>
+                    <span data-app-text="satelliteLoading">NASA-Aufnahme wird erst jetzt geladen …</span>
+                  </div>
+                  <img id="satellite-image" alt="" referrerpolicy="no-referrer" hidden>
+                </div>
+                <div class="external-view-caption">
+                  <div>
+                    <p class="fact-kicker" data-app-text="satelliteKicker">Optionaler Satellitenblick</p>
+                    <h3 id="satellite-title" data-app-text="satelliteTitle">Erde aus dem All</h3>
+                    <p id="satellite-status" data-app-text="satelliteNearRealTime">
+                      Nahe-Echtzeit, nicht live. Die Aufnahme kann Wolken oder Datenlücken enthalten.
+                    </p>
+                  </div>
+                  <a id="satellite-source" href="https://worldview.earthdata.nasa.gov/" target="_blank" rel="noreferrer" data-app-text="satelliteSource">
+                    In NASA Worldview öffnen
+                  </a>
+                </div>
+              </section>
+
+              <section class="external-view webcam-view" id="webcam-view" hidden aria-labelledby="webcam-title">
+                <div class="external-view-media webcam-host" id="webcam-host"></div>
+                <div class="external-view-caption">
+                  <div>
+                    <p class="fact-kicker" data-app-text="webcamKicker">Seltenes Kamera-Extra</p>
+                    <h3 id="webcam-title" data-app-text="webcamTitle">Geprüfte Ortskamera</h3>
+                    <p id="webcam-status" data-app-text="webcamNotice">
+                      Der Windy-Player wurde erst nach deiner Aktion verbunden.
+                    </p>
+                  </div>
+                  <div class="external-links">
+                    <a id="webcam-detail" href="https://www.windy.com/webcams" target="_blank" rel="noreferrer" data-app-text="webcamWindyLink">Webcam bei Windy öffnen</a>
+                    <a id="webcam-operator" href="https://www.windy.com/webcams" target="_blank" rel="noreferrer" data-app-text="webcamOperatorLink">Betreiberseite</a>
+                  </div>
+                </div>
+              </section>
+            </div>
 
             <section
               class="fact-card"
@@ -287,6 +369,7 @@
             <li data-app-text="aboutNoCoordinates">Exakte Koordinaten werden weder angezeigt noch geteilt.</li>
             <li data-app-text="aboutSafety">Gefährliche Wetterlagen werden bewusst nicht inszeniert.</li>
             <li data-app-text="aboutAudio">Klang startet nur nach deiner ausdrücklichen Aktion.</li>
+            <li data-app-text="aboutExternalMedia">NASA-Bilder und seltene Webcams werden nur nach deiner ausdrücklichen Aktion geladen.</li>
           </ul>
           <div class="source-links">
             <a href="https://open-meteo.com/" target="_blank" rel="noreferrer" data-app-text="sourceWeather">
@@ -297,6 +380,12 @@
             </a>
             <a href="https://github.com/mourner/suncalc" target="_blank" rel="noreferrer" data-app-text="sourceSun">
               Sonnenstand: SunCalc · BSD-2-Clause
+            </a>
+            <a href="https://nasa-gibs.github.io/gibs-api-docs/" target="_blank" rel="noreferrer" data-app-text="sourceSatellite">
+              Satellitenbilder: NASA GIBS · Quellenhinweis in der Ansicht
+            </a>
+            <a href="https://embed.windy.com/config/webcam" target="_blank" rel="noreferrer" data-app-text="sourceWebcams">
+              Webcams: Windy-Embed · Betreiberhinweis in der Ansicht
             </a>
           </div>
         </dialog>

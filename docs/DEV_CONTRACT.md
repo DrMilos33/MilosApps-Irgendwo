@@ -20,7 +20,7 @@ Vertragsstand: `public-app-shell/v2.0.3` plus
 | Lokaler Readiness-Pfad | `/health/somewhere-now.json` |
 | Metadaten | `/app-metadata.json` |
 | Vorschaubild | `/preview.png` |
-| Vorschaubildrechte | eigener App-Screenshot; alle sichtbaren Szenenelemente prozedural erzeugt |
+| Vorschaubildrechte | eigener App-Screenshot der standardmäßigen Datenszene; keine NASA-/Webcammedien im Vorschaubild |
 
 Die maschinenlesbare Fassung liegt in
 [`public/app-metadata.json`](../public/app-metadata.json).
@@ -58,6 +58,11 @@ ungeprüft weiter.
 - Ein Portal-Ausfall verhindert den direkten App-Aufruf nicht.
 - Portaländerungen gehören ausschließlich dem Portal-Task.
 
+NASA- und Webcamansichten ändern weder Portalroute noch Readiness. Sie sind
+app-eigene optionale Cross-Origin-Ansichten und werden erst nach bewusster
+Nutzeraktion geladen. Die lokale Datenszene und der Offline-Kern bleiben ohne
+diese Dienste vollständig funktionsfähig.
+
 ## Noch nicht freigegeben
 
 - keine Production-URL;
@@ -80,6 +85,12 @@ Same-Origin-Vendorassets sind unterpfadfähig. Health, App-Metadaten und
 `deployment.json` sind ausdrücklich nicht Teil des Offline-Precaches und
 werden network-only beantwortet, damit sie stets die aktuelle Revision
 belegen.
+
+Auch Cross-Origin-NASA-/Windy-Ressourcen liegen außerhalb des Service-Worker-
+Scopes und werden weder abgefangen noch gecacht. Die strikte lokale
+CSP-Regression erlaubt Bilder ausschließlich zusätzlich von
+`gibs.earthdata.nasa.gov` und Frames ausschließlich von
+`webcams.windy.com`; Script- und Stylequellen bleiben Same-Origin.
 
 Das leere Railway-Projekt `8f67be1c-9824-4750-838e-bf3bc639bf2c` bleibt als
 historische, durch die Free-Plan-Ressourcengrenze blockierte Ressource

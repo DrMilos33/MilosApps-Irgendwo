@@ -119,7 +119,7 @@ for (const forbidden of ["health.json", "health/somewhere-now.json", "app-metada
   }
 }
 for (const expected of [
-  'const CACHE_NAME = "somewhere-now-shell-v14"',
+  'const CACHE_NAME = "somewhere-now-shell-v15"',
   'new URL("./", self.registration.scope)',
   "const LIVE_METADATA_PATHS = new Set([",
   'new URL("health/somewhere-now.json", APP_BASE_URL).pathname',

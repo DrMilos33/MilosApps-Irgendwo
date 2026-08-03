@@ -23,8 +23,12 @@ const weather: Weather = {
   snowfall: 0,
   weatherCode: 1,
   cloudCover: 8,
+  relativeHumidity: 58,
+  visibility: 24_000,
   windSpeed: 7,
+  windDirection: 180,
   windGusts: 15,
+  shortwaveRadiation: 420,
   stale: false,
   severe: false,
 };
