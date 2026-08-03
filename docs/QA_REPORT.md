@@ -383,6 +383,15 @@ aktuellen Eintrag; Smartphone-Reflow und Build sind danach erneut grün.
   und externe No-Login-Matrix werden anschließend im DEV-Handoff festgehalten,
   ohne die geprüfte Source↔Artefakt-Bindung durch einen Doku-Folgecommit zu
   verändern.
+- Der erste externe Lauf erreichte 57 bestandene Fälle und fand zwei
+  Umgebungskanten. Bei langsamer echter CSS-Ladung zeigte der Loader zunächst
+  sein HTML-Fallback von 52 px, bevor die mobile 48-px-Regel wirkte; das
+  robuste `width`-/`height`-Fallback wurde daher auf 48 px gesetzt. GitHub Pages
+  liefert JavaScript als gültiges `application/javascript`, während Vite lokal
+  `text/javascript` liefert; das MIME-Gate akzeptiert ausschließlich diese
+  beiden standardkonformen JavaScript-Typen und bleibt für falsche Typen
+  fail-closed. Der externe Abschluss wird nach dem dazugehörigen neuen
+  Source-CI-/Artefakt-SHA wiederholt.
 
 ## Noch nicht testbar
 

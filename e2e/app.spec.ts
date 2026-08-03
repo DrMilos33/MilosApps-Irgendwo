@@ -448,27 +448,27 @@ test("bleibt unter strikter Same-Origin-CSP vollständig gestaltet", async ({
   expect(cspMessages).toEqual([]);
 
   const expectedTypes = [
-    ["bootstrap.js", "text/javascript"],
-    ["milos-app-shell.js", "text/javascript"],
-    ["milos-app-shell.css", "text/css"],
-    ["milos-app-shell-theme.css", "text/css"],
+    ["bootstrap.js", /^(?:text|application)\/javascript(?:;|$)/i],
+    ["milos-app-shell.js", /^(?:text|application)\/javascript(?:;|$)/i],
+    ["milos-app-shell.css", /^text\/css(?:;|$)/i],
+    ["milos-app-shell-theme.css", /^text\/css(?:;|$)/i],
   ] as const;
   for (const [file, expectedType] of expectedTypes) {
     const response = await request.get(appPath(`vendor/milosapps-shell/v2/${file}`));
     expect(response.ok()).toBe(true);
-    expect(response.headers()["content-type"]).toContain(expectedType);
+    expect(response.headers()["content-type"]).toMatch(expectedType);
   }
 
   const expectedEssentialsTypes = [
-    ["bootstrap.js", "text/javascript"],
-    ["milos-app-essentials.js", "text/javascript"],
-    ["milos-app-essentials.css", "text/css"],
-    ["milos-app-essentials-theme.css", "text/css"],
+    ["bootstrap.js", /^(?:text|application)\/javascript(?:;|$)/i],
+    ["milos-app-essentials.js", /^(?:text|application)\/javascript(?:;|$)/i],
+    ["milos-app-essentials.css", /^text\/css(?:;|$)/i],
+    ["milos-app-essentials-theme.css", /^text\/css(?:;|$)/i],
   ] as const;
   for (const [file, expectedType] of expectedEssentialsTypes) {
     const response = await request.get(appPath(`vendor/milosapps-essentials/v1/${file}`));
     expect(response.ok()).toBe(true);
-    expect(response.headers()["content-type"]).toContain(expectedType);
+    expect(response.headers()["content-type"]).toMatch(expectedType);
   }
 });
 

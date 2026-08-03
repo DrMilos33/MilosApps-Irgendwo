@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { createRequire } from "node:module";
 
 const baseUrl = process.env.E2E_BASE_URL;
 const expectedSourceSha = process.env.E2E_EXPECTED_SOURCE_SHA;
@@ -16,8 +17,9 @@ if (!/^[0-9a-f]{40}$/.test(expectedSourceSha ?? "")) {
   throw new Error("E2E_EXPECTED_SOURCE_SHA muss der vollständige deployte Source-SHA sein.");
 }
 
-const executable = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
-const child = spawn(executable, ["exec", "playwright", "test"], {
+const require = createRequire(import.meta.url);
+const playwrightCli = require.resolve("@playwright/test/cli");
+const child = spawn(process.execPath, [playwrightCli, "test"], {
   env: process.env,
   stdio: "inherit",
 });
