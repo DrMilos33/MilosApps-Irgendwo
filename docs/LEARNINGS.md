@@ -227,3 +227,20 @@ Es gibt keinen Banner, aber eine dauerhafte Datenschutzverknüpfung.
 flüchtigen Arbeitsspeicher getrennt inventarisieren. Ob eine Information oder
 Einwilligung nötig ist, folgt aus dem tatsächlichen Zugriff und Zweck, nicht
 aus einem portfolioeinheitlichen Bannerdesign.
+
+## 2026-08-03 – LF-Policies müssen jeden bytegelockten Vendorordner abdecken
+
+**Beobachtung und Evidenz:** Der Essentials-v1.1.2-Vendor blieb im frischen
+Windows-Checkout mit `core.autocrlf=true` bytegleich, während der ältere
+Shell-v2-Vendor ohne eigene `.gitattributes` umgeschrieben wurde. Sein
+portabler Verifier brach deshalb korrekt mit einem JavaScript-Hashfehler ab.
+
+**Änderung und Regression:** Auch der Shell-v2-Vendorordner besitzt nun die
+enge Regel `* text eol=lf`. Ein erneuter frischer Windows-Checkout muss beide
+portablen Verifier sowie die CRLF-Prüfung aller gelockten Vendorartefakte
+bestehen.
+
+**Übertragbarkeit:** Eine LF-Regel in einem neuen Vertrag schützt keine
+benachbarten, ebenfalls bytegelockten Vendorordner. Jeder unabhängig gelockte
+Vertrag braucht seine eigene enge Policy; gewöhnlicher App-Quelltext bleibt
+davon unberührt.
