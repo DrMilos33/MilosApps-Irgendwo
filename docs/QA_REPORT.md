@@ -464,13 +464,17 @@ aktuellen Eintrag; Smartphone-Reflow und Build sind danach erneut grün.
   Hauptaktion und Szene, obwohl die App-H1 selbst bereits ruhig gesetzt war.
 - Zwei sichtbare Designrunden verdichteten Titel, Introabstände,
   Aktionsbereich, Szene und Faktenkarte als Einheit. Der finale Momenttitel
-  verwendet Desktop maximal 3,2 rem und mobil 8,5 vw; die Primäraktion bleibt
-  mindestens 44 px hoch und im initialen Smartphone-Viewport sichtbar.
+  verwendet Desktop maximal 2,05 rem und mobil maximal 1,9 rem. App-Titel und
+  Produktversprechen bilden eine einzige ruhige Introzeile; die Primäraktion
+  bleibt mindestens 44 px hoch und im initialen Smartphone-Viewport sichtbar.
 - Das neue fail-closed Browsergate prüft Schriftbudgets, Titelhöhe,
-  Hauptaktion im ersten Viewport und horizontalen Reflow. Die fokussierte
-  Matrix aus Produktstart, Dichtegate, Tastaturfokus/44 px, Axe und
+  Hauptaktion im ersten Viewport, die pixelstabile Buttonposition und den
+  horizontalen Reflow. Es verlangt außerdem, dass das Live-Fenster auf Tablet
+  mindestens 1,5-mal und auf Desktop mindestens 1,75-mal so breit wie die
+  Textspalte ist; mobil steht es vor Verlauf und Nebenaktionen. Die fokussierte
+  Matrix aus Dichte, Steuerung, DE/EN, Tastaturfokus/44 px, Axe und
   Reduced-Motion/200-%-Reflow bestand auf Smartphone, Tablet und Desktop mit
-  15/15 Fällen. Root- und Pages-Buildgate sind grün.
+  27/27 Fällen. Root- und Pages-Build sowie 35/35 Logiktests sind grün.
 
 ### Stabile Hauptaktion, Suchfokus und prozedurales Live-Fenster
 
@@ -493,7 +497,8 @@ aktuellen Eintrag; Smartphone-Reflow und Build sind danach erneut grün.
   vollständige DE/EN-/Reload-Matrix 3/3. Der Root-Build ist grün.
 - Eine Bestands-Browsersitzung belegte, dass der stabile `src/entry.js`-Pfad
   mit dem bisherigen Cache-Namen noch altes Verhalten liefern konnte. Der
-  Cache wurde deshalb auf `somewhere-now-shell-v13` angehoben und das
+  Cache wurde für die abschließende Dichte-/Textrevision auf
+  `somewhere-now-shell-v14` angehoben und das
   Root-/Pages-Buildgate verlangt diese Revision fail-closed.
 - Der erste Linux-Source-CI-Lauf machte zwei plattformabhängige Reflowkanten
   sichtbar: Die breitere Systemschrift ließ ein Fokuslabel bei 200 % um 25 px

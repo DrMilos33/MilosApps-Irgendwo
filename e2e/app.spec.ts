@@ -76,7 +76,7 @@ test("lädt ohne Login und zeigt einen vollständigen Moment", async ({ page }) 
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByText("Reykjavík · Island")).toBeVisible();
   await expect(page.getByText("aktuell", { exact: true })).toBeVisible();
-  await expect(page.getByText(/Entdecke einen realen Moment irgendwo auf der Erde/)).toBeVisible();
+  await expect(page.getByText(/Echte Ortszeit, Licht und Wetter/)).toBeVisible();
   await expect(page.locator("#selection-reason")).toContainText("Ausgewählt");
   const travel = page.getByRole("button", { name: "Nächsten Moment entdecken" });
   await expect(travel).toBeEnabled();
@@ -105,8 +105,14 @@ test("hält die Einstiegshierarchie kompakt und die Hauptaktion im ersten Viewpo
     const appTitle = document.querySelector<HTMLElement>(".app-title")!;
     const detail = document.querySelector<HTMLElement>("#moment-detail")!;
     const travel = document.querySelector<HTMLElement>("#travel-button")!;
+    const copy = document.querySelector<HTMLElement>(".moment-copy")!;
+    const scene = document.querySelector<HTMLElement>(".scene-column")!;
+    const secondary = document.querySelector<HTMLElement>(".moment-secondary")!;
     const titleRect = title.getBoundingClientRect();
     const travelRect = travel.getBoundingClientRect();
+    const copyRect = copy.getBoundingClientRect();
+    const sceneRect = scene.getBoundingClientRect();
+    const secondaryRect = secondary.getBoundingClientRect();
     return {
       viewportWidth: window.innerWidth,
       viewportHeight: window.innerHeight,
@@ -116,18 +122,28 @@ test("hält die Einstiegshierarchie kompakt und die Hauptaktion im ersten Viewpo
       titleHeight: titleRect.height,
       travelTop: travelRect.top,
       travelHeight: travelRect.height,
+      copyWidth: copyRect.width,
+      sceneWidth: sceneRect.width,
+      sceneTop: sceneRect.top,
+      secondaryTop: secondaryRect.top,
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     };
   });
 
   const narrow = metrics.viewportWidth <= 768;
-  expect(metrics.titleFontSize).toBeLessThanOrEqual(narrow ? 48 : 61);
-  expect(metrics.titleHeight).toBeLessThanOrEqual(narrow ? 155 : 135);
-  expect(metrics.appTitleFontSize).toBeLessThanOrEqual(17);
-  expect(metrics.detailFontSize).toBeLessThanOrEqual(17);
+  expect(metrics.titleFontSize).toBeLessThanOrEqual(narrow ? 31 : 34);
+  expect(metrics.titleHeight).toBeLessThanOrEqual(narrow ? 70 : 75);
+  expect(metrics.appTitleFontSize).toBeLessThanOrEqual(15);
+  expect(metrics.detailFontSize).toBeLessThanOrEqual(15);
   expect(metrics.travelTop).toBeLessThan(metrics.viewportHeight);
   expect(metrics.travelHeight).toBeGreaterThanOrEqual(44);
   expect(metrics.overflow).toBeLessThanOrEqual(1);
+  if (narrow) {
+    expect(metrics.sceneTop).toBeLessThan(metrics.secondaryTop);
+  } else {
+    const minimumSceneRatio = metrics.viewportWidth >= 1200 ? 1.75 : 1.5;
+    expect(metrics.sceneWidth / metrics.copyWidth).toBeGreaterThanOrEqual(minimumSceneRatio);
+  }
 });
 
 test("hält die Hauptaktion bei kurzen und langen Momenttexten an derselben Position", async ({
@@ -779,7 +795,7 @@ test("übersetzt die vollständige Fach-UI ins Englische und behält die Wahl na
   await expect(page.getByRole("heading", { level: 1, name: "Somewhere, right now …" })).toBeVisible();
   await expect(page.getByText("Reykjavík · Iceland")).toBeVisible();
   await expect(
-    page.getByText("Discover a real moment somewhere on Earth – selected by local time and light."),
+    page.getByText("Real local time, light and weather – somewhere on Earth."),
   ).toBeVisible();
   await expect(page.locator("#selection-reason")).toContainText(/^Selected /);
   await expect(page.getByRole("group", { name: "What would you like to see right now?" })).toBeVisible();

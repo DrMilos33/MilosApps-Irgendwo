@@ -90,7 +90,7 @@ describe("Momentauswahl", () => {
 
     expect(moment).toMatchObject({
       kind: "sunset",
-      title: "Das Abendlicht ist unterwegs.",
+      title: "Abendlicht kommt.",
     });
     expect(moment.detail).toContain("Tromsø");
     expect(moment.detail).toContain("23:00");

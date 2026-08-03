@@ -272,10 +272,13 @@ Bedienung rutschten unnötig nach unten.
 
 **Änderung und Regression:** Titel, Introabstände, Aktionsleiste, Szenenhöhe
 und Faktenkarte wurden als zusammenhängende Einstiegshierarchie verdichtet.
-Der Momenttitel ist auf Desktop auf höchstens 3,2 rem und mobil auf 8,5 vw
-begrenzt. Bedienziele bleiben mindestens 44 px hoch. Ein neues Browsergate
-prüft Titelbudgets, Hauptaktion im initialen Viewport und horizontalen Reflow;
-die fokussierte Desktop-/Tablet-/Smartphone-Matrix bestand 15 von 15 Fällen.
+Der Momenttitel ist auf Desktop auf höchstens 2,05 rem und mobil auf 1,9 rem
+begrenzt. Bedienziele bleiben mindestens 44 px hoch. Das Live-Fenster ist auf
+Tablet mindestens 1,5-mal und auf Desktop mindestens 1,75-mal so breit wie die
+Textspalte; mobil steht es vor Verlauf und Nebenaktionen. Ein Browsergate prüft
+diese Proportionen, stabile Buttonposition und horizontalen Reflow; die
+fokussierte Desktop-/Tablet-/Smartphone-Matrix einschließlich Axe und Dark
+Mode bestand 27 von 27 Fällen.
 
 **Übertragbarkeit:** Große expressive Typografie darf die eigentliche
 Produktaktion nicht verdrängen. Ein responsives Dichtebudget sollte Titel,

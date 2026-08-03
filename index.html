@@ -69,93 +69,99 @@
       <main class="app-shell" id="app" slot="main">
         <section class="moment-layout" aria-labelledby="app-title">
           <div class="moment-copy">
-            <h1 class="app-title" id="app-title" data-app-text="appTitle">
-              Irgendwo ist gerade …
-            </h1>
-            <p class="product-promise" data-app-text="productPromise">
-              Entdecke einen realen Moment irgendwo auf der Erde – ausgewählt nach Ortszeit und Licht.
-            </p>
-            <div class="moment-story">
-              <p class="eyebrow" id="place-label" data-app-text="initialPlace">
-                Ein Punkt auf der Erde
-              </p>
-              <h2 class="moment-title" id="moment-title" data-app-text="initialMoment">
-                Hier öffnet sich gleich ein anderer Augenblick.
-              </h2>
-              <p class="moment-detail" id="moment-detail" data-app-text="initialDetail">
-                Zeit und Tageslicht sind sofort da. Das Wetter darf einen Moment brauchen.
-              </p>
-              <p class="selection-reason" id="selection-reason" data-app-text="selectionInitial">
-                Die App sucht nach einem besonderen lokalen Übergang.
-              </p>
-            </div>
-            <fieldset class="moment-focus">
-              <legend data-app-text="focusLegend">Was möchtest du gerade sehen?</legend>
-              <div class="focus-options">
-                <label class="focus-option">
-                  <input type="radio" name="moment-focus" value="surprise" checked>
-                  <span data-app-text="focusSurprise">Überrasch mich</span>
-                </label>
-                <label class="focus-option">
-                  <input type="radio" name="moment-focus" value="sunrise">
-                  <span data-app-text="focusSunrise">Morgenlicht</span>
-                </label>
-                <label class="focus-option">
-                  <input type="radio" name="moment-focus" value="sunset">
-                  <span data-app-text="focusSunset">Abendlicht</span>
-                </label>
-                <label class="focus-option">
-                  <input type="radio" name="moment-focus" value="night">
-                  <span data-app-text="focusNight">Nachtseite</span>
-                </label>
+            <div class="moment-primary">
+              <div class="app-intro">
+                <h1 class="app-title" id="app-title" data-app-text="appTitle">
+                  Irgendwo ist gerade …
+                </h1>
+                <p class="product-promise" data-app-text="productPromise">
+                  Echte Ortszeit, Licht und Wetter &ndash; irgendwo auf der Erde.
+                </p>
               </div>
-            </fieldset>
-            <div class="primary-actions">
-              <button class="travel-button" id="travel-button" type="button">
-                <span id="travel-label" data-app-text="travel">Nächsten Moment entdecken</span>
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="m8 5 7 7-7 7"></path>
-                </svg>
-              </button>
-              <milos-share-button id="share-button"></milos-share-button>
+              <div class="moment-story">
+                <p class="eyebrow" id="place-label" data-app-text="initialPlace">
+                  Ein Punkt auf der Erde
+                </p>
+                <h2 class="moment-title" id="moment-title" data-app-text="initialMoment">
+                  Hier öffnet sich gleich ein anderer Augenblick.
+                </h2>
+                <p class="moment-detail" id="moment-detail" data-app-text="initialDetail">
+                  Zeit und Tageslicht sind sofort da. Das Wetter darf einen Moment brauchen.
+                </p>
+                <p class="selection-reason" id="selection-reason" data-app-text="selectionInitial">
+                  Die App sucht nach einem besonderen lokalen Übergang.
+                </p>
+              </div>
+              <fieldset class="moment-focus">
+                <legend data-app-text="focusLegend">Was möchtest du gerade sehen?</legend>
+                <div class="focus-options">
+                  <label class="focus-option">
+                    <input type="radio" name="moment-focus" value="surprise" checked>
+                    <span data-app-text="focusSurprise">Überrasch mich</span>
+                  </label>
+                  <label class="focus-option">
+                    <input type="radio" name="moment-focus" value="sunrise">
+                    <span data-app-text="focusSunrise">Morgenlicht</span>
+                  </label>
+                  <label class="focus-option">
+                    <input type="radio" name="moment-focus" value="sunset">
+                    <span data-app-text="focusSunset">Abendlicht</span>
+                  </label>
+                  <label class="focus-option">
+                    <input type="radio" name="moment-focus" value="night">
+                    <span data-app-text="focusNight">Nachtseite</span>
+                  </label>
+                </div>
+              </fieldset>
+              <div class="primary-actions">
+                <button class="travel-button" id="travel-button" type="button">
+                  <span id="travel-label" data-app-text="travel">Nächsten Moment entdecken</span>
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m8 5 7 7-7 7"></path>
+                  </svg>
+                </button>
+                <milos-share-button id="share-button"></milos-share-button>
+              </div>
             </div>
-            <p class="status-line" id="status-line" role="status" aria-live="polite" data-app-text="initialStatus">
-              Die Reise beginnt …
-            </p>
-            <p class="session-note" id="session-note" data-app-text="sessionInitial">
-              Der nächste Klick führt zu einem anderen Ort und Szenenbild.
-            </p>
-            <ol
-              class="journey-trail"
-              id="journey-trail"
-              aria-label="Letzte Entdeckungen"
-              data-app-aria-label="journeyTrailLabel"
-            ></ol>
-            <div class="app-actions">
-              <button
-                class="icon-button"
-                id="sound-toggle"
-                type="button"
-                aria-pressed="false"
-                aria-label="Klang einschalten"
-                data-app-aria-label="soundOn"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M5 9v6h4l5 4V5L9 9H5Z"></path>
-                  <path class="sound-wave" d="M17 9.5c.8.7 1.2 1.5 1.2 2.5s-.4 1.8-1.2 2.5"></path>
-                </svg>
-              </button>
-              <button class="text-button" id="about-open" type="button" data-app-text="aboutOpen">
-                Über diese Reise
-              </button>
-              <a
-                class="text-button privacy-info-link"
-                href="https://dev.milos-apps.de/datenschutz"
-                data-milos-privacy-info
-                data-app-text="privacyInfo"
-              >
-                Datenschutz
-              </a>
+            <div class="moment-secondary">
+              <p class="status-line" id="status-line" role="status" aria-live="polite" data-app-text="initialStatus">
+                Die Reise beginnt …
+              </p>
+              <p class="session-note" id="session-note" data-app-text="sessionInitial">
+                Der nächste Klick führt zu einem anderen Ort und Szenenbild.
+              </p>
+              <ol
+                class="journey-trail"
+                id="journey-trail"
+                aria-label="Letzte Entdeckungen"
+                data-app-aria-label="journeyTrailLabel"
+              ></ol>
+              <div class="app-actions">
+                <button
+                  class="icon-button"
+                  id="sound-toggle"
+                  type="button"
+                  aria-pressed="false"
+                  aria-label="Klang einschalten"
+                  data-app-aria-label="soundOn"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 9v6h4l5 4V5L9 9H5Z"></path>
+                    <path class="sound-wave" d="M17 9.5c.8.7 1.2 1.5 1.2 2.5s-.4 1.8-1.2 2.5"></path>
+                  </svg>
+                </button>
+                <button class="text-button" id="about-open" type="button" data-app-text="aboutOpen">
+                  Über diese Reise
+                </button>
+                <a
+                  class="text-button privacy-info-link"
+                  href="https://dev.milos-apps.de/datenschutz"
+                  data-milos-privacy-info
+                  data-app-text="privacyInfo"
+                >
+                  Datenschutz
+                </a>
+              </div>
             </div>
           </div>
 
