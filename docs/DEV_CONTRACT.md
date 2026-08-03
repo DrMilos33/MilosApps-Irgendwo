@@ -75,9 +75,12 @@ HTTPS-DEV-URL kann derzeit nicht wahrheitsgemäß übergeben werden:
 - das Railway-Projekt `8f67be1c-9824-4750-838e-bf3bc639bf2c` ist in der
   Umgebung `development` erreichbar, besitzt aber weiterhin weder Service
   noch Domain;
-- der einmal freigegebene Railway-CLI-Versuch scheiterte an der
-  Free-Plan-Ressourcengrenze; ein Upgrade oder Alternativhosting ist nicht
-  freigegeben;
+- ein am 2026-08-03 erneut ausdrücklich beauftragter Versuch mit Railway CLI
+  5.30.3 bestätigte zuerst Projekt und Umgebung eindeutig. Bereits
+  `railway add --service somewhere-now --json` brach erneut mit
+  `Free plan resource provision limit exceeded` ab; die anschließende
+  Statusprüfung bestätigte weiterhin null Services und null Service-Instanzen;
+- ein Tarifupgrade oder Alternativhosting ist nicht freigegeben;
 - ein Production-Deployment ist ausdrücklich nicht freigegeben.
 
 Bis derselbe DEV-Lifecycle einen echten Dienst und eine HTTPS-Domain liefert,

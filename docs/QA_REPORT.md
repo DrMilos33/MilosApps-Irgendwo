@@ -340,6 +340,19 @@ aktuellen Eintrag; Smartphone-Reflow und Build sind danach erneut grün.
   inventarisiert. Cache Storage enthält nur die eigene App-Hülle und keine
   Wetterantworten.
 
+### Railway-DEV-Revalidierung vom 2026-08-03
+
+- Vor der externen Mutation bestätigte Railway CLI 5.30.3 das Zielprojekt
+  `8f67be1c-9824-4750-838e-bf3bc639bf2c`, die Umgebung `development`
+  (`92da5276-b6d5-45e9-9203-9dde08c141c6`) und null vorhandene Services.
+- Die app-eigene Diensterstellung mit
+  `railway add --service somewhere-now --json` scheiterte vor Upload und
+  Artefakterzeugung exakt mit `Free plan resource provision limit exceeded`.
+- Eine anschließende read-only Statusprüfung bestätigte weiterhin null
+  Services und null Service-Instanzen. Es entstanden kein Deployment, keine
+  Domain und keine HTTPS-DEV-/Health-URL. Portal und Production blieben
+  unverändert.
+
 ## Noch nicht testbar
 
 - Reale Audioausgabequalität auf physischem iOS-/Android-Gerät; automatisiert
